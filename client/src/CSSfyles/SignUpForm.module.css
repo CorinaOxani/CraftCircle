@@ -187,6 +187,13 @@
     color: #333;
 }
 
+.loginPageText {
+  font-family: 'Italianno', cursive;
+  padding: 5px;
+  font-size: 25px;
+  color: #333;
+}
+
 /* Grup Input */
 .inputGroup {
     position: relative;

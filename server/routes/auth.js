@@ -11,29 +11,42 @@ router.get(
   })
 );
 
-
+// Callback-ul pentru Google OAuth
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/" }),
+  passport.authenticate("google", { failureRedirect: "http://localhost:3000/login" }),
   (req, res) => {
-    res.json({ message: "Google login successful!", user: req.user });
+    // Redirecționează utilizatorul către pagina de start a frontend-ului
+    res.redirect("http://localhost:3000/");
   }
 );
 
-/// Ruta pentru înregistrare/autentificare cu Facebook
+// Ruta pentru Facebook OAuth
 router.get(
   "/facebook",
   passport.authenticate("facebook", { scope: ["email"] }) // Preia numele și email-ul utilizatorului
 );
 
-// Callback-ul pentru Facebook (gestionarea redirecționării după autentificare)
+// Callback-ul pentru Facebook OAuth
 router.get(
   "/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/" }),
+  passport.authenticate("facebook", { failureRedirect: "http://localhost:3000/login" }),
   (req, res) => {
-    // Dacă utilizatorul este înregistrat cu succes, poți redirecționa către o pagină
-    res.json({ message: "Facebook registration successful!", user: req.user });
+    // Redirecționează utilizatorul către pagina de start a frontend-ului
+    res.redirect("http://localhost:3000/");
   }
 );
+
+// Ruta pentru logout
+router.get("/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error("Error during logout:", err);
+      return res.status(500).json({ error: "Logout failed." });
+    }
+    // Redirecționează către pagina de login din frontend
+    res.redirect("http://localhost:3000/login");
+  });
+});
 
 module.exports = router;

@@ -147,9 +147,6 @@ export default function Register() {
                 onClick={() => (window.location.href = "http://localhost:4000/auth/facebook")}>
                   <i className="fab fa-facebook-f"></i>
                 </button>
-                <button className={`${styles.socialButton} ${styles.emailButton}`}>
-                  <i className="fas fa-envelope"></i>
-                </button>
               </div>
           </div>
           <form className={styles.form} onSubmit={handleSubmit}>
@@ -273,7 +270,8 @@ export default function Register() {
             <p className={styles.loginText}>
               If you already are a part of our community
             </p>
-            <button type="button" className={styles.loginButton}>
+            <button type="button" className={styles.loginButton}
+            onClick={() => (window.location.href = "/login")}>
               Log in
             </button>
           </div>
