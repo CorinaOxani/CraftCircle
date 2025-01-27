@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/database"); // Importă conexiunea la baza de date
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
-// Endpoint pentru autentificare tradițională
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -16,8 +17,10 @@ router.post("/login", async (req, res) => {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Verifică parola (fără criptare)
-    if (password !== user.rows[0].password) {
+    // Compară parola introdusă cu cea din baza de date
+    const isMatch = await bcrypt.compare(password, user.rows[0].password);
+
+    if (!isMatch) {
       return res.status(401).json({ error: "Invalid password." });
     }
 
@@ -41,6 +44,7 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: "An error occurred." });
   }
 });
+
 
 
 // Endpoint pentru adăugarea unui utilizator
@@ -68,6 +72,9 @@ router.post("/adduser", async (req, res) => {
       });
     }
 
+    // Criptează parola
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     // Inserare utilizator în baza de date
     const result = await pool.query(
       `
@@ -79,7 +86,7 @@ router.post("/adduser", async (req, res) => {
         first_name,
         last_name,
         email,
-        password,
+        hashedPassword, // Salvează parola criptată
         birth_date || null,
         profile_picture || null,
         bio || null,
