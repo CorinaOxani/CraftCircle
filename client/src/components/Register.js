@@ -1,11 +1,13 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../CSSfyles/SignUpForm.module.css";
 import profileImage from "../images/LogInRegister/bobina.png";
 import headerImage from "../images/LogInRegister/foarfeca.png";
 import logo from "../images/LOGO.png";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -60,13 +62,13 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage("Passwords do not match.");
       hideMessageAfterDelay(setErrorMessage);
       return;
     }
-
+  
     try {
       const response = await fetch("http://localhost:4000/adduser", {
         method: "POST",
@@ -80,10 +82,11 @@ export default function Register() {
           password: formData.password,
         }),
       });
-
+  
       const result = await response.json();
       if (response.ok) {
         setSuccessMessage("User registered successfully!");
+  
         setFormData({
           firstName: "",
           lastName: "",
@@ -91,7 +94,12 @@ export default function Register() {
           password: "",
           confirmPassword: "",
         });
-        hideMessageAfterDelay(setSuccessMessage);
+  
+        // Așteaptă 3 secunde și apoi navighează către pagina următoare
+        setTimeout(() => {
+          navigate("/additional-info");
+        }, 2000);
+  
       } else {
         setErrorMessage(result.error || "An error occurred.");
         hideMessageAfterDelay(setErrorMessage);
@@ -101,6 +109,7 @@ export default function Register() {
       hideMessageAfterDelay(setErrorMessage);
     }
   };
+  
 
   const hideMessageAfterDelay = (setterFunction) => {
     setTimeout(() => {

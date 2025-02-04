@@ -75,7 +75,7 @@ export default function Register() {
             className={styles.yarnUnderSubtitle}
           />
             <div className={styles.socialContainer}>
-              <p className={styles.socialText}>Sign up with:</p>
+              <p className={styles.socialText}>Log in with:</p>
               <div className={styles.socialButtons}>
                 <button className={`${styles.socialButton} ${styles.googleButton}`}
                 onClick={() => (window.location.href = "http://localhost:4000/auth/google")}>
