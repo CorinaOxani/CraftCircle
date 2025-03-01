@@ -22,26 +22,35 @@ passport.use(
           [email]
         );
 
+        let isNewUser = false;
+        let user;
+
         if (existingUser.rows.length > 0) {
-          // Utilizatorul există deja - autentifică-l
-          return done(null, existingUser.rows[0]);
+          // Utilizator existent
+          user = existingUser.rows[0];
+        } else {
+          // Creează un utilizator nou
+          const newUser = await pool.query(
+            `INSERT INTO accounts (first_name, last_name, email, profile_picture, password, created_at)
+             VALUES ($1, $2, $3, $4, $5, NOW())
+             RETURNING *`,
+            [
+              profile.name.givenName,
+              profile.name.familyName,
+              email,
+              profile.photos[0]?.value || null,
+              "google", // Parolă temporară
+            ]
+          );
+
+          user = newUser.rows[0];
+          isNewUser = true;
         }
 
-        // Creează un utilizator nou
-        const newUser = await pool.query(
-          `INSERT INTO accounts (first_name, last_name, email, profile_picture, password, created_at)
-           VALUES ($1, $2, $3, $4, $5, NOW())
-           RETURNING *`,
-          [
-            profile.name.givenName,
-            profile.name.familyName,
-            email,
-            profile.photos[0]?.value || null,
-            "google", // Parolă temporară
-          ]
-        );
+        // Adaugă `isNewUser` la obiectul utilizatorului pentru a-l folosi în redirect
+        user.isNewUser = isNewUser;
 
-        return done(null, newUser.rows[0]);
+        return done(null, user);
       } catch (err) {
         console.error("Error authenticating with Google:", err);
         return done(err, null);
@@ -49,6 +58,7 @@ passport.use(
     }
   )
 );
+
 
 // Configurare Facebook OAuth
 passport.use(
@@ -63,6 +73,8 @@ passport.use(
       try {
         const email = profile.emails?.[0]?.value || `facebook_${profile.id}@noemail.com`;
         const temporaryPassword = `facebook_${profile.id}`;
+        let isNewUser = false;
+        let user;
 
         // Verifică dacă utilizatorul există deja în baza de date
         const existingUser = await pool.query(
@@ -71,25 +83,31 @@ passport.use(
         );
 
         if (existingUser.rows.length > 0) {
-          // Utilizatorul există deja - autentifică-l
-          return done(null, existingUser.rows[0]);
+          // Utilizatorul există deja
+          user = existingUser.rows[0];
+        } else {
+          // Creează un utilizator nou
+          const newUser = await pool.query(
+            `INSERT INTO accounts (first_name, last_name, email, profile_picture, password, created_at)
+             VALUES ($1, $2, $3, $4, $5, NOW())
+             RETURNING *`,
+            [
+              profile.name?.givenName || "Facebook User",
+              profile.name?.familyName || "Unknown",
+              email,
+              profile.photos?.[0]?.value || null,
+              temporaryPassword,
+            ]
+          );
+
+          user = newUser.rows[0];
+          isNewUser = true;
         }
 
-        // Creează un utilizator nou
-        const newUser = await pool.query(
-          `INSERT INTO accounts (first_name, last_name, email, profile_picture, password, created_at)
-           VALUES ($1, $2, $3, $4, $5, NOW())
-           RETURNING *`,
-          [
-            profile.name.givenName || "Facebook User",
-            profile.name.familyName || "Unknown",
-            email,
-            profile.photos?.[0]?.value || null,
-            temporaryPassword,
-          ]
-        );
+        // Adaugă `isNewUser` la obiectul utilizatorului pentru a-l folosi în redirect
+        user.isNewUser = isNewUser;
 
-        return done(null, newUser.rows[0]);
+        return done(null, user);
       } catch (err) {
         console.error("Error authenticating with Facebook:", err);
         return done(err, null);
@@ -97,6 +115,7 @@ passport.use(
     }
   )
 );
+
 
 // Serializare utilizator
 passport.serializeUser((user, done) => {

@@ -9,10 +9,9 @@ import logo from "../images/LOGO.png";
 export default function AdditionalInfoForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    birthDate: "",
+    birth_date: "",
     country: "",
     city: "",
-    profilePicture: null,
   });
   const [countries, setCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
@@ -20,8 +19,13 @@ export default function AdditionalInfoForm() {
   const [filteredCities, setFilteredCities] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false); // 👈 Adăugat loader
 
   useEffect(() => {
+    const isNewUser = localStorage.getItem("isNewUser") === "true";
+    if (!isNewUser) {
+      navigate("/home"); // Dacă utilizatorul nu este nou, îl ducem la Home
+    }
     // Fetch list of countries
     const fetchCountries = async () => {
       try {
@@ -38,7 +42,7 @@ export default function AdditionalInfoForm() {
     };
 
     fetchCountries();
-  }, []);
+  }, [navigate]);
 
   const handleCountryInputChange = async (e) => {
     const inputValue = e.target.value;
@@ -97,43 +101,44 @@ export default function AdditionalInfoForm() {
     setFilteredCities(filtered);
   };
 
-  const handleFileChange = (e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      profilePicture: e.target.files[0],
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.birthDate || !formData.country || !formData.city || !formData.profilePicture) {
-      setErrorMessage("Please fill in all fields and upload a profile picture.");
+    
+    const user_id = localStorage.getItem("user_id"); // Obține user_id din localStorage
+  
+    if (!user_id || !formData.birth_date || !formData.country || !formData.city) {
+      setErrorMessage("Please fill in all fields.");
       return;
     }
 
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("birthDate", formData.birthDate);
-      formDataToSend.append("country", formData.country);
-      formDataToSend.append("city", formData.city);
-      formDataToSend.append("profilePicture", formData.profilePicture);
+    setLoading(true); //  Activează loader-ul
+    console.log("Loading set to true");
 
+    try {
       const response = await fetch("http://localhost:4000/additional-info", {
         method: "POST",
-        body: formDataToSend,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id,
+          birth_date: formData.birth_date,
+          country: formData.country,
+          city: formData.city,
+        }),
       });
 
+      const result = await response.json();
+      
       if (response.ok) {
-        setSuccessMessage("Additional info saved successfully!");
-        setTimeout(() => {
-          navigate("/home");
-        }, 3000);
+        setSuccessMessage(result.message || "Additional info saved successfully!");
+        setTimeout(() => navigate("/"),);
       } else {
-        setErrorMessage("Failed to save additional info. Please try again.");
+        setErrorMessage(result.error || "Failed to save additional info. Please try again.");
       }
     } catch (err) {
       setErrorMessage("An error occurred while submitting the form.");
+    } finally {
+      setLoading(false); //  Dezactivează loader-ul după finalizarea cererii
+      console.log("Loading set to false"); // DEBUG: Verifică dacă se dezactivează
     }
   };
 
@@ -150,69 +155,72 @@ export default function AdditionalInfoForm() {
         </div>
         <img src={profileImage} alt="Yarn and hook" className={styles.yarnUnderSubtitle} />
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.inputGroup}>
-            <input
-              type="date"
-              id="birthDate"
-              required
-              className={styles.input}
-              value={formData.birthDate}
-              onChange={(e) => {
-                setFormData({ ...formData, birthDate: e.target.value });
-              }}
-            />
-            <label htmlFor="birthDate" className={styles.label}>
-              Birth Date <span className={styles.required}>*</span>
-            </label>
-          </div>
 
-          <div className={styles.inputGroup}>
-            <input
-              type="text"
-              id="country"
-              required
-              className={styles.input}
-              value={formData.country}
-              onChange={handleCountryInputChange}
-              list="countryList"
-            />
-            <datalist id="countryList">
-              {filteredCountries.map((country, index) => (
-                <option key={index} value={country.name} />
-              ))}
-            </datalist>
-            <label htmlFor="country" className={styles.label}>
-              Country <span className={styles.required}>*</span>
-            </label>
-          </div>
+        {!loading && (
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <div className={styles.inputGroup}>
+              <input
+                type="date"
+                id="birth_date"
+                required
+                className={styles.input}
+                value={formData.birth_date}
+                onChange={(e) => {
+                  setFormData({ ...formData, birth_date: e.target.value });
+                }}
+              />
+              <label htmlFor="birth_date" className={styles.label}>
+                Birth Date <span className={styles.required}>*</span>
+              </label>
+            </div>
 
-          <div className={styles.inputGroup}>
-            <input
-              type="text"
-              id="city"
-              required
-              className={styles.input}
-              value={formData.city}
-              onChange={handleCityInputChange}
-              list="cityList"
-            />
-            <datalist id="cityList">
-              {filteredCities.map((city, index) => (
-                <option key={index} value={city} />
-              ))}
-            </datalist>
-            <label htmlFor="city" className={styles.label}>
-              City <span className={styles.required}>*</span>
-            </label>
-          </div>
+            <div className={styles.inputGroup}>
+              <input
+                type="text"
+                id="country"
+                required
+                className={styles.input}
+                value={formData.country}
+                onChange={handleCountryInputChange}
+                list="countryList"
+              />
+              <datalist id="countryList">
+                {filteredCountries.map((country, index) => (
+                  <option key={index} value={country.name} />
+                ))}
+              </datalist>
+              <label htmlFor="country" className={styles.label}>
+                Country <span className={styles.required}>*</span>
+              </label>
+            </div>
 
-          <div className={styles.centeredButton}>
-            <button type="submit" className={styles.signupButton}>
-              Save and Continue
-            </button>
-          </div>
-        </form>
+            <div className={styles.inputGroup}>
+              <input
+                type="text"
+                id="city"
+                required
+                className={styles.input}
+                value={formData.city}
+                onChange={handleCityInputChange}
+                list="cityList"
+              />
+              <datalist id="cityList">
+                {filteredCities.map((city, index) => (
+                  <option key={index} value={city} />
+                ))}
+              </datalist>
+              <label htmlFor="city" className={styles.label}>
+                City <span className={styles.required}>*</span>
+              </label>
+            </div>
+
+            <div className={styles.centeredButton}>
+              <button type="submit" className={styles.signupButton} disabled={loading}>
+                {loading ? "Saving..." : "Save and Continue"}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

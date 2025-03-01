@@ -16,10 +16,17 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "http://localhost:3000/login" }),
   (req, res) => {
-    // Redirecționează utilizatorul către pagina de start a frontend-ului
-    res.redirect("http://localhost:3000/");
+    if (!req.user) {
+      return res.redirect("http://localhost:3000/login");
+    }
+
+    // Construim URL-ul de redirecționare cu `user_id` și `isNewUser`
+    const redirectUrl = `http://localhost:3000/auth-success?user_id=${req.user.user_id}&isNewUser=${req.user.isNewUser}`;
+
+    res.redirect(redirectUrl);
   }
 );
+
 
 // Ruta pentru Facebook OAuth
 router.get(
@@ -32,8 +39,14 @@ router.get(
   "/facebook/callback",
   passport.authenticate("facebook", { failureRedirect: "http://localhost:3000/login" }),
   (req, res) => {
-    // Redirecționează utilizatorul către pagina de start a frontend-ului
-    res.redirect("http://localhost:3000/");
+    if (!req.user) {
+      return res.redirect("http://localhost:3000/login");
+    }
+
+    // Construim URL-ul de redirecționare cu `user_id` și `isNewUser`
+    const redirectUrl = `http://localhost:3000/auth-success?user_id=${req.user.user_id}&isNewUser=${req.user.isNewUser}`;
+
+    res.redirect(redirectUrl);
   }
 );
 

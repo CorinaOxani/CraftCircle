@@ -4,11 +4,11 @@ const pool = require("../config/database"); // Importă conexiunea la baza de da
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
+// LOGIN: Verifică datele utilizatorului
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Verifică dacă utilizatorul există
     const user = await pool.query("SELECT * FROM accounts WHERE email = $1", [
       email,
     ]);
@@ -17,27 +17,20 @@ router.post("/login", async (req, res) => {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Compară parola introdusă cu cea din baza de date
     const isMatch = await bcrypt.compare(password, user.rows[0].password);
 
     if (!isMatch) {
       return res.status(401).json({ error: "Invalid password." });
     }
 
-    // Autentificare reușită
-    req.login(user.rows[0], (err) => {
-      if (err) {
-        return res.status(500).json({ error: "Login failed." });
-      }
-      res.json({
-        message: "Login successful.",
-        user: {
-          id: user.rows[0].user_id,
-          email: user.rows[0].email,
-          firstName: user.rows[0].first_name,
-          lastName: user.rows[0].last_name,
-        },
-      });
+    res.json({
+      message: "Login successful.",
+      user: {
+        id: user.rows[0].user_id,
+        email: user.rows[0].email,
+        firstName: user.rows[0].first_name,
+        lastName: user.rows[0].last_name,
+      },
     });
   } catch (err) {
     console.error("Error during login:", err);
@@ -45,50 +38,32 @@ router.post("/login", async (req, res) => {
   }
 });
 
-
-
-// Endpoint pentru adăugarea unui utilizator
+// REGISTER: Adaugă un utilizator nou
 router.post("/adduser", async (req, res) => {
   try {
-    const {
-      first_name,
-      last_name,
-      email,
-      password,
-      birth_date,
-      profile_picture,
-      bio,
-    } = req.body;
+    const { first_name, last_name, email, password, birth_date, bio } = req.body;
 
-    // Verifică dacă utilizatorul există deja
     const existingUser = await pool.query(
-      `SELECT * FROM accounts WHERE email = $1`,
+      "SELECT * FROM accounts WHERE email = $1",
       [email]
     );
 
     if (existingUser.rows.length > 0) {
-      return res.status(400).json({
-        error: "User with this email already exists.",
-      });
+      return res.status(400).json({ error: "User with this email already exists." });
     }
 
-    // Criptează parola
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Inserare utilizator în baza de date
     const result = await pool.query(
-      `
-      INSERT INTO accounts (first_name, last_name, email, password, birth_date, profile_picture, bio)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING *;
-      `,
+      `INSERT INTO accounts (first_name, last_name, email, password, birth_date, bio)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *;`,
       [
         first_name,
         last_name,
         email,
-        hashedPassword, // Salvează parola criptată
+        hashedPassword,
         birth_date || null,
-        profile_picture || null,
         bio || null,
       ]
     );
@@ -100,6 +75,38 @@ router.post("/adduser", async (req, res) => {
   } catch (err) {
     console.error("Error adding user:", err.message);
     res.status(500).json({ error: "An error occurred while adding the user." });
+  }
+});
+
+// SALVARE DATE PROFIL (birth_date, country, city)
+router.post("/additional-info", async (req, res) => {
+  try {
+    const { user_id, birth_date, country, city } = req.body;
+
+    if (!user_id || !birth_date || !country || !city) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+
+    const existingUser = await pool.query(
+      "SELECT * FROM accounts WHERE user_id = $1",
+      [user_id]
+    );
+
+    if (existingUser.rows.length === 0) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    await pool.query(
+      `UPDATE accounts 
+      SET birth_date = $1, country = $2, city = $3 
+      WHERE user_id = $4`,
+      [birth_date, country, city, user_id]
+    );
+
+    res.json({ message: "Additional info saved successfully!" });
+  } catch (err) {
+    console.error("Error saving additional info:", err.message);
+    res.status(500).json({ error: "An error occurred while saving the data." });
   }
 });
 

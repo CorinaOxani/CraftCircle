@@ -21,7 +21,21 @@ export default function Register() {
 
   useEffect(() => {
     const inputs = document.querySelectorAll(`.${styles.input}`);
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("user_id");
+    const isNewUser = params.get("isNewUser") === "true"; // Convertim în boolean
 
+    if (userId) {
+      localStorage.setItem("user_id", userId);
+
+      if (isNewUser) {
+        localStorage.setItem("isNewUser", "true"); // Setează flag-ul în localStorage
+        navigate("/additional-info");
+      } else {
+        localStorage.removeItem("isNewUser"); // Elimină flag-ul dacă nu este nou
+        navigate("/home");
+      }
+    }
     inputs.forEach((input) => {
       input.setAttribute("autocomplete", "off");
       input.removeAttribute("name");
@@ -50,7 +64,7 @@ export default function Register() {
         });
       });
     };
-  }, []);
+  }, [navigate]);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -86,6 +100,8 @@ export default function Register() {
       const result = await response.json();
       if (response.ok) {
         setSuccessMessage("User registered successfully!");
+         // Salvează user_id în localStorage
+      localStorage.setItem("user_id", result.user.user_id);
   
         setFormData({
           firstName: "",

@@ -40,6 +40,8 @@ export default function Register() {
       if (response.ok) {
         // Redirect user after successful login
         window.location.href = "/"; // Redirecționează utilizatorul
+        // Salvează user_id în localStorage
+      localStorage.setItem("user_id", result.user.user_id);
       } else {
         setErrorMessage(result.error || "Invalid email or password.");
       }
@@ -144,7 +146,7 @@ export default function Register() {
             </div>
             <div className={styles.loginSection}>
             <p className={styles.loginPageText}>
-            Problems with authentication or forgot your password ? Clock below to reset you password.
+            Problems with authentication or forgot your password ? Click below to reset you password.
             </p>
             <button type="button" className={styles.signupButton}
             onClick={() => (window.location.href = "/resetPassword")}>
