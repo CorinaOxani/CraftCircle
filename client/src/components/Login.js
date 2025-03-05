@@ -39,7 +39,8 @@ export default function Register() {
       const result = await response.json();
       if (response.ok) {
         // Redirect user after successful login
-        window.location.href = "/"; // Redirecționează utilizatorul
+        window.location.href = "/profile"; // Redirecționează utilizatorul
+        console.log("User ID saved:", result.user.user_id);
         // Salvează user_id în localStorage
       localStorage.setItem("user_id", result.user.user_id);
       } else {

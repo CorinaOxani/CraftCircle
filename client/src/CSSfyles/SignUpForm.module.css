@@ -5,7 +5,7 @@
 .container {
     width: 100%;
     height: 100vh;
-    background: linear-gradient(145deg, #c6937e 20%, #e9d2ca 50%, #f8edeb 100%);
+    background: linear-gradient(145deg, #c7947f 20%, #e9d2ca 50%, #f8edeb 100%);
     display: flex;
     flex-direction: column;
     align-items: center;

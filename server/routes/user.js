@@ -26,10 +26,10 @@ router.post("/login", async (req, res) => {
     res.json({
       message: "Login successful.",
       user: {
-        id: user.rows[0].user_id,
+        user_id: user.rows[0].user_id,
         email: user.rows[0].email,
-        firstName: user.rows[0].first_name,
-        lastName: user.rows[0].last_name,
+        first_name: user.rows[0].first_name,
+        last_name: user.rows[0].last_name,
       },
     });
   } catch (err) {
@@ -109,5 +109,39 @@ router.post("/additional-info", async (req, res) => {
     res.status(500).json({ error: "An error occurred while saving the data." });
   }
 });
+
+// Obține detaliile unui utilizator
+router.get("/:userId", async (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: "Invalid user ID format" });
+}
+
+
+  try {
+    const result = await pool.query(
+      `SELECT user_id, 
+              first_name, 
+              last_name, 
+              email, 
+              COALESCE(profile_picture, '') AS profile_picture, 
+              COALESCE(bio, 'No bio available') AS bio, 
+              COALESCE(country, 'Unknown') AS country, 
+              COALESCE(city, 'Unknown') AS city
+       FROM accounts WHERE user_id = $1`,
+      [userId]
+    );
+
+      if (result.rows.length === 0) {
+          return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json(result.rows[0]);
+  } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 module.exports = router;

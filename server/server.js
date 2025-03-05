@@ -23,6 +23,7 @@ app.use(passport.session());
 // Rutele principale
 app.use("/", userRoutes);
 app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
 
 // Pornirea serverului
 app.listen(4000, () => console.log("Server running on http://localhost:4000"));

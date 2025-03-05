@@ -28,28 +28,6 @@ router.get(
 );
 
 
-// Ruta pentru Facebook OAuth
-router.get(
-  "/facebook",
-  passport.authenticate("facebook", { scope: ["email"] }) // Preia numele și email-ul utilizatorului
-);
-
-// Callback-ul pentru Facebook OAuth
-router.get(
-  "/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "http://localhost:3000/login" }),
-  (req, res) => {
-    if (!req.user) {
-      return res.redirect("http://localhost:3000/login");
-    }
-
-    // Construim URL-ul de redirecționare cu `user_id` și `isNewUser`
-    const redirectUrl = `http://localhost:3000/auth-success?user_id=${req.user.user_id}&isNewUser=${req.user.isNewUser}`;
-
-    res.redirect(redirectUrl);
-  }
-);
-
 // Ruta pentru logout
 router.get("/logout", (req, res) => {
   req.logout((err) => {
