@@ -2,7 +2,19 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/database"); // Importă conexiunea la baza de date
 const bcrypt = require("bcrypt");
+const multer = require("multer");
 const saltRounds = 10;
+
+// Configurare multer pentru încărcarea imaginilor
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Asigură-te că ai acest folder creat
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
 
 // LOGIN: Verifică datele utilizatorului
 router.post("/login", async (req, res) => {
@@ -120,15 +132,25 @@ router.get("/:userId", async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT user_id, 
-              first_name, 
-              last_name, 
-              email, 
-              COALESCE(profile_picture, '') AS profile_picture, 
-              COALESCE(bio, 'No bio available') AS bio, 
-              COALESCE(country, 'Unknown') AS country, 
-              COALESCE(city, 'Unknown') AS city
-       FROM accounts WHERE user_id = $1`,
+      `SELECT 
+          a.user_id, 
+          a.first_name, 
+          a.last_name, 
+          a.email, 
+          COALESCE(a.profile_picture, '') AS profile_picture, 
+          COALESCE(a.bio, 'No bio available') AS bio, 
+          COALESCE(a.country, 'Unknown') AS country, 
+          COALESCE(a.city, 'Unknown') AS city,
+          -- Număr de urmăritori
+          (SELECT COUNT(*) FROM follows WHERE following_id = a.user_id) AS followers_count,
+          -- Număr de utilizatori urmăriți
+          (SELECT COUNT(*) FROM follows WHERE follower_id = a.user_id) AS following_count,
+          -- Număr de poze postate (doar imagini)
+          (SELECT COUNT(*) FROM posts WHERE user_id = a.user_id ) AS photos_count,
+          -- Număr de videoclipuri postate
+          (SELECT COUNT(*) FROM posts WHERE user_id = a.user_id ) AS videos_count
+      FROM accounts a 
+      WHERE a.user_id = $1;`,
       [userId]
     );
 
@@ -142,6 +164,7 @@ router.get("/:userId", async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
 module.exports = router;

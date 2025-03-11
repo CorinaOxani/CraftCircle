@@ -1,81 +1,338 @@
 .profileContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    font-family: "Poppins", sans-serif;
-  }
-  
-  /* Bara de meniu fixă */
-  .navbar {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    background-color: #5973A8;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .navbar button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    margin: 0 10px;
-  }
-  
-  .navbar button:hover {
-    text-decoration: underline;
-  }
-  
-  /* Informațiile utilizatorului */
-  .userInfo {
-    text-align: center;
-    margin-top: 100px;
-  }
-  
-  .profileImage {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #5973A8;
-  }
-  
-  .bio {
-    font-style: italic;
-    color: #555;
-  }
-  
-  /* Grid-ul cu postări */
-  .postsContainer {
-    width: 80%;
-    margin-top: 30px;
-  }
-  
-  .postsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-  }
-  
-  .postCard {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .postImage {
-    width: 100%;
-    border-radius: 5px;
-    height: 200px;
-    object-fit: cover;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  font-family: "Playfair Display";
+  margin-top: 120px; /* Mută tot conținutul mai jos sub navbar */
+}
+
+/* Bara de meniu fixă */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #5973A8;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.navbar button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 0 10px;
+}
+
+.navbar button:hover {
+  text-decoration: underline;
+}
+
+/* Informațiile utilizatorului */
+.userInfo {
+  text-align: center;
+  margin-top: 20px; /* Ajustare pentru a muta sub navbar */
+}
+
+.profileImage {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #5973A8;
+}
+
+.bio {
+  font-style: italic;
+  color: #555;
+}
+
+/* Bara cu detalii despre utilizator */
+.userDetailsNav {
+  display: flex;
+  justify-content: center;
+  gap: 40px; /* Crește distanța între butoane */
+  background-color: #e9d2ca;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  width: 85%;
+  text-align: center;
+}
+
+.userDetailsNav button {
+  background: #ffffff;
+  color: #59341b;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Lateef', sans-serif;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.userDetailsNav button:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(90, 62, 43, 0.6);
+}
+
+
+.userDetailsNav p {
+  font-size: 14px;
+  font-weight: bold;
+  color: #65676b;
+  padding: 8px 12px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Containerul formularului de postare */
+.postFormContainer {
+  background-color: #e9d2ca;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 550px;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Zona de introducere a textului */
+.postTextArea {
+  width: 100%;
+  height: 50px;
+  padding: 10px;
+  border: 1px solid #ffffff;
+  border-radius: 20px;
+  background-color: #ffffff;
+  font-size: 16px;
+  color: #59341b;
+  outline: none;
+  resize: none;
+}
+
+.postTextArea::placeholder {
+  color: #59341b;
+}
+
+/* Butoanele pentru atașare fișiere */
+.postOptions {
+  display: flex;
+  padding: 10px 0;
+}
+
+/* Stiluri pentru butonul de atașare fișiere */
+.postOption {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 20px;
+  font-family: 'Lateef', sans-serif;
+  color: #59341b;
+  cursor: pointer;
+  padding: 6px 15px; /* 🔹 Face butonul mai scurt */
+  border-radius: 20px;
+  transition: background 0.3s;
+  width: fit-content;
+  background: #f1e6e2;
+}
+
+.postOption img {
+  height: 20px;
+  padding: 6px 12px;
+}
+
+.postOption:hover {
+  background: #ffffff;
+}
+
+
+/* Butonul de postare */
+.postButton {
+  background-color: #f1e6e2;
+  color: #59341b;
+  padding: 8px 70px; /* 🔹 Face butonul mai scurt */
+  border: none;
+  border-radius: 15px; /* 🔹 Ușor mai mic pentru un aspect compact */
+  font-family: 'Lateef', sans-serif;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: fit-content; /* 🔹 Se ajustează după conținut */
+  display: block; /* 🔹 Permite margin auto */
+  margin: 10px auto; /* 🔹 Centrează butonul */
+}
+
+/* Hover mai scurt */
+.postButton:hover {
+  background-color: #ffffff;
+  padding: 8px 70px; /* 🔹 Menține dimensiunea constantă la hover */
+}
+
+
+.previewContainer {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.previewItem {
+  width: 100px;
+  height: 100px;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d1c4b2;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+
+.post:hover {
+  transform: scale(1.03);
+}
+
+/* 🔹 Container pentru carusel */
+.carouselContainer {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🔹 Imagini și videoclipuri în carusel */
+/* 🔹 Container pentru grid-ul postărilor */
+.postsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 postări pe rând */
+  gap: 20px;
+  padding: 20px;
+  justify-content: center;
+}
+
+/* 🔹 Fiecare postare ocupă același spațiu */
+.post {
+  width: 100%;
+  max-width: 350px; /* Lățimea maximă pentru fiecare postare */
+  background: #ecd9d4;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+.post:hover {
+  transform: scale(1.03);
+  background-color: #ffffff;
+}
+
+/* 🔹 Asigură dimensiuni uniforme pentru media (imagini și video) */
+.postMedia {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+/* 🔹 Butoane carusel */
+.arrowLeft, .arrowRight {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.arrowLeft {
+  left: 10px;
+}
+
+.arrowRight {
+  right: 10px;
+}
+
+.arrowLeft:hover, .arrowRight:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* 🔹 Textul postării */
+.postContent {
+  font-size: 16px;
+  margin-top: 10px;
+  color: #333;
+  word-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+  overflow: hidden; 
+  text-overflow: ellipsis;
+  text-align: center;
+  padding: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  max-height: 3.2em; 
+  line-height: 1.6em; 
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 15px;
+}
+
+
+.postContent:hover {
+  overflow: auto; 
+}
+
+.postContent::-webkit-scrollbar {
+  width: 8px; 
+}
+
+.postContent::-webkit-scrollbar-track {
+  background: #f5ebe0; /* Fundal bej deschis */
+  border-radius: 10px;
+}
+
+.postContent::-webkit-scrollbar-thumb {
+  background: #a07b5e; 
+  border-radius: 10px;
+  border: 2px solid #f5ebe0; 
+}
+
+.postContent::-webkit-scrollbar-thumb:hover {
+  background: #8c6b54;
+}
+
+

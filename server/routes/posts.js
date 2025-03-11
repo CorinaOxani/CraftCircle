@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db"); // Conexiunea la PostgreSQL
+const pool = require("../config/database");
+
 
 // Obține postările unui utilizator
 router.get("/", async (req, res) => {
