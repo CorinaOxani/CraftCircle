@@ -16,6 +16,8 @@ export default function UserProfile() {
   const userId = localStorage.getItem("user_id");
   const [previewFiles, setPreviewFiles] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [isPosting, setIsPosting] = useState(false);
+
 
   useEffect(() => {
     const parsedUserId = parseInt(userId, 10);
@@ -117,6 +119,8 @@ export default function UserProfile() {
     event.preventDefault();
     if (!postContent && postFiles.length === 0) return;
 
+    setIsPosting(true);
+
     const formData = new FormData();
     formData.append("user_id", userId);
     formData.append("content", postContent);
@@ -132,7 +136,6 @@ export default function UserProfile() {
       });
 
       if (response.ok) {
-        alert("Post added successfully!");
         setPostContent("");
         setPostFiles([]);
         setPreviewFiles([]);
@@ -151,6 +154,8 @@ export default function UserProfile() {
       }
     } catch (error) {
       console.error("Error:", error);
+    }finally {
+      setIsPosting(false); // 🔹 Dezactivează loaderul după postare
     }
   };
 
@@ -226,7 +231,12 @@ export default function UserProfile() {
           <input type="file" multiple onChange={handlePostFilesChange} accept="image/*,video/*" hidden />
         </label>
 
-        <button className={styles.postButton} onClick={handleSubmitPost}>Post</button>
+        <button className={styles.postButton} onClick={handleSubmitPost} disabled={isPosting}>
+          {isPosting ? <span className={styles.loader}></span> : "Post"}
+        </button>
+        {/* 🔹 Mesaj de încărcare afișat doar când postarea este în curs */}
+        {isPosting && <p className={styles.uploadingMessage}>Uploading post, please wait...</p>}
+
       </div>
 
       {/* 🔹 Afișare postări utilizator */}
