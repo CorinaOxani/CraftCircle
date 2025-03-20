@@ -4,7 +4,7 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import AuthRedirect from "./components/AuthRedirect"; 
 import AdditionalInfoForm from "./components/AdditionalInfoForm";
-import UserProfile from "./components/UserProfile";
+import UserProfile from "./components/Profile/UserProfile";
 
 function App() {
   return (

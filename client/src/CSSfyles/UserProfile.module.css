@@ -41,6 +41,18 @@
   margin-top: 20px; /* Ajustare pentru a muta sub navbar */
 }
 
+/* 🔹 Asigură un container fix pentru imaginea de profil */
+.profileImageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Asigură centrare */
+  position: relative;
+  width: fit-content;
+  margin: 0 auto; /* Centrează în containerul părinte */
+}
+
+/* 🔹 Poziționare fixă pentru imaginea de profil */
 .profileImage {
   width: 120px;
   height: 120px;
@@ -49,14 +61,28 @@
   border: 3px solid #5973A8;
 }
 
-/* 🔹 Container pentru editarea imaginii */
+/* 🔹 Menține butonul de editare lângă poză */
+.editIcon {
+  position: absolute;
+  bottom: -10px;
+  right: 5px;
+  background: white;
+  padding: 5px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* 🔹 Menține dimensiunea fixă a containerului chiar și în modul editare */
 .editImageContainer {
+  width: 100%;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
   margin-top: 10px;
 }
+
 
 /* 🔹 Input-ul de fișier să fie ascuns */
 .fileInput {

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaEllipsisV } from "react-icons/fa";
-import styles from "../CSSfyles/UserProfile.module.css";
+import styles from "../../CSSfyles/UserProfile.module.css";
 
 export default function PostMenuButton({ postId, onDelete, onEdit }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -20,12 +20,12 @@ export default function PostMenuButton({ postId, onDelete, onEdit }) {
 
   function handleDelete() {
     console.log("PostMenuButton: Sending delete request for ID:", postId);
-    onDelete(postId); // 🔹 Apelează funcția de ștergere
+    onDelete(postId); 
   }
 
   function handleEdit() {
     console.log("Editing post:", postId);
-    onEdit(postId); // 🔹 Trimite ID-ul postării către componenta părinte
+    onEdit(postId); 
   }
 
   return (
