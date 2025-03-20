@@ -49,6 +49,90 @@
   border: 3px solid #5973A8;
 }
 
+/* 🔹 Container pentru editarea imaginii */
+.editImageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* 🔹 Input-ul de fișier să fie ascuns */
+.fileInput {
+  display: block;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 15px;
+  background-color: #f1e6e2;
+  color: #59341b;
+  font-family: 'Lateef', sans-serif;
+  font-size: 20px;
+  width: fit-content;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+.fileInput:hover {
+  background-color: #f7e0dc;
+}
+/* Ascunde input-ul standard de fișier */
+.hiddenFileInput {
+  display: none;
+}
+
+/* Container personalizat pentru butonul "Alege fișierul" */
+.customFileInput {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background-color: #f1e6e2;
+  color: #59341b;
+  font-size: 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-family: 'Lateef', sans-serif;
+  width: fit-content;
+}
+
+
+
+/* Adaugă un spațiu pentru numele fișierului selectat */
+.customFileInput span {
+  margin-left: 5px;
+}
+
+/* 🔹 Container pentru butoanele Save și Revert */
+.imageEditButtons {
+  display: flex;
+  gap: 10px;
+}
+
+
+/* 🔹 Stil pentru butonul Revert */
+.revertButton {
+  background-color: #f1e6e2;
+  color: #59341b;
+  padding: 8px 70px;
+  border: none;
+  border-radius: 15px;
+  font-family: 'Lateef', sans-serif;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: fit-content;
+  display: block;
+  margin: 10px auto;
+}
+
+.revertButton:hover {
+  background-color: #a07b5e;
+  padding: 8px 70px;
+  color: white;
+}
+
+
 .bio {
   font-style: italic;
   color: #555;
@@ -159,6 +243,43 @@
 .postOption:hover {
   background: #ffffff;
 }
+
+/* 🔹 Buton pentru eliminarea imaginilor/video din previzualizare */
+.removePreviewButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.removePreviewButton:hover {
+  background: rgb(0, 0, 0);
+}
+
+/* 🔹 Asigură poziționarea corectă a elementului previzualizat */
+.previewItem {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d1c4b2;
+}
+
 
 
 /* Butonul de postare */
@@ -360,3 +481,95 @@
 }
 
 
+.menuIcon {
+  cursor: pointer;
+  font-size: 1.2em;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 50;
+}
+
+/* 🔹 Meniul trebuie să fie absolut și inițial ascuns */
+.postMenu {
+  position: absolute;
+  top: 35px;
+  right: 0px;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  padding: 5px 0;
+  width: 120px;
+  z-index: 100;
+  opacity: 0; /* Inițial invizibil */
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+/* 🔹 Când meniul este deschis, îl facem vizibil */
+.postMenu.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.postMenu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.postMenu li {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.postMenu li:hover {
+  background: #f0f0f0;
+}
+
+.editInput {
+  width: 90%;
+  height: 50px;
+  padding: 10px;
+  border: 1px solid #ffffff;
+  border-radius: 20px;
+  background-color: #ffffff;
+  font-size: 16px;
+  color: #59341b;
+  outline: none;
+  resize: none;
+  display: block;
+  margin: 0 auto;
+}
+
+.editInput::placeholder {
+  color: #59341b;
+}
+
+
+.saveButton {
+  background-color: #f1e6e2;
+  color: #59341b;
+  padding: 8px 70px;
+  border: none;
+  border-radius: 15px;
+  font-family: 'Lateef', sans-serif;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: fit-content;
+  display: block;
+  margin: 10px auto;
+}
+
+.saveButton:hover {
+  background-color: #a07b5e;
+  padding: 8px 70px;
+  color: white;
+}

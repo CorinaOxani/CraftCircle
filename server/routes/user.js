@@ -127,8 +127,7 @@ router.get("/:userId", async (req, res) => {
   const userId = parseInt(req.params.userId, 10);
   if (isNaN(userId)) {
     return res.status(400).json({ error: "Invalid user ID format" });
-}
-
+  }
 
   try {
     const result = await pool.query(
@@ -145,25 +144,24 @@ router.get("/:userId", async (req, res) => {
           (SELECT COUNT(*) FROM follows WHERE following_id = a.user_id) AS followers_count,
           -- Număr de utilizatori urmăriți
           (SELECT COUNT(*) FROM follows WHERE follower_id = a.user_id) AS following_count,
-          -- Număr de poze postate (doar imagini)
-          (SELECT COUNT(*) FROM posts WHERE user_id = a.user_id ) AS photos_count,
-          -- Număr de videoclipuri postate
-          (SELECT COUNT(*) FROM posts WHERE user_id = a.user_id ) AS videos_count
+          -- Număr total de postări
+          (SELECT COUNT(*) FROM posts WHERE user_id = a.user_id) AS posts_count
       FROM accounts a 
       WHERE a.user_id = $1;`,
       [userId]
     );
 
-      if (result.rows.length === 0) {
-          return res.status(404).json({ error: "User not found" });
-      }
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-      res.json(result.rows[0]);
+    res.json(result.rows[0]);
   } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching user:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
 

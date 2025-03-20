@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaPen, FaSave } from "react-icons/fa";
+import { FaPen, FaSave, FaTimes } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import styles from "../CSSfyles/UserProfile.module.css";
 import defaultProfile from "../images/default-profile.png";
-import UserPosts from "./UserPosts"; // 🔹 Importă componenta nouă
+import UserPosts from "./UserPosts"; 
 
 export default function UserProfile() {
   const navigate = useNavigate();
@@ -17,6 +17,23 @@ export default function UserProfile() {
   const [previewFiles, setPreviewFiles] = useState([]);
   const [posts, setPosts] = useState([]);
   const [isPosting, setIsPosting] = useState(false);
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editedContent, setEditedContent] = useState("");
+  const [previewImage, setPreviewImage] = useState(null); //
+
+  const fetchUserPosts = () => {
+    fetch(`http://localhost:4000/uploads/user-posts/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setPosts(data.map(post => ({
+            ...post,
+            currentIndex: 0
+          })));
+        }
+      })
+      .catch((error) => console.error("Error fetching posts:", error));
+  };
 
 
   useEffect(() => {
@@ -35,26 +52,30 @@ export default function UserProfile() {
       .catch(() => navigate("/login"));
 
     // Fetch user posts
-    fetch(`http://localhost:4000/uploads/user-posts/${parsedUserId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setPosts(data.map(post => ({
-            ...post,
-            currentIndex: 0 // Inițializarea indexului caruselului
-          })));
-        }
-      })
-      .catch((error) => console.error("Error fetching posts:", error));
+    fetchUserPosts();
 
   }, [userId, navigate]);
 
   // 🔹 Gestionarea schimbării pozei de profil
   const handleImageChange = (event) => {
     if (event.target.files.length > 0) {
-      setSelectedImage(event.target.files[0]);
+      const file = event.target.files[0];
+      setSelectedImage(file);
+      setPreviewImage(URL.createObjectURL(file)); // 🔹 Afișează previzualizarea
     }
   };
+
+  const handleRemovePreview = (index) => {
+    setPreviewFiles((prevPreviews) => prevPreviews.filter((_, i) => i !== index));
+    setPostFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
+
+  const handleRevertImage = () => {
+    setSelectedImage(null);
+    setPreviewImage(null);
+    setIsEditingImage(false);
+  };
+  
 
   const handleSaveImage = async () => {
     if (!selectedImage) return;
@@ -74,6 +95,7 @@ export default function UserProfile() {
         setUser((prev) => ({ ...prev, profile_picture: data.imageUrl }));
         setIsEditingImage(false);
         setSelectedImage(null);
+        setPreviewImage(null); 
       } else {
         console.error("Error updating profile picture:", data.error);
       }
@@ -81,6 +103,37 @@ export default function UserProfile() {
       console.error("Error:", error);
     }
   };
+
+  // 🔹 Funcție de editare care activează modul edit
+  const handleEditPost = (postId, currentContent) => {
+    setEditingPostId(postId);
+    setEditedContent(currentContent);
+  };
+
+  // 🔹 Funcție care salvează modificarea în baza de date și UI
+  const handleSaveEditPost = async (postId) => {
+    try {
+      const response = await fetch(`http://localhost:4000/posts/${postId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editedContent }),
+      });
+
+      if (response.ok) {
+        setPosts(prevPosts =>
+          prevPosts.map(post =>
+            post.post_id === postId ? { ...post, content: editedContent } : post
+          )
+        );
+        setEditingPostId(null);
+      } else {
+        console.error("Failed to update post");
+      }
+    } catch (error) {
+      console.error("Error updating post:", error);
+    }
+  };
+
 
   // 🔹 Gestionarea navigării în carusel
   const handleNext = (postId) => {
@@ -115,6 +168,42 @@ export default function UserProfile() {
     setPreviewFiles((prevPreviews) => [...prevPreviews, ...newPreviews]);
   };
 
+  const handleDeletePost = async (postId) => {
+    if (!postId) {
+        console.error("Invalid post ID:", postId);
+        return;
+    }
+
+    console.log("UserProfile: Attempting to delete post with ID:", postId);
+
+    try {
+        // 🔹 Marcare post ca fiind în curs de ștergere (UI feedback)
+        setPosts(prevPosts => prevPosts.map(post =>
+            post.post_id === postId ? { ...post, deleting: true } : post
+        ));
+
+        const response = await fetch(`http://localhost:4000/posts/${postId}`, {
+            method: "DELETE",
+        });
+
+        if (!response.ok) {
+            console.error("Failed to delete post, status:", response.status);
+            return;
+        }
+
+        console.log("UserProfile: Post deleted successfully:", postId);
+
+        // 🔹 Elimină postarea din listă și reîncarcă postările
+        setPosts(prevPosts => prevPosts.filter(post => post.post_id !== postId));
+
+        setTimeout(fetchUserPosts, 200); // 🔹 Asigură-te că lista e reîncărcată
+
+    } catch (error) {
+        console.error("Error deleting post:", error);
+    }
+  };
+
+
   const handleSubmitPost = async (event) => {
     event.preventDefault();
     if (!postContent && postFiles.length === 0) return;
@@ -139,16 +228,7 @@ export default function UserProfile() {
         setPostContent("");
         setPostFiles([]);
         setPreviewFiles([]);
-        fetch(`http://localhost:4000/uploads/user-posts/${userId}`)
-          .then((res) => res.json())
-          .then((data) => {
-            if (Array.isArray(data)) {
-              setPosts(data.map(post => ({
-                ...post,
-                currentIndex: 0
-              })));
-            }
-          });
+        fetchUserPosts();  
       } else {
         console.error("Error uploading post.");
       }
@@ -164,15 +244,13 @@ export default function UserProfile() {
   return (
     <div className={styles.profileContainer}>
       <Navbar />
-
       <div className={styles.userInfo}>
         <div className={styles.profileImageContainer}>
           <img
-            src={user.profile_picture && user.profile_picture.trim() ? user.profile_picture : defaultProfile}
+            src={previewImage || (user?.profile_picture?.trim() ? user.profile_picture : defaultProfile)}
             alt="Profile"
             className={styles.profileImage}
           />
-
           <label htmlFor="fileUpload" className={styles.editIcon}>
             <FaPen onClick={() => setIsEditingImage(true)} />
           </label>
@@ -180,15 +258,35 @@ export default function UserProfile() {
 
         {isEditingImage && (
           <div className={styles.editImageContainer}>
-            <input type="file" id="fileUpload" onChange={handleImageChange} accept="image/*" />
-            {selectedImage && <button onClick={handleSaveImage}><FaSave /> Save</button>}
+            <label htmlFor="fileUpload" className={styles.customFileInput}>
+              <span>Choose the file</span>
+              <input
+                type="file"
+                id="fileUpload"
+                onChange={handleImageChange}
+                accept="image/*"
+                className={styles.hiddenFileInput}
+              />
+            </label>
+            {selectedImage && (
+              <div className={styles.imageEditButtons}>
+                <button className={styles.saveButton} onClick={handleSaveImage}>
+                  <FaSave /> Save
+                </button>
+                <button className={styles.revertButton} onClick={handleRevertImage}>
+                  <FaTimes /> Revert
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        <h1>{user.first_name} {user.last_name}</h1>
-        <p className={styles.bio}>{user.bio || "No bio available."}</p>
-        <p>{user.city || "Unknown"}, {user.country || "Unknown"}</p>
+
+        <h1>{user?.first_name} {user?.last_name}</h1>
+        <p className={styles.bio}>{user?.bio || "No bio available."}</p>
+        <p>{user?.city || "Unknown"}, {user?.country || "Unknown"}</p>
       </div>
+      
         {/* 🔹 Sub Navbar cu detalii și redirecționări */}
       <div className={styles.userDetailsNav}>
         <button onClick={() => navigate(`/profile/${user.user_id}/followers`)}>
@@ -197,11 +295,8 @@ export default function UserProfile() {
         <button onClick={() => navigate(`/profile/${user.user_id}/following`)}>
           <strong>{user?.following_count ?? 0}</strong> Following
         </button>
-        <button onClick={() => navigate(`/profile/${user.user_id}/photos`)}>
-          <strong>{user?.photos_count ?? 0}</strong> Photos
-        </button>
-        <button onClick={() => navigate(`/profile/${user.user_id}/videos`)}>
-          <strong>{user?.videos_count ?? 0}</strong> Videos
+        <button>
+          <strong>{user?.posts_count ?? 0}</strong> Posts
         </button>
       </div>
       {/* 🔹 Formular pentru adăugarea unei postări noi */}
@@ -213,17 +308,21 @@ export default function UserProfile() {
           onChange={(e) => setPostContent(e.target.value)}
         />
 
-        <div className={styles.previewContainer}>
-          {previewFiles.map((file, index) => (
-            <div key={index} className={styles.previewItem}>
-              {file.type === "image" ? (
-                <img src={file.url} alt={`preview-${index}`} className={styles.previewImage} />
-              ) : (
-                <video src={file.url} controls className={styles.previewVideo}></video>
-              )}
-            </div>
-          ))}
-        </div>
+      <div className={styles.previewContainer}>
+        {previewFiles.map((file, index) => (
+          <div key={index} className={styles.previewItem}>
+            {/* 🔹 Buton X pentru eliminare */}
+            <button className={styles.removePreviewButton} onClick={() => handleRemovePreview(index)}>✖</button>
+
+            {file.type === "image" ? (
+              <img src={file.url} alt={`preview-${index}`} className={styles.previewImage} />
+            ) : (
+              <video src={file.url} controls className={styles.previewVideo}></video>
+            )}
+          </div>
+        ))}
+      </div>
+
 
         <label className={styles.postOption}>
           <img src="https://img.icons8.com/fluency/48/000000/image.png" alt="Photo Icon" />
@@ -240,7 +339,17 @@ export default function UserProfile() {
       </div>
 
       {/* 🔹 Afișare postări utilizator */}
-      <UserPosts posts={posts} handlePrev={handlePrev} handleNext={handleNext} />
+      <UserPosts 
+        posts={posts}
+        setPosts={setPosts}
+        handlePrev={handlePrev}  
+        handleNext={handleNext}
+        onEditPost={handleEditPost}
+        onSaveEdit={handleSaveEditPost}
+        editingPostId={editingPostId}
+        editedContent={editedContent}
+        setEditedContent={setEditedContent} 
+      />
     </div>
   );
 }
