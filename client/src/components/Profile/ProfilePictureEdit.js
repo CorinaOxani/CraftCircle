@@ -10,7 +10,8 @@ export default function ProfilePictureEdit({
   handleImageChange,
   handleSaveImage,
   handleRevertImage,
-  setIsEditingImage
+  setIsEditingImage,
+  isOwnProfile
 }) {
   return (
     <div className={styles.profileImageContainer}>
@@ -22,7 +23,7 @@ export default function ProfilePictureEdit({
       />
 
       
-      {!isEditingImage && (
+      {!isEditingImage && isOwnProfile && (
         <label className={styles.editIcon} onClick={() => setIsEditingImage(true)}>
           <FaPen />
         </label>

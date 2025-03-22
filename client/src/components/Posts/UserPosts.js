@@ -13,29 +13,30 @@ export default function UserPosts({
   onSaveEdit, 
   editingPostId, 
   editedContent, 
-  setEditedContent 
+  setEditedContent,
+  isOwner,
+  handleReportPost
 }) {
 
   return (
     <div className={styles.postsGrid}>
       {posts.map((post) => (
-        <div key={post.post_id} className={styles.post} style={{ position: "relative" }}>
+         <div key={post.post_id} className={styles.post} style={{ position: "relative" }}>
           <div className={styles.carouselContainer}>
-           
             <PostMenuButton 
               postId={post.post_id} 
+              isOwner={isOwner}
               onDelete={onDeletePost} 
               onEdit={() => onEditPost(post.post_id, post.content)} 
+              onReport={handleReportPost}
             />
 
-            
             {post.media_urls?.length > 1 && (
               <button className={styles.arrowLeft} onClick={() => handlePrev(post.post_id)}>
                 <FaChevronLeft />
               </button>
             )}
 
-            
             {post.media_urls && post.media_urls[post.currentIndex] ? (
               post.media_urls[post.currentIndex].endsWith(".mp4") ? (
                 <video src={post.media_urls[post.currentIndex]} controls className={styles.postMedia} />
@@ -44,7 +45,6 @@ export default function UserPosts({
               )
             ) : null}
 
-           
             {post.media_urls?.length > 1 && (
               <button className={styles.arrowRight} onClick={() => handleNext(post.post_id)}>
                 <FaChevronRight />
@@ -52,7 +52,6 @@ export default function UserPosts({
             )}
           </div>
 
-         
           {editingPostId === post.post_id ? (
             <div>
               <textarea
@@ -68,10 +67,16 @@ export default function UserPosts({
               </button>
             </div>
           ) : (
-            <p className={styles.postContent}>{post.content}</p> 
+            <p className={styles.postContent}>{post.content}</p>
           )}
         </div>
       ))}
+
+      {posts.length < 3 &&
+          Array.from({ length: 3 - posts.length }).map((_, index) => (
+            <div key={`empty-${index}`} className={`${styles.post} ${styles.emptySlot}`} />
+      ))}
+
     </div>
   );
 }

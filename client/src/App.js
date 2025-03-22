@@ -16,6 +16,9 @@ function App() {
           <Route path="/auth-success" element={<AuthRedirect />} />
           <Route path="/additional-info" element={<AdditionalInfoForm />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/profile/:userId" element={<UserProfile />} />  
+
+
           <Route
             path="/"
             element={

@@ -312,22 +312,22 @@
 .postButton {
   background-color: #f1e6e2;
   color: #59341b;
-  padding: 8px 70px; /* 🔹 Face butonul mai scurt */
+  padding: 8px 70px; 
   border: none;
-  border-radius: 15px; /* 🔹 Ușor mai mic pentru un aspect compact */
+  border-radius: 15px; 
   font-family: 'Lateef', sans-serif;
   font-size: 20px;
   cursor: pointer;
   transition: background 0.3s ease;
-  width: fit-content; /* 🔹 Se ajustează după conținut */
-  display: block; /* 🔹 Permite margin auto */
-  margin: 10px auto; /* 🔹 Centrează butonul */
+  width: fit-content;
+  display: block; 
+  margin: 10px auto; 
 }
 
 /* Hover mai scurt */
 .postButton:hover {
   background-color: #ffffff;
-  padding: 8px 70px; /* 🔹 Menține dimensiunea constantă la hover */
+  padding: 8px 70px; 
 }
 .loader {
   border: 3px solid #f3f3f3;
@@ -407,6 +407,11 @@
   padding: 20px;
   justify-content: center;
 }
+.emptySlot {
+  visibility: hidden;
+  height: 100%;
+}
+
 
 /* 🔹 Fiecare postare ocupă același spațiu */
 .post {

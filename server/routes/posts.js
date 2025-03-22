@@ -110,4 +110,36 @@ router.put("/:postId", async (req, res) => {
 });
 
 
+router.post("/:postId/report", async (req, res) => {
+    const { postId } = req.params;
+    const { user_id } = req.body;
+  
+    if (!user_id || !postId) {
+      return res.status(400).json({ error: "Missing postId or user_id" });
+    }
+  
+    try {
+
+      const existing = await pool.query(
+        "SELECT * FROM post_reports WHERE user_id = $1 AND post_id = $2",
+        [user_id, postId]
+      );
+  
+      if (existing.rows.length > 0) {
+        return res.status(200).json({ message: "Already reported" });
+      }
+  
+
+      await pool.query("INSERT INTO post_reports (user_id, post_id) VALUES ($1, $2)", [user_id, postId]);
+      await pool.query("UPDATE posts SET report_count = report_count + 1 WHERE post_id = $1", [postId]);
+  
+      res.status(200).json({ message: "Report submitted" });
+    } catch (error) {
+      console.error("Error reporting post:", error);
+      res.status(500).json({ error: "Failed to report post" });
+    }
+  });
+  
+
+
 module.exports = router;

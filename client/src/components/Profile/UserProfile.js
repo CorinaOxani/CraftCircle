@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../Navbar";
 import styles from "../../CSSfyles/UserProfile.module.css";
 import UserPosts from "../Posts/UserPosts";
@@ -10,11 +10,15 @@ import PostForm from "./PostForm";
 
 export default function UserProfile() {
   const navigate = useNavigate();
+  const { userId: urlUserId } = useParams(); 
+  const loggedInUserId = localStorage.getItem("user_id"); 
+  const userId = urlUserId || loggedInUserId;
+  const isOwner = userId === loggedInUserId;
+ 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [postContent, setPostContent] = useState("");
   const [postFiles, setPostFiles] = useState([]);
-  const userId = localStorage.getItem("user_id");
   const [previewFiles, setPreviewFiles] = useState([]);
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -22,22 +26,20 @@ export default function UserProfile() {
   const [editingPostId, setEditingPostId] = useState(null);
   const [editedContent, setEditedContent] = useState("");
 
- 
+  // 🔹 Fetch user posts
   const fetchUserPosts = useCallback(() => {
+    if (!userId) return;
     fetch(`http://localhost:4000/uploads/user-posts/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setPosts(data.map(post => ({
-            ...post,
-            currentIndex: 0
-          })));
+          setPosts(data.map((post) => ({ ...post, currentIndex: 0 })));
         }
       })
       .catch((error) => console.error("Error fetching posts:", error));
   }, [userId]);
 
-  
+  // 🔹 Fetch user profile
   useEffect(() => {
     if (!userId) {
       navigate("/login");
@@ -52,7 +54,7 @@ export default function UserProfile() {
     fetchUserPosts();
   }, [userId, navigate, fetchUserPosts]);
 
-  
+  // 🔹 Gestionare imagine profil
   const handleImageChange = (event) => {
     if (event.target.files.length > 0) {
       const file = event.target.files[0];
@@ -76,7 +78,7 @@ export default function UserProfile() {
 
       const data = await response.json();
       if (response.ok) {
-        setUser(prev => ({ ...prev, profile_picture: data.imageUrl }));
+        setUser((prev) => ({ ...prev, profile_picture: data.imageUrl }));
         setIsEditingImage(false);
         setSelectedImage(null);
         setPreviewImage(null);
@@ -94,6 +96,7 @@ export default function UserProfile() {
     setIsEditingImage(false);
   };
 
+  // 🔹 Ștergerea unei postări
   const handleDeletePost = async (postId) => {
     try {
       const response = await fetch(`http://localhost:4000/posts/${postId}`, {
@@ -101,7 +104,7 @@ export default function UserProfile() {
       });
 
       if (response.ok) {
-        setPosts(prevPosts => prevPosts.filter(post => post.post_id !== postId)); 
+        setPosts((prevPosts) => prevPosts.filter((post) => post.post_id !== postId));
       } else {
         console.error("Failed to delete post, status:", response.status);
       }
@@ -110,19 +113,20 @@ export default function UserProfile() {
     }
   };
 
-
+  // 🔹 Upload de fișiere pentru postare
   const handlePostFilesChange = (event) => {
     const newFiles = Array.from(event.target.files);
-    setPostFiles(prevFiles => [...prevFiles, ...newFiles]);
+    setPostFiles((prevFiles) => [...prevFiles, ...newFiles]);
 
-    const newPreviews = newFiles.map(file => ({
+    const newPreviews = newFiles.map((file) => ({
       url: URL.createObjectURL(file),
       type: file.type.startsWith("image") ? "image" : "video",
     }));
 
-    setPreviewFiles(prevPreviews => [...prevPreviews, ...newPreviews]);
+    setPreviewFiles((prevPreviews) => [...prevPreviews, ...newPreviews]);
   };
 
+  // 🔹 Trimitere postare
   const handleSubmitPost = async (event) => {
     event.preventDefault();
     if (!postContent && postFiles.length === 0) return;
@@ -130,7 +134,7 @@ export default function UserProfile() {
     const formData = new FormData();
     formData.append("user_id", userId);
     formData.append("content", postContent);
-    postFiles.forEach(file => formData.append("files", file));
+    postFiles.forEach((file) => formData.append("files", file));
 
     try {
       const response = await fetch("http://localhost:4000/uploads/upload-post", {
@@ -151,7 +155,53 @@ export default function UserProfile() {
     }
   };
 
+  // 🔹 Editare postare
+  const handleEditPost = (postId, currentContent) => {
+    setEditingPostId(postId);
+    setEditedContent(currentContent);
+  };
+
+  const handleReportPost = async (postId) => {
+    const user_id = localStorage.getItem("user_id");
+    try {
+      const res = await fetch(`http://localhost:4000/posts/${postId}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id })
+      });
   
+      const data = await res.json();
+      alert(data.message === "Already reported"
+        ? "You've already reported this post."
+        : "Thanks! We'll review the post.");
+    } catch (err) {
+      console.error("Error reporting post:", err);
+      alert("Error reporting post.");
+    }
+  };
+  
+  const handleSaveEditPost = async (postId) => {
+    try {
+      const response = await fetch(`http://localhost:4000/posts/${postId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editedContent }),
+      });
+
+      if (response.ok) {
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.post_id === postId ? { ...post, content: editedContent } : post
+          )
+        );
+        setEditingPostId(null);
+      } else {
+        console.error("Failed to update post");
+      }
+    } catch (error) {
+      console.error("Error updating post:", error);
+    }
+  };
   const handleNext = (postId) => {
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
@@ -172,42 +222,12 @@ export default function UserProfile() {
     );
   };
 
-   
-   const handleEditPost = (postId, currentContent) => {
-    setEditingPostId(postId);
-    setEditedContent(currentContent);
-  };
-
- 
-  const handleSaveEditPost = async (postId) => {
-    try {
-      const response = await fetch(`http://localhost:4000/posts/${postId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: editedContent }),
-      });
-
-      if (response.ok) {
-        setPosts(prevPosts =>
-          prevPosts.map(post =>
-            post.post_id === postId ? { ...post, content: editedContent } : post
-          )
-        );
-        setEditingPostId(null);
-      } else {
-        console.error("Failed to update post");
-      }
-    } catch (error) {
-      console.error("Error updating post:", error);
-    }
-  };
-
   if (!user) return <p>Loading profile...</p>;
 
   return (
     <div className={styles.profileContainer}>
       <Navbar />
-      <ProfilePictureEdit 
+      <ProfilePictureEdit
         user={user}
         previewImage={previewImage}
         isEditingImage={isEditingImage}
@@ -215,28 +235,33 @@ export default function UserProfile() {
         handleSaveImage={handleSaveImage}
         handleRevertImage={handleRevertImage}
         setIsEditingImage={setIsEditingImage}
+        isOwnProfile={userId === loggedInUserId}
       />
       <ProfileHeader user={user} />
       <ProfileStats user={user} navigate={navigate} />
-      <PostForm 
-        postContent={postContent}
-        setPostContent={setPostContent}
-        handlePostFilesChange={handlePostFilesChange}
-        handleSubmitPost={handleSubmitPost}
-        previewFiles={previewFiles}
-        handleRemovePreview={() => {}}
-      />
-      <UserPosts 
-        posts={posts} 
+      {userId === loggedInUserId && (
+        <PostForm
+          postContent={postContent}
+          setPostContent={setPostContent}
+          handlePostFilesChange={handlePostFilesChange}
+          handleSubmitPost={handleSubmitPost}
+          previewFiles={previewFiles}
+          handleRemovePreview={() => {}}
+        />
+      )}
+      <UserPosts
+        posts={posts}
         setPosts={setPosts}
         handlePrev={handlePrev}
         handleNext={handleNext}
-        onDeletePost={handleDeletePost}  
+        onDeletePost={handleDeletePost}
         onEditPost={handleEditPost}
         onSaveEdit={handleSaveEditPost}
         editingPostId={editingPostId}
         editedContent={editedContent}
         setEditedContent={setEditedContent}
+        isOwner={isOwner}
+        handleReportPost={handleReportPost}
       />
     </div>
   );
