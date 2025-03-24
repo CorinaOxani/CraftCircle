@@ -21,7 +21,17 @@ export default function Navbar() {
           <span className={styles.separator}></span>
           <button onClick={() => navigate("/messages")}>Messages</button>
           <span className={styles.separator}></span>
-          <button onClick={() => navigate("/myshop")}>Shop</button>
+          <button onClick={() => {
+            const userId = localStorage.getItem("user_id");
+            if (userId) {
+              navigate(`/shop`);
+            } else {
+              navigate("/login"); // fallback în caz că nu e logat
+            }
+          }}>
+            Shop
+          </button>
+
           <span className={styles.separator}></span>
           <button onClick={() => navigate("/cart")} className={styles.cartIcon}>
             <FaShoppingCart />

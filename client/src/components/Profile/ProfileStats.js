@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../../CSSfyles/UserProfile.module.css";
 
-export default function ProfileStats({ user, navigate }) {
+export default function ProfileStats({ user, navigate, isOwner }) {
   return (
     <div className={styles.userDetailsNav}>
       <button onClick={() => navigate(`/profile/${user.user_id}/followers`)}>
@@ -10,9 +10,15 @@ export default function ProfileStats({ user, navigate }) {
       <button onClick={() => navigate(`/profile/${user.user_id}/following`)}>
         <strong>{user?.following_count ?? 0}</strong> Following
       </button>
-      <button>
+      <button onClick={() => navigate(isOwner ? "/profile" : `/profile/${user.user_id}`)}>
         <strong>{user?.posts_count ?? 0}</strong> Posts
       </button>
+
+      {!isOwner && (
+        <button onClick={() => navigate(`/profile/${user.user_id}/shop`)}>
+          🛒 Shop
+        </button>
+      )}
     </div>
   );
 }

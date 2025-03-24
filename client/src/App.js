@@ -5,6 +5,7 @@ import Login from "./components/Login";
 import AuthRedirect from "./components/AuthRedirect"; 
 import AdditionalInfoForm from "./components/AdditionalInfoForm";
 import UserProfile from "./components/Profile/UserProfile";
+import ShopPage from "./components/Shop/ShopPage";
 
 function App() {
   return (
@@ -16,7 +17,9 @@ function App() {
           <Route path="/auth-success" element={<AuthRedirect />} />
           <Route path="/additional-info" element={<AdditionalInfoForm />} />
           <Route path="/profile" element={<UserProfile />} />
-          <Route path="/profile/:userId" element={<UserProfile />} />  
+          <Route path="/profile/:userId" element={<UserProfile />} /> 
+          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/profile/:userId/shop" element={<ShopPage />} /> 
 
 
           <Route

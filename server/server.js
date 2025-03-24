@@ -6,6 +6,7 @@ const userRoutes = require("./routes/user");
 const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/posts"); 
 const uploadRoutes = require("./routes/uploads");
+const shopRoutes = require("./routes/shop");
 
 
 
@@ -31,6 +32,7 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes); 
 app.use("/uploads", uploadRoutes);
+app.use("/shop", shopRoutes);
 
 
 // Pornirea serverului

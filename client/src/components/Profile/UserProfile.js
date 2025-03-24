@@ -25,6 +25,7 @@ export default function UserProfile() {
   const [previewImage, setPreviewImage] = useState(null);
   const [editingPostId, setEditingPostId] = useState(null);
   const [editedContent, setEditedContent] = useState("");
+  const [isPosting, setIsPosting] = useState(false);
 
   // 🔹 Fetch user posts
   const fetchUserPosts = useCallback(() => {
@@ -130,18 +131,19 @@ export default function UserProfile() {
   const handleSubmitPost = async (event) => {
     event.preventDefault();
     if (!postContent && postFiles.length === 0) return;
-
+  
     const formData = new FormData();
     formData.append("user_id", userId);
     formData.append("content", postContent);
     postFiles.forEach((file) => formData.append("files", file));
-
+  
     try {
+      setIsPosting(true); 
       const response = await fetch("http://localhost:4000/uploads/upload-post", {
         method: "POST",
         body: formData,
       });
-
+  
       if (response.ok) {
         setPostContent("");
         setPostFiles([]);
@@ -152,10 +154,12 @@ export default function UserProfile() {
       }
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setIsPosting(false); 
     }
   };
-
-  // 🔹 Editare postare
+  
+  
   const handleEditPost = (postId, currentContent) => {
     setEditingPostId(postId);
     setEditedContent(currentContent);
@@ -238,7 +242,10 @@ export default function UserProfile() {
         isOwnProfile={userId === loggedInUserId}
       />
       <ProfileHeader user={user} />
-      <ProfileStats user={user} navigate={navigate} />
+      <ProfileStats user={user}
+       navigate={navigate}
+       isOwner={isOwner} 
+      />
       {userId === loggedInUserId && (
         <PostForm
           postContent={postContent}
@@ -247,6 +254,7 @@ export default function UserProfile() {
           handleSubmitPost={handleSubmitPost}
           previewFiles={previewFiles}
           handleRemovePreview={() => {}}
+          isPosting={isPosting}
         />
       )}
       <UserPosts
