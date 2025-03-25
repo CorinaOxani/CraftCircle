@@ -177,4 +177,62 @@ router.delete("/delete-product/:itemId", async (req, res) => {
   }
 });
 
+router.put("/update-product", upload.array("newImages"), async (req, res) => {
+  const { item_id, title, description, price, imagesToDelete } = req.body;
+
+  if (!item_id || !title || !price) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    // Actualizare date
+    await pool.query(
+      `UPDATE marketplace_items
+       SET title = $1, description = $2, price = $3
+       WHERE item_id = $4`,
+      [title, description, price, item_id]
+    );
+
+    // Ștergere imagini dacă există
+    const toDelete = JSON.parse(imagesToDelete || "[]");
+    for (const url of toDelete) {
+      const publicId = extractPublicIdFromUrl(url);
+      if (publicId) {
+        try {
+          await cloudinary.uploader.destroy(publicId);
+        } catch (err) {
+          console.warn("Cloudinary deletion failed:", publicId, err.message);
+        }
+
+        await pool.query(
+          `DELETE FROM shop_item_images WHERE item_id = $1 AND image_url = $2`,
+          [item_id, url]
+        );
+      }
+    }
+
+    // Upload imagini noi (dacă există)
+    const files = req.files || [];
+    for (const file of files) {
+      const base64 = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+      const uploadResult = await cloudinary.uploader.upload(base64, {
+        folder: "shop_items",
+        public_id: uuidv4(),
+      });
+
+      await pool.query(
+        `INSERT INTO shop_item_images (item_id, image_url)
+         VALUES ($1, $2)`,
+        [item_id, uploadResult.secure_url]
+      );
+    }
+
+    res.json({ message: "Product updated" });
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({ error: "Failed to update product" });
+  }
+});
+
+
 module.exports = router;

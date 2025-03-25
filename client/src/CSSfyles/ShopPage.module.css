@@ -72,21 +72,29 @@
   margin-bottom: 20px;
 }
 
-.inlineInput {
-  height: 50px;
-  padding: 10px;
-  border: 1px solid #ffffff;
-  border-radius: 20px;
-  background-color: #ffffff;
-  font-family: 'Lateef', sans-serif;
+.inlineInput,
+.inlineTextarea {
+  width: 100%;
+  padding: 6px 10px;
   font-size: 18px;
+  font-family: 'Lateef', sans-serif;
   color: #59341b;
+  background-color: #fff;
+  border: 1px solid #d5b8ad;
+  border-radius: 8px;
+  box-sizing: border-box;
   outline: none;
-  resize: none;
-  flex: 1;
-  min-width: 200px;
+  margin-bottom: 2px;
 }
 
+.inlineInput {
+  height: 36px;
+}
+
+.inlineTextarea {
+  min-height: 60px;
+  resize: none;
+}
 
 .productCard {
   position: relative;
@@ -98,7 +106,12 @@
   width: 100%;
   max-width: 350px;
   margin: 0 auto;
+  height: 500px; /* adaugă înălțime fixă aici */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
+
 
 .carouselContainer {
   position: relative;
@@ -147,18 +160,28 @@
 .productDetails {
   margin-top: 10px;
   color: #59341b;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 5px;
+  flex-grow: 1;
+  font-family: 'Lateef', sans-serif;
+  font-size: 18px;
 }
+
 
 .productsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 50px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
   padding: 20px;
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  justify-items: center; 
 }
+
 
 
 .formWrapper {
@@ -215,3 +238,108 @@
   display: block;
 }
 
+.plusBox {
+  width: 100%;
+  max-height: 300px;
+  border: 2px dashed #c29f91;
+  background-color: #fff6f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.plusSymbol {
+  font-size: 48px;
+  color: #c29f91;
+  font-weight: bold;
+}
+
+.saveButton {
+  background-color: transparent;
+  color: #59341b;
+  border: 1px solid #59341b;
+  padding: 8px 20px;
+  border-radius: 15px;
+  font-family: 'Lateef', sans-serif;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-left: 10px;
+  width: 100px;
+}
+
+.saveButton:hover {
+  background-color: white;
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: #59341b;
+  border: 1px solid #59341b;
+  padding: 8px 20px;
+  border-radius: 15px;
+  font-family: 'Lateef', sans-serif;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-left: 10px;
+}
+
+.cancelButton:hover {
+  background-color: white;
+}
+
+.formInput {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 17px;
+  font-family: 'Lateef', sans-serif;
+  color: #59341b;
+  background-color: #ffffff;
+  border: 1px solid #e3c9c0;
+  border-radius: 20px;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.formTextarea {
+  width: 94%;
+  min-height: 50px;
+  resize: none;
+  padding: 10px 15px;
+  font-size: 17px;
+  font-family: 'Lateef', sans-serif;
+  color: #59341b;
+  background-color: #ffffff;
+  border: 1px solid #e3c9c0;
+  border-radius: 20px;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.formFieldsRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.removePreviewButton {
+  position: absolute;
+  top: 25px;
+  right: 15px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}

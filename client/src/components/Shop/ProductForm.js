@@ -47,13 +47,13 @@ export default function ProductForm({onSubmitProduct, isPosting }) {
 
   return (
     <form onSubmit={handleSubmit} className={styles.postFormContainer}>
-      <div className={productStyles.inlineFormFields}>
-    <textarea
+    <div className={productStyles.formFieldsRow}>
+    <input
       type="text"
       placeholder="Product Title"
       value={title}
       onChange={(e) => setTitle(e.target.value)}
-      className={`${productStyles.inlineInput} ${productStyles.titleInput}`}
+      className={productStyles.formInput}
     />
     <div className={productStyles.priceWrapper}>
       <span className={productStyles.euroSymbol}>€</span>
@@ -63,15 +63,16 @@ export default function ProductForm({onSubmitProduct, isPosting }) {
         placeholder="Price"
         value={price}
         onChange={(e) => setPrice(e.target.value)}
-        className={productStyles.inlineInput}
+        className={productStyles.formInput}
       />
     </div>
   </div>
+
   <textarea
     placeholder="Description"
     value={description}
     onChange={(e) => setDescription(e.target.value)}
-    className={productStyles.inlineInput}
+    className={productStyles.formTextarea}
   />
 
 
