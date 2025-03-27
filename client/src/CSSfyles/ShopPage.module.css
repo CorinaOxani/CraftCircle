@@ -131,7 +131,7 @@
   width: 100%;
   max-width: 350px;
   margin: 0 auto;
-  height: 500px; /* adaugă înălțime fixă aici */
+  height: 540px; /* adaugă înălțime fixă aici */
   display: flex;
   flex-direction: column;
   
@@ -407,4 +407,18 @@
   font-family: 'Lateef', sans-serif;
   font-size: 18px;
   opacity: 0.8;
+}
+
+/* Exemple pentru o notificare toastify */
+.customToast {
+  background-color: #f3ebe5;
+  color: #59341b;
+  font-family: 'Lateef', serif;
+  font-size: 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.customToastBody {
+  padding: 8px 16px;
 }

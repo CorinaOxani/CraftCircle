@@ -235,5 +235,51 @@ router.put("/update-product", upload.array("newImages"), async (req, res) => {
   }
 });
 
+router.post("/add-to-cart", async (req, res) => {
+  const { user_id, product_id, quantity } = req.body;
+
+  if (!user_id || !product_id || !quantity) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  try {
+    // Verifică dacă produsul este deja în coș
+    const existing = await pool.query(
+      `SELECT * FROM shopping_cart WHERE user_id = $1 AND item_id = $2`,
+      [user_id, product_id]
+    );
+
+    if (existing.rows.length > 0) {
+      // Dacă există, fă update la cantitate
+      await pool.query(
+        `UPDATE shopping_cart
+         SET quantity = quantity + $1
+         WHERE user_id = $2 AND item_id = $3`,
+        [quantity, user_id, product_id]
+      );
+    } else {
+      // Altfel, inserează un rând nou
+      const productData = await pool.query(
+        `SELECT user_id FROM marketplace_items WHERE item_id = $1`,
+        [product_id]
+      );
+      const seller_id = productData.rows[0]?.user_id;
+
+      await pool.query(
+        `INSERT INTO shopping_cart (user_id, item_id, seller_id, quantity, added_at)
+         VALUES ($1, $2, $3, $4, NOW())`,
+        [user_id, product_id, seller_id, quantity]
+      );
+    }
+
+    res.json({ message: "Product added to cart." });
+  } catch (err) {
+    console.error("Add to cart error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+
 
 module.exports = router;

@@ -1,4 +1,6 @@
 import React from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./components/Register";
 import Login from "./components/Login";
@@ -6,6 +8,7 @@ import AuthRedirect from "./components/AuthRedirect";
 import AdditionalInfoForm from "./components/AdditionalInfoForm";
 import UserProfile from "./components/Profile/UserProfile";
 import ShopPage from "./components/Shop/ShopPage";
+import ShoppingCart from "./components/ShoppingCart/Cart";
 
 function App() {
   return (
@@ -19,7 +22,8 @@ function App() {
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/profile/:userId" element={<UserProfile />} /> 
           <Route path="/shop" element={<ShopPage />} />
-          <Route path="/profile/:userId/shop" element={<ShopPage />} /> 
+          <Route path="/profile/:userId/shop" element={<ShopPage />} />
+          <Route path="/cart" element={<ShoppingCart />} /> 
 
 
           <Route
@@ -29,6 +33,7 @@ function App() {
             }
           />
         </Routes>
+        <ToastContainer position="bottom-right" autoClose={2500} />
       </div>
     </Router>
   );

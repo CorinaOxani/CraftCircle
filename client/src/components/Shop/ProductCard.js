@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { toast } from "react-toastify";
 import styles from "../../CSSfyles/ShopPage.module.css";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ProductMenuButton from "./ProductMenuButton";
@@ -75,7 +76,12 @@ export default function ProductCard({
       if (res.ok) {
         window.location.reload();
       } else {
-        alert("Failed to save changes");
+        toast.error("Failed to save changes", {
+          className: styles.customToast,
+          bodyClassName: styles.customToastBody,
+          position: "bottom-right",
+          autoClose: 2500
+        });
       }
     } catch (err) {
       console.error("Save error:", err);
@@ -91,7 +97,12 @@ export default function ProductCard({
   const handleAddToCart = async (productId) => {
     const user_id = localStorage.getItem("user_id");
     if (!user_id) {
-      alert("You need to log in to add to cart.");
+      toast.error("You need to log in to add to cart.", {
+        className: styles.customToast,
+        bodyClassName: styles.customToastBody,
+        position: "bottom-right",
+        autoClose: 2500
+      });
       return;
     }
 
@@ -104,13 +115,28 @@ export default function ProductCard({
 
       const data = await res.json();
       if (res.ok) {
-        alert("Added to cart!");
+        toast.success("🛒 Product added to cart!", {
+          className: styles.customToast,
+          bodyClassName: styles.customToastBody,
+          position: "bottom-right",
+          autoClose: 2500
+        });
       } else {
-        alert(data.error || "Error adding to cart.");
+        toast.error(data.error || "Error adding to cart.", {
+          className: styles.customToast,
+          bodyClassName: styles.customToastBody,
+          position: "bottom-right",
+          autoClose: 2500
+        });
       }
     } catch (err) {
       console.error("Add to cart error:", err);
-      alert("Failed to add to cart.");
+      toast.error("Failed to add to cart.", {
+        className: styles.customToast,
+        bodyClassName: styles.customToastBody,
+        position: "bottom-right",
+        autoClose: 2500
+      });
     }
   };
 
@@ -224,9 +250,14 @@ export default function ProductCard({
             <h3>{product.title}</h3>
             <p className={styles.productDescription}>{product.description}</p>
 
-            <div className={styles.flexSpacer} /> {/* 🧩 Aici vine spațiul flexibil */}
+            <div className={styles.flexSpacer} /> 
 
             <strong>€{product.price}</strong>
+            {isOwner && !isEditing && (
+              <p className={styles.stockStatus}>
+                {stock === "yes" ? "In stock" : "Out of stock"}
+              </p>
+            )}
             {!isOwner && (
               stock === "yes" ? (
                 <button className={styles.cartButton} onClick={() => handleAddToCart(product.item_id)}>

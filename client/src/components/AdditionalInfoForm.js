@@ -17,16 +17,16 @@ export default function AdditionalInfoForm() {
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [cities, setCities] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [loading, setLoading] = useState(false); // 👈 Adăugat loader
+  const [setErrorMessage] = useState("");
+  const [setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false); 
 
   useEffect(() => {
     const isNewUser = localStorage.getItem("isNewUser") === "true";
     if (!isNewUser) {
-      navigate("/home"); // Dacă utilizatorul nu este nou, îl ducem la Home
+      navigate("/home"); 
     }
-    // Fetch list of countries
+    
     const fetchCountries = async () => {
       try {
         const response = await axios.get("https://restcountries.com/v3.1/all");
@@ -35,7 +35,7 @@ export default function AdditionalInfoForm() {
           code: country.cca2,
         }));
         setCountries(countryList.sort((a, b) => a.name.localeCompare(b.name)));
-        setFilteredCountries(countryList); // Initially, all countries are displayed
+        setFilteredCountries(countryList); 
       } catch (error) {
         console.error("Error fetching countries:", error);
       }
@@ -50,17 +50,17 @@ export default function AdditionalInfoForm() {
     setFormData((prevData) => ({
       ...prevData,
       country: inputValue,
-      city: "", // Clear the city when the country changes
+      city: "", 
     }));
 
-    // Filter countries based on input
+   
     const filtered = countries.filter((country) =>
       country.name.toLowerCase().startsWith(inputValue.toLowerCase())
     );
     setFilteredCountries(filtered);
 
     if (filtered.length === 1 && filtered[0].name === inputValue) {
-      // If user selects a valid country, fetch its cities
+      
       try {
         const response = await axios.post(
           "https://countriesnow.space/api/v0.1/countries/cities",
@@ -69,7 +69,7 @@ export default function AdditionalInfoForm() {
 
         if (!response.data.error) {
           setCities(response.data.data);
-          setFilteredCities(response.data.data); // Initially show all cities
+          setFilteredCities(response.data.data);
         } else {
           console.error("Error fetching cities:", response.data.msg);
           setCities([]);
@@ -94,7 +94,7 @@ export default function AdditionalInfoForm() {
       city: inputValue,
     }));
 
-    // Filter cities based on input
+    
     const filtered = cities.filter((city) =>
       city.toLowerCase().startsWith(inputValue.toLowerCase())
     );
@@ -104,14 +104,14 @@ export default function AdditionalInfoForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const user_id = localStorage.getItem("user_id"); // Obține user_id din localStorage
+    const user_id = localStorage.getItem("user_id"); 
   
     if (!user_id || !formData.birth_date || !formData.country || !formData.city) {
       setErrorMessage("Please fill in all fields.");
       return;
     }
 
-    setLoading(true); //  Activează loader-ul
+    setLoading(true); 
     console.log("Loading set to true");
 
     try {
@@ -137,8 +137,8 @@ export default function AdditionalInfoForm() {
     } catch (err) {
       setErrorMessage("An error occurred while submitting the form.");
     } finally {
-      setLoading(false); //  Dezactivează loader-ul după finalizarea cererii
-      console.log("Loading set to false"); // DEBUG: Verifică dacă se dezactivează
+      setLoading(false); 
+      console.log("Loading set to false"); 
     }
   };
 

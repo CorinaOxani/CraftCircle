@@ -1,0 +1,92 @@
+.productCard {
+    display: flex;
+    background: #ecd9d4;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    margin-left : 30px;
+    width: 100%;
+    max-width: 1000px;
+  }
+
+  .productCard:first-of-type {
+    margin-top: 100px; 
+  }
+  
+  .cartImageWrapper {
+    flex: 0 0 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+  }
+  
+  .productMedia {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    background-color: white;
+  }
+  
+  .productDetails {
+    flex: 1;
+    text-align: left;
+    font-family: "Playfair Display", serif;
+    color: #59341b;
+  }
+  
+  .productDetails h3 {
+    margin: 0 0 6px 0;
+    font-size: 18px;
+  }
+  
+  .productDetails p {
+    margin: 4px 0;
+    font-size: 16px;
+  }
+  
+  .cartActions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  
+  .price {
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  .quantityRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .qtyBtn {
+    border: none;
+    background: #b98374;
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 1;
+  }
+  
+  .deleteBtn {
+    background: none;
+    border: none;
+    color: #7e4f41;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
