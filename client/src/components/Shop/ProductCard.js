@@ -20,6 +20,7 @@ export default function ProductCard({
   const [imagesToDelete, setImagesToDelete] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [stock, setStock] = useState(product.stock || "yes");
 
   const fileInputRef = useRef(null);
 
@@ -51,6 +52,7 @@ export default function ProductCard({
     setImagesToDelete([]);
     setNewFiles([]);
     setCurrentIndex(0);
+    setStock(product.stock || "yes");
   };
 
   const handleSave = async () => {
@@ -61,6 +63,7 @@ export default function ProductCard({
     formData.append("description", description);
     formData.append("price", price);
     formData.append("imagesToDelete", JSON.stringify(imagesToDelete));
+    formData.append("stock", stock);
     newFiles.forEach((file) => formData.append("newImages", file));
 
     try {
@@ -83,6 +86,32 @@ export default function ProductCard({
 
   const handleClickPlus = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleAddToCart = async (productId) => {
+    const user_id = localStorage.getItem("user_id");
+    if (!user_id) {
+      alert("You need to log in to add to cart.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:4000/shop/add-to-cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id, product_id: productId, quantity: 1 }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Added to cart!");
+      } else {
+        alert(data.error || "Error adding to cart.");
+      }
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      alert("Failed to add to cart.");
+    }
   };
 
   return (
@@ -148,45 +177,69 @@ export default function ProductCard({
         {isEditing ? (
           <>
             <input
-                className={styles.inlineInput}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+              className={styles.inlineInput}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
             <textarea
-                className={styles.inlineTextarea}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+              className={styles.inlineTextarea}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
             <input
-                type="number"
-                min="0"
-                className={styles.inlineInput}
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+              type="number"
+              min="0"
+              className={styles.inlineInput}
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
             />
-
+            {isOwner && (
+              <select
+                className={styles.inlineInput}
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+              >
+                <option value="yes">In stock</option>
+                <option value="no">Out of stock</option>
+              </select>
+            )}
             <div style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}>
-            <button
+              <button
                 onClick={handleSave}
                 disabled={isSaving}
                 className={styles.saveButton}
-            >
+              >
                 {isSaving ? "Saving..." : "Save"}
-            </button>
-            <button
+              </button>
+              <button
                 onClick={handleCancel}
                 className={styles.cancelButton}
-            >
+              >
                 Cancel
-            </button>
+              </button>
             </div>
           </>
         ) : (
           <>
             <h3>{product.title}</h3>
-            <p>{product.description}</p>
+            <p className={styles.productDescription}>{product.description}</p>
+
+            <div className={styles.flexSpacer} /> {/* 🧩 Aici vine spațiul flexibil */}
+
             <strong>€{product.price}</strong>
+            {!isOwner && (
+              stock === "yes" ? (
+                <button className={styles.cartButton} onClick={() => handleAddToCart(product.item_id)}>
+                  🛒 Add to Cart
+                </button>
+              ) : (
+                <button className={styles.outOfStock} disabled>
+                  Out of Stock
+                </button>
+              )
+            )}
           </>
+
         )}
       </div>
     </div>

@@ -94,7 +94,32 @@
 .inlineTextarea {
   min-height: 60px;
   resize: none;
+  
 }
+
+.productDescription {
+  max-height: 90px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin: 0;
+  line-height: 1.3;
+  min-height: 1em;
+}
+
+.productDescription::-webkit-scrollbar {
+  width: 6px;
+}
+
+.productDescription::-webkit-scrollbar-thumb {
+  background-color: #c29f91;
+  border-radius: 4px;
+}
+
+.productDescription::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
 
 .productCard {
   position: relative;
@@ -109,7 +134,7 @@
   height: 500px; /* adaugă înălțime fixă aici */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  
 }
 
 
@@ -158,17 +183,29 @@
 }
 
 .productDetails {
-  margin-top: 10px;
   color: #59341b;
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: normal;
-  max-height: 150px;
-  overflow-y: auto;
-  padding: 5px;
-  flex-grow: 1;
+  padding: 0px 5px 0 5px;
   font-family: 'Lateef', sans-serif;
   font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 4px;
+}
+
+.flexSpacer {
+  flex-grow: 1;
+}
+
+
+.productDetails h3,
+.productDetails p,
+.productDetails strong {
+  margin: 5px;
+  line-height: 1.2;
 }
 
 
@@ -342,4 +379,32 @@
   align-items: center;
   justify-content: center;
   z-index: 5;
+}
+
+
+.cartButton {
+  background-color: transparent;
+  color: #59341b;
+  border: 1px solid #59341b;
+  padding: 8px 20px;
+  border-radius: 15px;
+  font-family: 'Lateef', sans-serif;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.cartButton:hover {
+  background-color: white;
+}
+
+.outOfStock {
+  background-color: #e3d3cd;
+  color: #a28b83;
+  border: 1px solid #cbb3a8;
+  padding: 8px 20px;
+  border-radius: 15px;
+  font-family: 'Lateef', sans-serif;
+  font-size: 18px;
+  opacity: 0.8;
 }

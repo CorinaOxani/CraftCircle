@@ -178,7 +178,7 @@ router.delete("/delete-product/:itemId", async (req, res) => {
 });
 
 router.put("/update-product", upload.array("newImages"), async (req, res) => {
-  const { item_id, title, description, price, imagesToDelete } = req.body;
+  const { item_id, title, description, price, stock, imagesToDelete } = req.body;
 
   if (!item_id || !title || !price) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -188,10 +188,11 @@ router.put("/update-product", upload.array("newImages"), async (req, res) => {
     // Actualizare date
     await pool.query(
       `UPDATE marketplace_items
-       SET title = $1, description = $2, price = $3
-       WHERE item_id = $4`,
-      [title, description, price, item_id]
+       SET title = $1, description = $2, price = $3, stock = $4
+       WHERE item_id = $5`,
+      [title, description, price, stock || "yes", item_id]
     );
+    
 
     // Ștergere imagini dacă există
     const toDelete = JSON.parse(imagesToDelete || "[]");
