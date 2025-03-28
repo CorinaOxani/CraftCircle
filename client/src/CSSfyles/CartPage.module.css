@@ -1,3 +1,11 @@
+.cartContainer {
+    padding-top: 150px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+
 .productCard {
     display: flex;
     background: #ecd9d4;
@@ -7,14 +15,10 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 10px;
-    margin-left : 30px;
     width: 100%;
     max-width: 1000px;
   }
 
-  .productCard:first-of-type {
-    margin-top: 100px; 
-  }
   
   .cartImageWrapper {
     flex: 0 0 120px;
@@ -36,7 +40,7 @@
   .productDetails {
     flex: 1;
     text-align: left;
-    font-family: "Playfair Display", serif;
+    font-family: 'Lateef', sans-serif;
     color: #59341b;
   }
   
@@ -47,7 +51,7 @@
   
   .productDetails p {
     margin: 4px 0;
-    font-size: 16px;
+    font-size: 20px;
   }
   
   .cartActions {
@@ -59,13 +63,16 @@
   
   .price {
     font-weight: bold;
-    font-size: 18px;
+    font-size: 23px;
+    font-family: 'Lateef', sans-serif;
   }
   
   .quantityRow {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 23px;
+    font-family: 'Lateef', sans-serif;
   }
   
   .qtyBtn {
@@ -88,5 +95,53 @@
     font-size: 14px;
     text-decoration: underline;
     cursor: pointer;
+    font-size: 23px;
+    font-family: 'Lateef', sans-serif;
+  }
+  
+  .cartContent {
+    display: flex;
+    gap: 40px;
+    width: 100%;
+    max-width: 1300px;
+    padding: 20px;
+    box-sizing: border-box;
+    justify-content: space-between;
+  }
+  
+  .productsSection {
+    flex: 3;
+  }
+  
+  .summaryBox {
+    flex: 1;
+    background: #f5e6df;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.12);
+    height: fit-content;
+    font-family: 'Lateef', sans-serif;
+    color: #59341b;
+    margin-left: 50px;
+    font-size: 20px;
+  }
+  
+  .summaryBox h3 {
+    margin-top: 0;
+  }
+  
+  .title {
+    margin-bottom: 0;
+    text-align: center;
+    font-family: 'Lateef', sans-serif;
+    font-size: 35px;
+    color: #59341b;
+  }
+  
+  .sellerTitle {
+    margin: 20px 0 10px 30px;
+    font-size: 30px;
+    color: #59341b;
+    font-family: 'Lateef', sans-serif;
   }
   

@@ -17,8 +17,8 @@ export default function AdditionalInfoForm() {
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [cities, setCities] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
-  const [setErrorMessage] = useState("");
-  const [setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false); 
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function AdditionalInfoForm() {
     if (!isNewUser) {
       navigate("/home"); 
     }
-    
+
     const fetchCountries = async () => {
       try {
         const response = await axios.get("https://restcountries.com/v3.1/all");
@@ -53,14 +53,14 @@ export default function AdditionalInfoForm() {
       city: "", 
     }));
 
-   
+    
     const filtered = countries.filter((country) =>
       country.name.toLowerCase().startsWith(inputValue.toLowerCase())
     );
     setFilteredCountries(filtered);
 
     if (filtered.length === 1 && filtered[0].name === inputValue) {
-      
+     
       try {
         const response = await axios.post(
           "https://countriesnow.space/api/v0.1/countries/cities",
@@ -69,7 +69,7 @@ export default function AdditionalInfoForm() {
 
         if (!response.data.error) {
           setCities(response.data.data);
-          setFilteredCities(response.data.data);
+          setFilteredCities(response.data.data); 
         } else {
           console.error("Error fetching cities:", response.data.msg);
           setCities([]);
