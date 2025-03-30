@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../CSSfyles/Navbar.module.css";
 import logo from "../images/LOGO.png"; 
-import { FaBars, FaShoppingCart } from "react-icons/fa"; 
+import { FaBars, FaShoppingCart, FaHeart } from "react-icons/fa"; 
 import { useCart } from "../components/CartContex";
 export default function Navbar() {
   const navigate = useNavigate();
@@ -29,7 +29,10 @@ export default function Navbar() {
           }}>
             Shop
           </button>
-
+          <span className={styles.separator}></span>
+            <button onClick={() => navigate("/favorites")} className={styles.favIcon}>
+              <FaHeart />
+            </button>
           <span className={styles.separator}></span>
           <div className={styles.cartWrapper}>
             <button onClick={() => navigate("/cart")} className={styles.cartIcon}>

@@ -142,6 +142,57 @@ export default function ProductCard({
     }
   };
 
+  const handleAddToFavorites = async () => {
+    const user_id = localStorage.getItem("user_id");
+    if (!user_id) {
+      toast.error("You need to log in to add to favorites.", {
+        className: styles.customToast,
+        bodyClassName: styles.customToastBody,
+        position: "bottom-right",
+        autoClose: 2500
+      });
+      return;
+    }
+  
+    try {
+      const res = await fetch("http://localhost:4000/favorites/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id,
+          item_id: product.item_id,
+          seller_id: product.user_id,
+        }),
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        toast.success("❤️ Added to favorites!", {
+          className: styles.customToast,
+          bodyClassName: styles.customToastBody,
+          position: "bottom-right",
+          autoClose: 2500
+        });
+      } else {
+        toast.error(data.error || "Error adding to favorites.", {
+          className: styles.customToast,
+          bodyClassName: styles.customToastBody,
+          position: "bottom-right",
+          autoClose: 2500
+        });
+      }
+    } catch (err) {
+      console.error("Add to favorites error:", err);
+      toast.error("Failed to add to favorites.", {
+        className: styles.customToast,
+        bodyClassName: styles.customToastBody,
+        position: "bottom-right",
+        autoClose: 2500
+      });
+    }
+  };
+
   return (
     <div className={styles.productCard}>
       {isOwner && (
@@ -262,9 +313,14 @@ export default function ProductCard({
             )}
             {!isOwner && (
               stock === "yes" ? (
-                <button className={styles.cartButton} onClick={() => handleAddToCart(product.item_id)}>
-                  🛒 Add to Cart
-                </button>
+                <>
+                  <button className={styles.cartButton} onClick={() => handleAddToCart(product.item_id)}>
+                    🛒 Add to Cart
+                  </button>
+                  <button className={styles.cartButton} onClick={handleAddToFavorites}>
+                    ❤️ Add to Favorites
+                  </button>
+                </>
               ) : (
                 <button className={styles.outOfStock} disabled>
                   Out of Stock
@@ -272,7 +328,6 @@ export default function ProductCard({
               )
             )}
           </>
-
         )}
       </div>
     </div>

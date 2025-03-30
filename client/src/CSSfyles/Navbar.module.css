@@ -148,3 +148,12 @@
     font-weight: bold;
   }
   
+  .favIcon {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    position: relative;
+  }
+  

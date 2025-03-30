@@ -10,6 +10,7 @@ import UserProfile from "./components/Profile/UserProfile";
 import ShopPage from "./components/Shop/ShopPage";
 import ShoppingCart from "./components/ShoppingCart/Cart";
 import { CartProvider } from "./components/CartContex";
+import Favorites from "./components/Favorites/Favorites"
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/profile/:userId/shop" element={<ShopPage />} />
             <Route path="/cart" element={<ShoppingCart />} /> 
-
+            <Route path="/favorites" element={<Favorites/>}/>
 
             <Route
               path="/"
