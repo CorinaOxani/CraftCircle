@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import styles from "../CSSfyles/Navbar.module.css";
 import logo from "../images/LOGO.png"; 
 import { FaBars, FaShoppingCart } from "react-icons/fa"; 
+import { useCart } from "../components/CartContex";
 export default function Navbar() {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
-
+  const { cartCount } = useCart();
   return (
     <nav className={styles.navbar}>
       <img src={logo} alt="Headmade Logo" className={styles.logo} onClick={() => navigate("/")} />
@@ -30,9 +31,12 @@ export default function Navbar() {
           </button>
 
           <span className={styles.separator}></span>
-          <button onClick={() => navigate("/cart")} className={styles.cartIcon}>
+          <div className={styles.cartWrapper}>
+            <button onClick={() => navigate("/cart")} className={styles.cartIcon}>
             <FaShoppingCart />
-          </button>
+              {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
+            </button>
+          </div>
         </div>
 
         <div className={styles.menuIcon} onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>

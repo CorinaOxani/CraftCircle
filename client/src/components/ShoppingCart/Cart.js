@@ -3,10 +3,12 @@ import styles from "../../CSSfyles/CartPage.module.css";
 import Navbar from "../Navbar";
 import CartProductList from "./CartProductList";
 import CartSummary from "./CartSummary";
+import { useCart } from "../CartContex";
 
 export default function Cart() {
   const [groupedCart, setGroupedCart] = useState({});
   const userId = localStorage.getItem("user_id");
+  const { fetchCartCount } = useCart();
 
   const fetchCartData = () => {
     if (!userId) return;
@@ -25,6 +27,7 @@ export default function Cart() {
           grouped[item.seller_id].items.push(item);
         });
         setGroupedCart(grouped);
+        fetchCartCount();
       })
       .catch((err) => {
         console.error("Error loading cart:", err);

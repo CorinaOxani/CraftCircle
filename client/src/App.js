@@ -9,30 +9,33 @@ import AdditionalInfoForm from "./components/AdditionalInfoForm";
 import UserProfile from "./components/Profile/UserProfile";
 import ShopPage from "./components/Shop/ShopPage";
 import ShoppingCart from "./components/ShoppingCart/Cart";
+import { CartProvider } from "./components/CartContex";
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/auth-success" element={<AuthRedirect />} />
-          <Route path="/additional-info" element={<AdditionalInfoForm />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/profile/:userId" element={<UserProfile />} /> 
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/profile/:userId/shop" element={<ShopPage />} />
-          <Route path="/cart" element={<ShoppingCart />} /> 
+        <CartProvider>
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/auth-success" element={<AuthRedirect />} />
+            <Route path="/additional-info" element={<AdditionalInfoForm />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/profile/:userId" element={<UserProfile />} /> 
+            <Route path="/shop" element={<ShopPage />} />
+            <Route path="/profile/:userId/shop" element={<ShopPage />} />
+            <Route path="/cart" element={<ShoppingCart />} /> 
 
 
-          <Route
-            path="/"
-            element={
-              <h1>Welcome to the Home Page! Add more components here.</h1>
-            }
-          />
-        </Routes>
+            <Route
+              path="/"
+              element={
+                <h1>Welcome to the Home Page! Add more components here.</h1>
+              }
+            />
+          </Routes>
+        </CartProvider>
         <ToastContainer position="bottom-right" autoClose={2500} />
       </div>
     </Router>
