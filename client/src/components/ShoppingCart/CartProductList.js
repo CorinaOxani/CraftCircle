@@ -1,7 +1,9 @@
 import React from "react";
 import styles from "../../CSSfyles/CartPage.module.css";
+import { useNavigate } from "react-router-dom";
 
 export default function CartProductList({ groupedCart, onQuantityChange }) {
+  const navigate = useNavigate();
   const handleQuantityChange = async (cartId, newQuantity) => {
     if (newQuantity < 1) return;
 
@@ -40,7 +42,12 @@ export default function CartProductList({ groupedCart, onQuantityChange }) {
         <div key={sellerId} className={styles.sellerGroup}>
           <h3 className={styles.sellerTitle}>Seller: {group.sellerName}</h3>
           {group.items.map((item) => (
-            <div className={styles.productCard} key={item.cart_id}>
+            <div
+            className={styles.productCard}
+            key={item.cart_id}
+            onClick={() => navigate(`/shop/${item.seller_id}?highlight=${item.item_id}`)}
+            style={{ cursor: "pointer" }}
+          >
               <div className={styles.cartImageWrapper}>
                 {item.image_url && (
                   <img src={item.image_url} alt="product" className={styles.productMedia} />

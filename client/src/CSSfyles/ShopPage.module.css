@@ -409,7 +409,7 @@
   opacity: 0.8;
 }
 
-/* Exemple pentru o notificare toastify */
+
 .customToast {
   background-color: #f3ebe5;
   color: #59341b;
@@ -422,3 +422,20 @@
 .customToastBody {
   padding: 8px 16px;
 }
+
+.highlightedCard {
+  animation: highlightFade 3s ease-out;
+  border: 2px solid #8c6449;
+  box-shadow: 0 0 10px rgba(218, 201, 172, 0.7);
+  border-radius: 12px;
+}
+
+@keyframes highlightFade {
+  from {
+    background-color: #f5e6df;
+  }
+  to {
+    background-color: transparent;
+  }
+}
+

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../Navbar";
 import styles from "../../CSSfyles/ShopPage.module.css";
 import ProfileHeader from "../Profile/ProfileHeader";
@@ -19,6 +19,10 @@ export default function ShopPage() {
     const [user, setUser] = useState(null);
     const [products, setProducts] = useState([]);
     const [isPostingProduct, setIsPostingProduct] = useState(false);
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const highlightId = searchParams.get("highlight");
+
 
     const isOwnShop = userId === loggedInUserId;
 
@@ -47,6 +51,22 @@ export default function ShopPage() {
         .catch((err) => console.error("Error loading products:", err));
     }, [userId]);
 
+    useEffect(() => {
+        if (highlightId && products.length > 0) {
+          const el = document.getElementById(`product-${highlightId}`);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            el.classList.add(styles.highlightedCard);
+      
+            const timeout = setTimeout(() => {
+              el.classList.remove(styles.highlightedCard);
+            }, 3000);
+      
+            return () => clearTimeout(timeout);
+          }
+        }
+      }, [highlightId, products]);
+      
     const handleAddProduct = async ({ title, description, price, files }) => {
         const formData = new FormData();
         formData.append("user_id", userId);
@@ -186,6 +206,7 @@ export default function ShopPage() {
             onDeleteProduct={handleDeleteProduct}
             onEditProduct={handleEditProduct}
             onReportProduct={() => handleReportProduct(product.item_id, product.user_id)} 
+            id={`product-${product.item_id}`}
             />  
             ))}
         </div>

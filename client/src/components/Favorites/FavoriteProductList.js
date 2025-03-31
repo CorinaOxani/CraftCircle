@@ -57,7 +57,7 @@ export default function FavoritesProductList({ groupedFavorites, onFavoritesChan
             <div
                 className={styles.productCard}
                 key={item.favorite_id}
-                onClick={() => navigate(`/profile/${item.seller_id}/shop`)}
+                onClick={() => navigate(`/shop/${item.seller_id}?highlight=${item.item_id}`)}
                 style={{ cursor: "pointer" }}
             >
               <div className={styles.cartImageWrapper}>

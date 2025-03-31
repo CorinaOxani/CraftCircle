@@ -13,6 +13,7 @@ export default function ProductCard({
   onDeleteProduct,
   onEditProduct,
   onReportProduct,
+  id,
 }) {
   const media = product.images || [];
   const [title, setTitle] = useState(product.title);
@@ -194,7 +195,7 @@ export default function ProductCard({
   };
 
   return (
-    <div className={styles.productCard}>
+    <div className={styles.productCard} id={id}>
       {isOwner && (
         <ProductMenuButton
           productId={product.item_id}
