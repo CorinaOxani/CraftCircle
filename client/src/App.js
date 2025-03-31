@@ -13,6 +13,7 @@ import Favorites from "./components/Favorites/Favorites";
 import { CartProvider } from "./components/CartContex";
 import { FavoritesProvider } from "./components/FavoritesContex";
 import { UserProvider } from "./components/UserContext";
+import FollowersPage from "./components/Profile/FollowersPage";
 
 
 import { useEffect } from "react";
@@ -46,6 +47,7 @@ function App() {
               <Route path="/shop/:userId" element={<ShopPage />} />
               <Route path="/cart" element={<ShoppingCart />} />
               <Route path="/favorites" element={<Favorites />} />
+              <Route path="/profile/:userId/followers" element={<FollowersPage />} />
             </Routes>
             <ToastContainer position="bottom-right" autoClose={2500} />
           </FavoritesProvider>

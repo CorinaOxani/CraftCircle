@@ -1,0 +1,60 @@
+.shopContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 160px;
+    font-family: "Playfair Display", serif;
+  }
+  
+  .shopHeader {
+    text-align: center;
+  }
+  
+  .shopDescription {
+    font-style: italic;
+    color: #7c5b45;
+  }
+  
+  .sectionTitle {
+    font-family: "Playfair Display", serif;
+    font-size: 22px;
+    font-weight: bold;
+    color: #59341b;
+    margin-top: 30px;
+    text-align: center;
+  }
+  
+  .productsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  /* ✨ Nou: stil pentru fiecare follower */
+  .followerItem {
+    background: #f9f9f9;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .followerItem:hover {
+    background: #f1e7e4;
+  }
+  
+  .followerItem img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+  }
+  

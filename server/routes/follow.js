@@ -53,4 +53,22 @@ router.delete("/", async (req, res) => {
   }
 });
 
+router.get("/followers/:userId", async (req, res) => {
+    const { userId } = req.params;
+    try {
+      const result = await pool.query(
+        `SELECT a.user_id, a.first_name, a.last_name, a.profile_picture
+         FROM follows f
+         JOIN accounts a ON a.user_id = f.follower_id
+         WHERE f.following_id = $1`,
+        [userId]
+      );
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error("Error fetching followers:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
 module.exports = router;

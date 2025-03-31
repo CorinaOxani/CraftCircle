@@ -123,7 +123,7 @@ export default function ShopPage() {
             ? {
                 ...product,
                 currentIndex:
-                    (product.currentIndex - 1 + product.images.length) % product.images.length, // ✅ aici
+                    (product.currentIndex - 1 + product.images.length) % product.images.length,
                 }
             : product
         )

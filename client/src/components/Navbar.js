@@ -12,7 +12,7 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const { cartCount } = useCart();
   const { favoritesCount } = useFavorites();
-  const { logout } = useUser();
+  const { logout, userId } = useUser();
   return (
     <nav className={styles.navbar}>
       <img src={logo} alt="Headmade Logo" className={styles.logo} onClick={() => navigate("/")} />
@@ -20,7 +20,7 @@ export default function Navbar() {
  
       <div className={styles.navContainer}>
         <div className={styles.navLinks}>
-          <button onClick={() => navigate("/profile")}>Home</button>
+          <button onClick={() => navigate(`/profile/${userId}`)}>Home</button>
           <span className={styles.separator}></span>
           <button onClick={() => navigate("/messages")}>Messages</button>
           <span className={styles.separator}></span>

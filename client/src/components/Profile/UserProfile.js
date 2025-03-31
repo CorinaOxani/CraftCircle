@@ -14,8 +14,7 @@ export default function UserProfile() {
   const { userId: urlUserId } = useParams(); 
   const { userId: loggedInUserId } = useUser();
   const userId = urlUserId || loggedInUserId;
-  const isOwner = userId === loggedInUserId;
- 
+  const isOwner = parseInt(userId) === parseInt(loggedInUserId);
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [postContent, setPostContent] = useState("");
@@ -230,11 +229,6 @@ export default function UserProfile() {
   };
 
   if (!user) return <p>Loading profile...</p>;
-  console.log("👤 loggedInUserId:", loggedInUserId);
-  console.log("👤 parsed loggedInUserId:", parseInt(loggedInUserId));
-  console.log("👤 Profil vizitat userId:", userId);
-  console.log("👤 Obiect user:", user);
-
 
   return (
     <div className={styles.profileContainer}>

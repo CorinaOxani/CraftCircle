@@ -44,7 +44,7 @@ export default function Login() {
       if (response.ok) {
         console.log("User ID saved:", result.user.user_id);
         login(result.user.user_id);
-        navigate("/profile"); 
+        navigate(`/profile/${result.user.user_id}`);
       }
       else {
         setErrorMessage(result.error || "Invalid email or password.");
