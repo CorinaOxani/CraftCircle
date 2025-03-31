@@ -7,11 +7,12 @@ import ProfileHeader from "./ProfileHeader";
 import ProfileStats from "./ProfileStats";
 import ProfilePictureEdit from "./ProfilePictureEdit";
 import PostForm from "./PostForm";
+import { useUser } from "../UserContext";
 
 export default function UserProfile() {
   const navigate = useNavigate();
   const { userId: urlUserId } = useParams(); 
-  const loggedInUserId = localStorage.getItem("user_id"); 
+  const { userId: loggedInUserId } = useUser();
   const userId = urlUserId || loggedInUserId;
   const isOwner = userId === loggedInUserId;
  
@@ -26,6 +27,8 @@ export default function UserProfile() {
   const [editingPostId, setEditingPostId] = useState(null);
   const [editedContent, setEditedContent] = useState("");
   const [isPosting, setIsPosting] = useState(false);
+  const [isFollowingChanged, setIsFollowingChanged] = useState(false);
+
 
   // 🔹 Fetch user posts
   const fetchUserPosts = useCallback(() => {
@@ -227,6 +230,11 @@ export default function UserProfile() {
   };
 
   if (!user) return <p>Loading profile...</p>;
+  console.log("👤 loggedInUserId:", loggedInUserId);
+  console.log("👤 parsed loggedInUserId:", parseInt(loggedInUserId));
+  console.log("👤 Profil vizitat userId:", userId);
+  console.log("👤 Obiect user:", user);
+
 
   return (
     <div className={styles.profileContainer}>
@@ -242,10 +250,15 @@ export default function UserProfile() {
         isOwnProfile={userId === loggedInUserId}
       />
       <ProfileHeader user={user} />
-      <ProfileStats user={user}
-       navigate={navigate}
-       isOwner={isOwner} 
+      <ProfileStats
+        user={user}
+        setUser={setUser}
+        navigate={navigate}
+        isOwner={isOwner}
+        isFollowingChanged={isFollowingChanged}
+        setIsFollowingChanged={setIsFollowingChanged}
       />
+
       {userId === loggedInUserId && (
         <PostForm
           postContent={postContent}

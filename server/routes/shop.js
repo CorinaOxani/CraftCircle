@@ -194,7 +194,6 @@ router.put("/update-product", upload.array("newImages"), async (req, res) => {
     );
     
 
-    // Ștergere imagini dacă există
     const toDelete = JSON.parse(imagesToDelete || "[]");
     for (const url of toDelete) {
       const publicId = extractPublicIdFromUrl(url);
@@ -212,7 +211,6 @@ router.put("/update-product", upload.array("newImages"), async (req, res) => {
       }
     }
 
-    // Upload imagini noi (dacă există)
     const files = req.files || [];
     for (const file of files) {
       const base64 = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
@@ -243,14 +241,12 @@ router.post("/add-to-cart", async (req, res) => {
   }
 
   try {
-    // Verifică dacă produsul este deja în coș
     const existing = await pool.query(
       `SELECT * FROM shopping_cart WHERE user_id = $1 AND item_id = $2`,
       [user_id, product_id]
     );
 
     if (existing.rows.length > 0) {
-      // Dacă există, fă update la cantitate
       await pool.query(
         `UPDATE shopping_cart
          SET quantity = quantity + $1
@@ -258,7 +254,7 @@ router.post("/add-to-cart", async (req, res) => {
         [quantity, user_id, product_id]
       );
     } else {
-      // Altfel, inserează un rând nou
+
       const productData = await pool.query(
         `SELECT user_id FROM marketplace_items WHERE item_id = $1`,
         [product_id]

@@ -12,6 +12,7 @@ import ShoppingCart from "./components/ShoppingCart/Cart";
 import Favorites from "./components/Favorites/Favorites";
 import { CartProvider } from "./components/CartContex";
 import { FavoritesProvider } from "./components/FavoritesContex";
+import { UserProvider } from "./components/UserContext";
 
 
 import { useEffect } from "react";
@@ -28,25 +29,28 @@ function ScrollToTop() {
 function App() {
   return (
     <Router>
-      <CartProvider>
-        <FavoritesProvider>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<h1>Welcome to the Home Page! Add more components here.</h1>} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/auth-success" element={<AuthRedirect />} />
-            <Route path="/additional-info" element={<AdditionalInfoForm />} />
-            <Route path="/profile" element={<UserProfile />} />
-            <Route path="/profile/:userId" element={<UserProfile />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/shop/:userId" element={<ShopPage />} />
-            <Route path="/cart" element={<ShoppingCart />} />
-            <Route path="/favorites" element={<Favorites />} />
-          </Routes>
-          <ToastContainer position="bottom-right" autoClose={2500} />
-        </FavoritesProvider>
-      </CartProvider>
+      <UserProvider>
+        <CartProvider>
+          <FavoritesProvider>
+            <ScrollToTop />
+            <Routes>
+              <Route path="/" element={<h1>Welcome to the Home Page! Add more components here.</h1>} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/auth-success" element={<AuthRedirect />} />
+              <Route path="/additional-info" element={<AdditionalInfoForm />} />
+              <Route path="/profile" element={<UserProfile />} />
+              <Route path="/profile/:userId" element={<UserProfile />} />
+              <Route path="/shop" element={<ShopPage />} />
+              <Route path="/profile/:userId/shop" element={<ShopPage />} />
+              <Route path="/shop/:userId" element={<ShopPage />} />
+              <Route path="/cart" element={<ShoppingCart />} />
+              <Route path="/favorites" element={<Favorites />} />
+            </Routes>
+            <ToastContainer position="bottom-right" autoClose={2500} />
+          </FavoritesProvider>
+        </CartProvider>
+      </UserProvider>
     </Router>
   );
 }

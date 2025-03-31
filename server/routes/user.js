@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../config/database"); // Importă conexiunea la baza de date
+const pool = require("../config/database"); 
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const saltRounds = 10;
 
-// Configurare multer pentru încărcarea imaginilor
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Asigură-te că ai acest folder creat
+    cb(null, "uploads/"); 
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// LOGIN: Verifică datele utilizatorului
+// LOGIN
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -50,7 +50,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// REGISTER: Adaugă un utilizator nou
+// REGISTER
 router.post("/adduser", async (req, res) => {
   try {
     const { first_name, last_name, email, password, birth_date, bio } = req.body;
@@ -90,7 +90,7 @@ router.post("/adduser", async (req, res) => {
   }
 });
 
-// SALVARE DATE PROFIL (birth_date, country, city)
+// SALVARE DATE PROFIL
 router.post("/additional-info", async (req, res) => {
   try {
     const { user_id, birth_date, country, city } = req.body;
@@ -122,7 +122,7 @@ router.post("/additional-info", async (req, res) => {
   }
 });
 
-// Obține detaliile unui utilizator
+
 router.get("/:userId", async (req, res) => {
   const userId = parseInt(req.params.userId, 10);
   if (isNaN(userId)) {

@@ -4,10 +4,11 @@ import Navbar from "../Navbar";
 import CartProductList from "./CartProductList";
 import CartSummary from "./CartSummary";
 import { useCart } from "../CartContex";
+import { useUser } from "../UserContext";
 
 export default function Cart() {
   const [groupedCart, setGroupedCart] = useState({});
-  const userId = localStorage.getItem("user_id");
+  const { userId } = useUser();
   const { fetchCartCount } = useCart();
 
   const fetchCartData = () => {

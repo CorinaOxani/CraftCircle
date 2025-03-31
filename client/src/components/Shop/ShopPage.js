@@ -7,14 +7,15 @@ import ProfilePictureDisplay from "../Profile/ProfilePictureDisplay";
 import ProfileStats from "../Profile/ProfileStats";
 import ProductForm from "./ProductForm";
 import ProductCard from "./ProductCard";
+import { useUser } from "../UserContext";
 
 
 
 export default function ShopPage() {
     const params = useParams();
     const navigate = useNavigate();
-    const loggedInUserId = localStorage.getItem("user_id");
-    const userId = params.userId || loggedInUserId;
+    const { userId: loggedInUserId } = useUser();
+    const userId = parseInt(params.userId) || loggedInUserId;
     const [editingProductId, setEditingProductId] = useState(null);
     const [user, setUser] = useState(null);
     const [products, setProducts] = useState([]);
@@ -22,9 +23,11 @@ export default function ShopPage() {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const highlightId = searchParams.get("highlight");
+    const [isFollowingChanged, setIsFollowingChanged] = useState(false);
 
 
-    const isOwnShop = userId === loggedInUserId;
+
+    const isOwnShop = parseInt(userId) === parseInt(loggedInUserId);
 
     useEffect(() => {
         if (!userId) {
@@ -181,10 +184,15 @@ export default function ShopPage() {
             </p>
             )}
         </div>
-        <ProfileStats user={user}
-                navigate={navigate}
-                isOwner={isOwnShop} 
-        />
+        <ProfileStats
+            user={user}
+            setUser={setUser}
+            navigate={navigate}
+            isOwner={isOwnShop}
+            isFollowingChanged={isFollowingChanged}
+            setIsFollowingChanged={setIsFollowingChanged}
+            />
+
         {isOwnShop && (
             <ProductForm
                 userId={userId}

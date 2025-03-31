@@ -1,17 +1,21 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import React, { useState } from "react"; // Eliminat `useEffect`
+import React, { useState } from "react"; 
+import { useNavigate } from "react-router-dom";
 import styles from "../CSSfyles/SignUpForm.module.css";
 import profileImage from "../images/LogInRegister/bobina.png";
 import headerImage from "../images/LogInRegister/foarfeca.png";
 import logo from "../images/LOGO.png";
+import { useUser } from "./UserContext";
 
-export default function Register() {
+export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [errorMessage, setErrorMessage] = useState(""); // Păstrat pentru mesaje de eroare
+  const [errorMessage, setErrorMessage] = useState(""); 
+  const { login } = useUser();
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -38,12 +42,11 @@ export default function Register() {
   
       const result = await response.json();
       if (response.ok) {
-        // Redirect user after successful login
-        window.location.href = "/profile"; // Redirecționează utilizatorul
         console.log("User ID saved:", result.user.user_id);
-        // Salvează user_id în localStorage
-      localStorage.setItem("user_id", result.user.user_id);
-      } else {
+        login(result.user.user_id);
+        navigate("/profile"); 
+      }
+      else {
         setErrorMessage(result.error || "Invalid email or password.");
       }
     } catch (err) {
@@ -117,7 +120,7 @@ export default function Register() {
 
             <div className={styles.inputGroup}>
             <input
-                type={showPassword ? "text" : "password"} // Modifică tipul input-ului pe baza stării
+                type={showPassword ? "text" : "password"} 
                 id="password"
                 placeholder=" "
                 required

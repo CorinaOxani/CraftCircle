@@ -1,12 +1,12 @@
-// src/components/Favorites/Favorites.js
 import React, { useEffect, useState } from "react";
 import styles from "../../CSSfyles/CartPage.module.css";
 import Navbar from "../Navbar";
 import FavoritesProductList from "./FavoriteProductList";
+import { useUser } from "../UserContext";
 
 export default function Favorites() {
   const [groupedFavorites, setGroupedFavorites] = useState({});
-  const userId = localStorage.getItem("user_id");
+  const { userId } = useUser();
 
   const fetchFavoritesData = () => {
     if (!userId) return;

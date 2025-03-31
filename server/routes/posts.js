@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require("../config/database");
 const { cloudinary } = require("../config/cloudinary");
 
-// Obține postările unui utilizator
+
 router.get("/", async (req, res) => {
     const { user_id } = req.query;
 
@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// 🔹 Ruta pentru ștergerea unei postări
+
 router.delete("/:postId", async (req, res) => {
     const postId = parseInt(req.params.postId, 10);
 
@@ -35,7 +35,7 @@ router.delete("/:postId", async (req, res) => {
     try {
         console.log("Checking if post exists with ID:", postId);
 
-        // 🔹 Verifică dacă postarea există
+
         const postCheck = await pool.query("SELECT * FROM posts WHERE post_id = $1", [postId]);
 
         if (postCheck.rows.length === 0) {
@@ -43,18 +43,16 @@ router.delete("/:postId", async (req, res) => {
             return res.status(404).json({ error: "Post not found" });
         }
 
-        // 🔹 Obține URL-urile fișierelor asociate postării
+
         const mediaFiles = await pool.query("SELECT file_url, file_type FROM post_media WHERE post_id = $1", [postId]);
 
-        // 🔹 Șterge fișierele din Cloudinary
         for (const file of mediaFiles.rows) {
             const fileUrl = file.file_url;
 
-            // 🔹 Extrage `public_id` corect (presupunând că fișierele sunt salvate în `user_uploads/`)
             const filePath = fileUrl.split('/user_uploads/')[1]; 
             if (!filePath) {
                 console.error(`Invalid Cloudinary URL: ${fileUrl}`);
-                continue; // Sari peste această iterație dacă URL-ul nu este corect
+                continue;
             }
 
             const publicId = `user_uploads/${filePath.split('.')[0]}`; 
@@ -68,10 +66,8 @@ router.delete("/:postId", async (req, res) => {
             }
         }
 
-        // 🔹 Șterge fișierele asociate din `post_media`
         await pool.query("DELETE FROM post_media WHERE post_id = $1", [postId]);
 
-        // 🔹 Șterge postarea din `posts`
         const deletePost = await pool.query("DELETE FROM posts WHERE post_id = $1 RETURNING *", [postId]);
 
         console.log("Post deleted successfully:", deletePost.rows[0]);

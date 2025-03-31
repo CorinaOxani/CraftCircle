@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/database");
 
-// Obține toate favoritele unui utilizator
 router.get("/user-favorites/:userId", async (req, res) => {
   const { userId } = req.params;
 
@@ -31,12 +30,12 @@ router.get("/user-favorites/:userId", async (req, res) => {
   }
 });
 
-// Adaugă un produs la favorite
+
 router.post("/add", async (req, res) => {
   const { user_id, item_id, seller_id } = req.body;
 
   try {
-    // Verifică dacă există deja în favorite
+
     const exists = await pool.query(
       "SELECT 1 FROM favorites WHERE user_id = $1 AND item_id = $2",
       [user_id, item_id]
@@ -59,7 +58,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// Șterge un produs din favorite
+
 router.delete("/delete/:favoriteId", async (req, res) => {
   const { favoriteId } = req.params;
 

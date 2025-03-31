@@ -5,12 +5,14 @@ import logo from "../images/LOGO.png";
 import { FaBars, FaShoppingCart, FaHeart } from "react-icons/fa"; 
 import { useCart } from "../components/CartContex";
 import { useFavorites } from "../components/FavoritesContex";
+import { useUser } from "../components/UserContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const { cartCount } = useCart();
   const { favoritesCount } = useFavorites();
+  const { logout } = useUser();
   return (
     <nav className={styles.navbar}>
       <img src={logo} alt="Headmade Logo" className={styles.logo} onClick={() => navigate("/")} />
@@ -53,7 +55,10 @@ export default function Navbar() {
           {showDropdown && (
             <div className={styles.dropdownMenu}>
               <button onClick={() => navigate("/settings")}>Change Password</button>
-              <button onClick={() => navigate("/logout")}>Logout</button>
+              <button onClick={() => {
+                logout();
+                navigate("/login");
+              }}>Logout</button>
             </div>
           )}
         </div>
