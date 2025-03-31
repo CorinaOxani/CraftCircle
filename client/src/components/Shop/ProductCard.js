@@ -4,6 +4,9 @@ import styles from "../../CSSfyles/ShopPage.module.css";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ProductMenuButton from "./ProductMenuButton";
 import { useCart } from "../CartContex";
+import { useFavorites } from "../FavoritesContex"; 
+
+
 
 export default function ProductCard({
   product,
@@ -25,6 +28,8 @@ export default function ProductCard({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stock, setStock] = useState(product.stock || "yes");
   const { fetchCartCount } = useCart();
+  const { fetchFavoritesCount } = useFavorites(); 
+
   const fileInputRef = useRef(null);
 
   const currentMedia = [...media.filter((img) => !imagesToDelete.includes(img)), ...newFiles.map((f) => URL.createObjectURL(f))];
@@ -175,6 +180,7 @@ export default function ProductCard({
           position: "bottom-right",
           autoClose: 2500
         });
+        fetchFavoritesCount();
       } else {
         toast.error(data.error || "Error adding to favorites.", {
           className: styles.customToast,

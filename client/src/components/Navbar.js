@@ -4,10 +4,13 @@ import styles from "../CSSfyles/Navbar.module.css";
 import logo from "../images/LOGO.png"; 
 import { FaBars, FaShoppingCart, FaHeart } from "react-icons/fa"; 
 import { useCart } from "../components/CartContex";
+import { useFavorites } from "../components/FavoritesContex";
+
 export default function Navbar() {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const { cartCount } = useCart();
+  const { favoritesCount } = useFavorites();
   return (
     <nav className={styles.navbar}>
       <img src={logo} alt="Headmade Logo" className={styles.logo} onClick={() => navigate("/")} />
@@ -30,9 +33,12 @@ export default function Navbar() {
             Shop
           </button>
           <span className={styles.separator}></span>
-            <button onClick={() => navigate("/favorites")} className={styles.favIcon}>
-              <FaHeart />
-            </button>
+          <button onClick={() => navigate("/favorites")} className={styles.favIcon}>
+            <FaHeart />
+            {favoritesCount > 0 && (
+              <span className={styles.cartBadge}>{favoritesCount}</span>
+            )}
+          </button>
           <span className={styles.separator}></span>
           <div className={styles.cartWrapper}>
             <button onClick={() => navigate("/cart")} className={styles.cartIcon}>

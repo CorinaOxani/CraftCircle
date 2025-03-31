@@ -4,10 +4,12 @@ import styles from "../../CSSfyles/CartPage.module.css";
 import ShopPageStyles from "../../CSSfyles/ShopPage.module.css";
 import { toast } from "react-toastify";
 import { useCart } from "../CartContex";
+import { useFavorites } from "../FavoritesContex";
 
 export default function FavoritesProductList({ groupedFavorites, onFavoritesChange }) {
   const user_id = localStorage.getItem("user_id");
   const { fetchCartCount } = useCart();
+  const { fetchFavoritesCount } = useFavorites();
   const navigate = useNavigate();
 
   const handleDeleteFavorite = async (favId) => {
@@ -18,6 +20,7 @@ export default function FavoritesProductList({ groupedFavorites, onFavoritesChan
 
       if (res.ok) {
         onFavoritesChange(); // re-fetch favorites
+        fetchFavoritesCount();
       }
     } catch (err) {
       console.error("Error deleting favorite:", err);
