@@ -14,6 +14,7 @@ import { CartProvider } from "./components/CartContex";
 import { FavoritesProvider } from "./components/FavoritesContex";
 import { UserProvider } from "./components/UserContext";
 import FollowersPage from "./components/Profile/FollowersPage";
+import FollowingPage from "./components/Profile/FollowingPage";
 
 
 import { useEffect } from "react";
@@ -48,6 +49,7 @@ function App() {
               <Route path="/cart" element={<ShoppingCart />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/profile/:userId/followers" element={<FollowersPage />} />
+              <Route path="/profile/:userId/following" element={<FollowingPage />} />
             </Routes>
             <ToastContainer position="bottom-right" autoClose={2500} />
           </FavoritesProvider>

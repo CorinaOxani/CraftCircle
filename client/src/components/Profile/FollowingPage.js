@@ -8,15 +8,14 @@ import styles from "../../CSSfyles/FollowersPage.module.css";
 import { useUser } from "../UserContext";
 import defaultProfile from "../../images/default-profile.png";
 
-
-export default function FollowersPage() {
+export default function FollowingPage() {
   const { userId: loggedInUserId } = useUser();
   const { userId } = useParams();
   const navigate = useNavigate();
   const isOwner = parseInt(userId) === parseInt(loggedInUserId);
 
   const [user, setUser] = useState(null);
-  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
   const [followingMap, setFollowingMap] = useState({});
   const [isFollowingChanged, setIsFollowingChanged] = useState(false);
 
@@ -26,27 +25,27 @@ export default function FollowersPage() {
       .then(setUser)
       .catch(() => navigate("/"));
 
-    fetch(`http://localhost:4000/follows/followers/${userId}`)
+    fetch(`http://localhost:4000/follows/following/${userId}`)
       .then((res) => res.json())
       .then(async (data) => {
-        setFollowers(data);
+        setFollowing(data);
         const map = {};
 
         await Promise.all(
-          data.map(async (follower) => {
-            if (parseInt(follower.user_id) !== parseInt(loggedInUserId)) {
+          data.map(async (person) => {
+            if (parseInt(person.user_id) !== parseInt(loggedInUserId)) {
               const res = await fetch(
-                `http://localhost:4000/follows/check?follower_id=${loggedInUserId}&following_id=${follower.user_id}`
+                `http://localhost:4000/follows/check?follower_id=${loggedInUserId}&following_id=${person.user_id}`
               );
               const json = await res.json();
-              map[follower.user_id] = json.isFollowing;
+              map[person.user_id] = json.isFollowing;
             }
           })
         );
 
         setFollowingMap(map);
       })
-      .catch((err) => console.error("Error fetching followers:", err));
+      .catch((err) => console.error("Error fetching following:", err));
   }, [userId, loggedInUserId, navigate, isFollowingChanged]);
 
   const toggleFollow = async (targetId, isFollowing) => {
@@ -66,7 +65,7 @@ export default function FollowersPage() {
     }
   };
 
-  if (!user) return <p>Loading followers...</p>;
+  if (!user) return <p>Loading following...</p>;
 
   return (
     <div className={styles.shopContainer}>
@@ -77,7 +76,7 @@ export default function FollowersPage() {
         <ProfileHeader user={user} />
         {!isOwner && (
           <p className={styles.shopDescription}>
-            See who follows {user.first_name}'s profile.
+            See who {user.first_name} is following.
           </p>
         )}
       </div>
@@ -92,11 +91,11 @@ export default function FollowersPage() {
       />
 
       <div className={styles.productsGrid}>
-        {followers.length === 0 ? (
-          <p>This user has no followers yet.</p>
+        {following.length === 0 ? (
+          <p>This user is not following anyone yet.</p>
         ) : (
-          followers.map((follower) => (
-            <div key={follower.user_id} className={styles.followerItem}>
+          following.map((person) => (
+            <div key={person.user_id} className={styles.followerItem}>
               <div
                 style={{
                   display: "flex",
@@ -105,26 +104,26 @@ export default function FollowersPage() {
                   cursor: "pointer",
                   flex: 1,
                 }}
-                onClick={() => navigate(`/profile/${follower.user_id}`)}
+                onClick={() => navigate(`/profile/${person.user_id}`)}
               >
                 <img
-                    src={follower.profile_picture || defaultProfile}
-                    alt="Profile"
-                    className={styles.followerPic}
+                  src={person.profile_picture || defaultProfile}
+                  alt="Profile"
+                  className={styles.followerPic}
                 />
-                            <span style={{ fontSize: "18px", fontWeight: "bold" }}>
-                  {follower.first_name} {follower.last_name}
+                <span style={{ fontSize: "18px", fontWeight: "bold" }}>
+                  {person.first_name} {person.last_name}
                 </span>
               </div>
 
-              {follower.user_id !== parseInt(loggedInUserId) && (
+              {person.user_id !== parseInt(loggedInUserId) && (
                 <button
                   className={styles.followButton}
                   onClick={() =>
-                    toggleFollow(follower.user_id, followingMap[follower.user_id])
+                    toggleFollow(person.user_id, followingMap[person.user_id])
                   }
                 >
-                  {followingMap[follower.user_id] ? "Stop Follow" : "Start Follow"}
+                  {followingMap[person.user_id] ? "Stop Follow" : "Start Follow"}
                 </button>
               )}
             </div>

@@ -25,25 +25,28 @@
   }
   
   .productsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 20px;
     padding: 20px;
     width: 100%;
-    max-width: 800px;
+    max-width: 600px;
     margin: 0 auto;
   }
   
-  /* ✨ Nou: stil pentru fiecare follower */
   .followerItem {
-    background: #f9f9f9;
-    padding: 10px 20px;
-    margin-bottom: 10px;
+    width: 100%;
+    max-width: 500px;
+    background: #f5eae6;
+    border: 1px solid #d6bfb5;
+    padding: 12px 20px;
     border-radius: 12px;
     display: flex;
     align-items: center;
-    cursor: pointer;
+    justify-content: space-between;
     transition: background 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
   
   .followerItem:hover {
@@ -51,10 +54,27 @@
   }
   
   .followerItem img {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     margin-right: 15px;
     object-fit: cover;
+    border: 1px solid #59341b;
+  }
+  
+  .followButton {
+    background-color: white;
+    color: #59341b;
+    border: 2px solid #59341b;
+    padding: 6px 14px;
+    border-radius: 15px;
+    font-family: 'Lateef', sans-serif;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .followButton:hover {
+    background-color: #fff;
   }
   
