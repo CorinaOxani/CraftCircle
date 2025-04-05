@@ -15,6 +15,8 @@ import { FavoritesProvider } from "./components/FavoritesContex";
 import { UserProvider } from "./components/UserContext";
 import FollowersPage from "./components/Profile/FollowersPage";
 import FollowingPage from "./components/Profile/FollowingPage";
+import MessagesPage from "./components/Messages/MessagesPage";
+
 
 
 import { useEffect } from "react";
@@ -50,6 +52,8 @@ function App() {
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/profile/:userId/followers" element={<FollowersPage />} />
               <Route path="/profile/:userId/following" element={<FollowingPage />} />
+              <Route path="/messages" element={<MessagesPage />} />
+
             </Routes>
             <ToastContainer position="bottom-right" autoClose={2500} />
           </FavoritesProvider>

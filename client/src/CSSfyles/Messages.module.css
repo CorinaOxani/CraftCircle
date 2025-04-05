@@ -1,0 +1,254 @@
+.messagesContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Lateef', sans-serif;
+    margin-top: 200px;
+  }
+  
+  .messagesContent {
+    display: flex;
+    width: 100%;
+    max-width: 1300px;
+    height: 600px; 
+    border: 1px solid #e3d0c9;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #fff9f6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* LEFT PANEL */
+  .leftPanel {
+    width: 35%;
+    border-right: 1px solid #e3d0c9;
+    padding: 20px;
+    background-color: #fcf3ef;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 19px;
+  }
+  
+  /* RIGHT PANEL */
+  .rightPanel {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .emptyText {
+    font-size: 16px;
+    color: #9d7e6c;
+    text-align: center;
+    margin-top: 50px;
+    font-style: italic;
+  }
+  
+  /* Conversation List */
+  .conversationItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .conversationItem:hover {
+    background-color: #f0e2da;
+  }
+  
+  .activeConversation {
+    background-color: #e7d6cf;
+  }
+  
+  .conversationItem img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .conversationItem span {
+    font-size: 16px;
+    color: #4b2e1e;
+  }
+  
+  /* Message thread */
+  .messageThread {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    max-height: 500px;
+  }
+  
+  .message {
+    padding: 8px 12px;
+    margin: 6px 0;
+    border-radius: 10px;
+    max-width: 70%;
+    font-size: 15px;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+  
+  .messageSent {
+    background-color: #d9b5a7;
+    color: white;
+    align-self: flex-end;
+    text-align: right;
+  }
+  
+  .messageReceived {
+    background-color: #f0e1db;
+    color: #4b2e1e;
+    align-self: flex-start;
+    text-align: left;
+  }
+  .threadContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 450px;
+  }
+  
+  .myMessage {
+    align-self: flex-end;
+    background-color: #d9b5a7;
+    color: white;
+    border-radius: 18px 18px 0 18px;
+    padding: 10px 16px;
+    max-width: 60%;
+    word-wrap: break-word;
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  
+  .theirMessage {
+    align-self: flex-start;
+    background-color: #f0e1db;
+    color: #4b2e1e;
+    border-radius: 18px 18px 18px 0;
+    padding: 10px 16px;
+    max-width: 60%;
+    word-wrap: break-word;
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  
+  .messageBubble {
+    position: relative;
+  }
+  
+  .timestamp {
+    display: block;
+    margin-top: 4px;
+    font-size: 15px;
+    color: #8d6a58;
+    text-align: right;
+  }
+  
+  
+  /* Input */
+  .messageInputContainer {
+    display: flex;
+    border-top: 1px solid #e3d0c9;
+    padding-top: 12px;
+    gap: 10px;
+  }
+  
+  .messageInput {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 15px;
+    border: 1px solid #d2b9b2;
+    border-radius: 8px;
+    font-family: "Playfair Display", serif;
+    outline: none;
+    background-color: #fff;
+    color: #4b2e1e;
+  }
+  
+  .sendButton {
+    background-color: #8c5e4f;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .sendButton:hover {
+    background-color: #a06c5c;
+  }
+  
+  /* Search */
+  .searchBarWrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  
+  .searchInput {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid #c9b1a7;
+    border-radius: 8px;
+    outline: none;
+    font-family: "Playfair Display", serif;
+    background-color: #fdf8f6;
+    color: #59341b;
+  }
+  
+  .loading {
+    font-size: 14px;
+    color: #777;
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  /* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f6e8e2; 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #c69f90; 
+  border-radius: 10px;
+  border: 2px solid #f6e8e2; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #b07f6f;
+}
+
+.theirWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.messageAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+

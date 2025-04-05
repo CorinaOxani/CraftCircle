@@ -10,6 +10,7 @@ const shopRoutes = require("./routes/shop");
 const cartRoutes = require("./routes/cart");
 const favoritesRouter = require("./routes/favorites");
 const followRoutes = require("./routes/follow");
+const messagesRoutes = require("./routes/messages");
 
 
 
@@ -39,6 +40,7 @@ app.use("/shop", shopRoutes);
 app.use("/cart", cartRoutes);
 app.use("/favorites", favoritesRouter);
 app.use("/follows", followRoutes);
+app.use("/messages", messagesRoutes);
 
 // Pornirea serverului
 app.listen(4000, () => console.log("Server running on http://localhost:4000"));
