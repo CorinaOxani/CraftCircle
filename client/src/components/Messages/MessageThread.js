@@ -26,6 +26,11 @@ export default function MessageThread({ messages, userId }) {
             console.warn(" Element invalid în messages:", msg);
             return null;
           }
+          const lastSentIndex = [...messages]
+          .map((m, index) => (m.sender_id === userId ? index : null))
+          .filter((i) => i !== null)
+          .pop();
+        
 
           return (
             <div
@@ -64,7 +69,15 @@ export default function MessageThread({ messages, userId }) {
                         })
                       : ""}
                   </span>
+
+                  {i === lastSentIndex && msg.is_read !== undefined && (
+                    <span className={styles.readStatus}>
+                      {msg.is_read ? "✓✓ Seen" : "✓ Sent"}
+                    </span>
+                  )}
                 </div>
+
+
               )}
             </div>
           );

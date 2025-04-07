@@ -97,11 +97,12 @@ router.get("/:conversationId", async (req, res) => {
     try {
       const result = await pool.query(
         `SELECT m.message_id, m.conversation_id, m.sender_id, m.receiver_id,
-                m.content, m.created_at, a.first_name, a.last_name, a.profile_picture
-         FROM messages m
-         JOIN accounts a ON m.sender_id = a.user_id
-         WHERE m.conversation_id = $1
-         ORDER BY m.created_at ASC`,
+          m.content, m.created_at, m.is_read,
+          a.first_name, a.last_name, a.profile_picture
+        FROM messages m
+        JOIN accounts a ON m.sender_id = a.user_id
+        WHERE m.conversation_id = $1
+        ORDER BY m.created_at ASC`,
         [conversationId]
       );
   
@@ -148,10 +149,16 @@ router.post("/send", async (req, res) => {
       }
   
       const insertMessage = await pool.query(
-        `INSERT INTO messages (sender_id, receiver_id, content, created_at, conversation_id)
-         VALUES ($1, $2, $3, NOW(), $4)
+        `INSERT INTO messages (sender_id, receiver_id, content, created_at, conversation_id, is_read)
+         VALUES ($1, $2, $3, NOW(), $4, $5)
          RETURNING *`,
-        [sender_id, receiver_id, content, conversation_id]
+        [
+          sender_id,
+          receiver_id,
+          content,
+          conversation_id,
+          sender_id === receiver_id ? true : false,  
+        ]
       );
   
       res.status(201).json(insertMessage.rows[0]);
@@ -194,5 +201,55 @@ router.get("/conversations/:userId", async (req, res) => {
     }
   });
 
+  router.post("/mark-read", async (req, res) => {
+    const { user_id, conversation_id } = req.body;
+  
+    if (!user_id || !conversation_id) {
+      return res.status(400).json({ error: "Missing parameters" });
+    }
+  
+    try {
+      await pool.query(
+        `UPDATE messages
+         SET is_read = TRUE
+         WHERE conversation_id = $1 AND receiver_id = $2 AND is_read = FALSE`,
+        [conversation_id, user_id]
+      );
+      res.status(200).json({ success: true });
+    } catch (err) {
+      console.error("Error marking messages as read:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+  router.get("/unread/:userId", async (req, res) => {
+    const { userId } = req.params;
+  
+    try {
+      const result = await pool.query(
+        `SELECT conversation_id, COUNT(*) as unread_count
+         FROM messages
+         WHERE receiver_id = $1 AND is_read = FALSE
+         GROUP BY conversation_id`,
+        [userId]
+      );
+  
+      const unreadByConversation = {};
+      let total = 0;
+  
+      result.rows.forEach((row) => {
+        unreadByConversation[row.conversation_id] = parseInt(row.unread_count, 10);
+        total += parseInt(row.unread_count, 10);
+      });
+  
+      res.json({
+        total,
+        byConversation: unreadByConversation
+      });
+    } catch (err) {
+      console.error("Error fetching unread messages:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
   
 module.exports = router;

@@ -2,7 +2,7 @@ import React from "react";
 import styles from "../../CSSfyles/Messages.module.css";
 import defaultProfile from "../../images/default-profile.png";
 
-export default function ConversationList({ conversations, onSelectConversation, activeId }) {
+export default function ConversationList({ conversations, onSelectConversation, activeId, unreadCounts = {} }) {
   return (
     <div className={styles.conversationList}>
       {conversations.length === 0 ? (
@@ -31,6 +31,9 @@ export default function ConversationList({ conversations, onSelectConversation, 
                   : conv.last_message_preview || "Say hi 👋"}
               </p>
             </div>
+            {unreadCounts[conv.conversation_id] > 0 && (
+            <span className={styles.unreadBadge}>{unreadCounts[conv.conversation_id]}</span>
+          )}
           </div>
         ))
       )}

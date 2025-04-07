@@ -6,6 +6,7 @@ import { FaBars, FaShoppingCart, FaHeart } from "react-icons/fa";
 import { useCart } from "../components/CartContex";
 import { useFavorites } from "../components/FavoritesContex";
 import { useUser } from "../components/UserContext";
+import  useUnreadMessages  from "../components/hooks/useUnreadMessages";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function Navbar() {
   const { cartCount } = useCart();
   const { favoritesCount } = useFavorites();
   const { logout, userId } = useUser();
+  const { unreadCount } = useUnreadMessages(userId);
   return (
     <nav className={styles.navbar}>
       <img src={logo} alt="Headmade Logo" className={styles.logo} onClick={() => navigate("/")} />
@@ -22,7 +24,12 @@ export default function Navbar() {
         <div className={styles.navLinks}>
           <button onClick={() => navigate(`/profile/${userId}`)}>Home</button>
           <span className={styles.separator}></span>
-          <button onClick={() => navigate("/messages")}>Messages</button>
+          <button onClick={() => navigate("/messages")}>
+            Messages
+            {unreadCount > 0 && (
+              <span className={styles.cartBadge}>{unreadCount}</span> 
+            )}
+          </button>
           <span className={styles.separator}></span>
           <button onClick={() => {
             const userId = localStorage.getItem("user_id");

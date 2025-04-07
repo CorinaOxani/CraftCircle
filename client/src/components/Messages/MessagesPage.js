@@ -6,6 +6,7 @@ import SearchBar from "./SearchBar";
 import ConversationList from "./ConversationList";
 import MessageThread from "./MessageThread";
 import MessageInput from "./MessageInput";
+import  useUnreadMessages  from "../hooks/useUnreadMessages";
 
 export default function MessagesPage() {
   const { userId } = useUser();
@@ -14,6 +15,8 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [clearSearch, setClearSearch] = useState(false);
+  const { unreadCount, perConversation, refreshUnread } = useUnreadMessages(userId);
+
 
 
   useEffect(() => {
@@ -46,6 +49,17 @@ export default function MessagesPage() {
         console.log("📥 messages from server:", data);
         if (Array.isArray(data)) {
           setMessages(data);
+          console.log("📬 Marking messages as read for conv", userOrConversation.conversation_id);
+          await fetch("http://localhost:4000/messages/mark-read", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user_id: userId,
+              conversation_id: userOrConversation.conversation_id,
+            }),
+          });
+          refreshUnread();          
+
         } else {
           console.warn("⚠️ Răspuns invalid la fetch messages:", data);
           setMessages([]);
@@ -109,6 +123,11 @@ export default function MessagesPage() {
         setSearchResults([]);
         setClearSearch(true);
         setTimeout(() => setClearSearch(false), 200);
+        // după trimiterea mesajului
+        fetch(`http://localhost:4000/messages/conversations/${userId}`)
+        .then((res) => res.json())
+        .then(setConversations);
+
       }
   
 
@@ -143,11 +162,13 @@ export default function MessagesPage() {
             existingConversations={conversations}
         />
 
-          <ConversationList
-            conversations={searchResults.length > 0 ? searchResults : conversations}
-            onSelectConversation={handleSelectConversation}
-            activeId={activeConversation?.conversation_id}
-          />
+        <ConversationList
+        conversations={searchResults.length > 0 ? searchResults : conversations}
+        onSelectConversation={handleSelectConversation}
+        activeId={activeConversation?.conversation_id}
+        unreadCounts={perConversation}
+        />
+
         </div>
 
         <div className={styles.rightPanel}>

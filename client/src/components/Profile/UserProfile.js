@@ -29,7 +29,7 @@ export default function UserProfile() {
   const [isFollowingChanged, setIsFollowingChanged] = useState(false);
 
 
-  // 🔹 Fetch user posts
+  // Fetch user posts
   const fetchUserPosts = useCallback(() => {
     if (!userId) return;
     fetch(`http://localhost:4000/uploads/user-posts/${userId}`)
@@ -42,7 +42,7 @@ export default function UserProfile() {
       .catch((error) => console.error("Error fetching posts:", error));
   }, [userId]);
 
-  // 🔹 Fetch user profile
+  // Fetch user profile
   useEffect(() => {
     if (!userId) {
       navigate("/login");
@@ -57,7 +57,7 @@ export default function UserProfile() {
     fetchUserPosts();
   }, [userId, navigate, fetchUserPosts]);
 
-  // 🔹 Gestionare imagine profil
+  // Gestionare imagine profil
   const handleImageChange = (event) => {
     if (event.target.files.length > 0) {
       const file = event.target.files[0];
@@ -99,7 +99,7 @@ export default function UserProfile() {
     setIsEditingImage(false);
   };
 
-  // 🔹 Ștergerea unei postări
+  // Ștergerea unei postări
   const handleDeletePost = async (postId) => {
     try {
       const response = await fetch(`http://localhost:4000/posts/${postId}`, {
@@ -116,7 +116,7 @@ export default function UserProfile() {
     }
   };
 
-  // 🔹 Upload de fișiere pentru postare
+  // Upload de fișiere pentru postare
   const handlePostFilesChange = (event) => {
     const newFiles = Array.from(event.target.files);
     setPostFiles((prevFiles) => [...prevFiles, ...newFiles]);
@@ -129,7 +129,7 @@ export default function UserProfile() {
     setPreviewFiles((prevPreviews) => [...prevPreviews, ...newPreviews]);
   };
 
-  // 🔹 Trimitere postare
+  // Trimitere postare
   const handleSubmitPost = async (event) => {
     event.preventDefault();
     if (!postContent && postFiles.length === 0) return;
@@ -241,7 +241,7 @@ export default function UserProfile() {
         handleSaveImage={handleSaveImage}
         handleRevertImage={handleRevertImage}
         setIsEditingImage={setIsEditingImage}
-        isOwnProfile={userId === loggedInUserId}
+        isOwnProfile={parseInt(userId) === parseInt(loggedInUserId)}
       />
       <ProfileHeader user={user} />
       <ProfileStats
@@ -253,7 +253,7 @@ export default function UserProfile() {
         setIsFollowingChanged={setIsFollowingChanged}
       />
 
-      {userId === loggedInUserId && (
+      {parseInt(userId) === parseInt(loggedInUserId) && (
         <PostForm
           postContent={postContent}
           setPostContent={setPostContent}
