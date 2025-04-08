@@ -44,7 +44,7 @@ export default function MessagesPage() {
     if (userOrConversation.conversation_id) {
       setActiveConversation(userOrConversation);
       try {
-        const res = await fetch(`http://localhost:4000/messages/${userOrConversation.conversation_id}`);
+        const res = await fetch(`http://localhost:4000/messages/${userOrConversation.conversation_id}?user_id=${userId}`);
         const data = await res.json();
         console.log("📥 messages from server:", data);
         if (Array.isArray(data)) {
@@ -175,7 +175,7 @@ export default function MessagesPage() {
           {activeConversation ? (
             <>
               {Array.isArray(messages) ? (
-  <MessageThread messages={messages} userId={userId} />
+  <MessageThread messages={messages} userId={userId} setMessages={setMessages} />
 ) : (
   <p className={styles.emptyText}>No messages available.</p>
 )}

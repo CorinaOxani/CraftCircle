@@ -93,17 +93,28 @@ router.post("/conversations", async (req, res) => {
 
 router.get("/:conversationId", async (req, res) => {
     const { conversationId } = req.params;
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({ error: "Missing user_id in query" });
+    }
   
     try {
       const result = await pool.query(
         `SELECT m.message_id, m.conversation_id, m.sender_id, m.receiver_id,
-          m.content, m.created_at, m.is_read,
-          a.first_name, a.last_name, a.profile_picture
+        m.content, m.created_at, m.is_read,
+        a.first_name, a.last_name, a.profile_picture
         FROM messages m
         JOIN accounts a ON m.sender_id = a.user_id
         WHERE m.conversation_id = $1
-        ORDER BY m.created_at ASC`,
-        [conversationId]
+          AND NOT (
+            ($2::int = m.sender_id AND m.deleted_for_sender = TRUE)
+            OR
+            ($2::int = m.receiver_id AND m.deleted_for_receiver = TRUE)
+          )
+        ORDER BY m.created_at ASC
+        `,
+        [conversationId, user_id]
       );
   
       res.json(result.rows || []);
@@ -182,6 +193,10 @@ router.get("/conversations/:userId", async (req, res) => {
                   SELECT m.content
                   FROM messages m
                   WHERE m.conversation_id = c.conversation_id
+                    AND NOT (
+                      ($1::int = m.sender_id AND m.deleted_for_sender = TRUE) OR
+                      ($1::int = m.receiver_id AND m.deleted_for_receiver = TRUE)
+                    )
                   ORDER BY m.created_at DESC
                   LIMIT 1
                 ) AS last_message_preview
@@ -248,6 +263,64 @@ router.get("/conversations/:userId", async (req, res) => {
       });
     } catch (err) {
       console.error("Error fetching unread messages:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+  router.post("/delete", async (req, res) => {
+    const { message_id, user_id } = req.body;
+  
+    if (!message_id || !user_id) {
+      return res.status(400).json({ error: "Missing parameters" });
+    }
+  
+    try {
+      const msgResult = await pool.query(
+        `SELECT sender_id, receiver_id, deleted_for_sender, deleted_for_receiver
+         FROM messages WHERE message_id = $1`,
+        [message_id]
+      );
+  
+      if (msgResult.rows.length === 0) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+  
+      const message = msgResult.rows[0];
+      const isSender = parseInt(user_id) === message.sender_id;
+      const isReceiver = parseInt(user_id) === message.receiver_id;
+  
+      if (!isSender && !isReceiver) {
+        return res.status(403).json({ error: "Not allowed to delete this message" });
+      }
+  
+      // Setăm flagul corespunzător
+      if (isSender) {
+        await pool.query(
+          `UPDATE messages SET deleted_for_sender = TRUE WHERE message_id = $1`,
+          [message_id]
+        );
+      } else if (isReceiver) {
+        await pool.query(
+          `UPDATE messages SET deleted_for_receiver = TRUE WHERE message_id = $1`,
+          [message_id]
+        );
+      }
+  
+      // Dacă ambii au șters mesajul, îl ștergem definitiv din DB
+      const shouldDelete =
+        (isSender && message.deleted_for_receiver) ||
+        (isReceiver && message.deleted_for_sender);
+  
+      if (shouldDelete) {
+        await pool.query(
+          `DELETE FROM messages WHERE message_id = $1`,
+          [message_id]
+        );
+      }
+  
+      res.json({ success: true, deletedCompletely: shouldDelete });
+    } catch (err) {
+      console.error("Error deleting message:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });

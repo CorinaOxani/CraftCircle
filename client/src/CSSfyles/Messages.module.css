@@ -126,7 +126,7 @@
     color: white;
     border-radius: 18px 18px 0 18px;
     padding: 10px 16px;
-    max-width: 60%;
+    max-width: 80%;
     word-wrap: break-word;
     font-size: 18px;
     line-height: 1.4;
@@ -168,10 +168,10 @@
   .messageInput {
     flex: 1;
     padding: 10px 14px;
-    font-size: 15px;
+    font-size: 19px;
     border: 1px solid #d2b9b2;
     border-radius: 8px;
-    font-family: "Playfair Display", serif;
+    font-family: 'Lateef', sans-serif;
     outline: none;
     background-color: #fff;
     color: #4b2e1e;
@@ -183,9 +183,10 @@
     border: none;
     padding: 10px 16px;
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 20px;
     cursor: pointer;
     transition: background 0.2s ease;
+    font-family:'Lateef', sans-serif;
   }
   
   .sendButton:hover {
@@ -203,11 +204,11 @@
     width: 100%;
     max-width: 500px;
     padding: 10px 15px;
-    font-size: 16px;
+    font-size: 19px;
     border: 1px solid #c9b1a7;
     border-radius: 8px;
     outline: none;
-    font-family: "Playfair Display", serif;
+    font-family: 'Lateef', sans-serif;
     background-color: #fdf8f6;
     color: #59341b;
   }
@@ -269,4 +270,77 @@
   color: #8d6a58;
   text-align: right;
   margin-top: 2px;
+}
+
+.menuButton {
+  position: absolute;
+  top: 6px;
+  right: 5px;
+  background: none;
+  border: none;
+  color:#4b2e1e;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.optionsMenu {
+  position: absolute;
+  top: 20px;
+  right: -5px;
+  background-color: #fff6f2;
+  border: 1px solid #d7b9ae;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  width: 120px;
+  min-width: 100px;
+  max-width: 100px;
+}
+
+
+.optionsMenu button {
+  background: none;
+  border: none;
+  padding: 6px 2px;
+  font-size: 16px;
+  color: #4b2e1e;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: 'Lateef', sans-serif;
+  white-space: nowrap;
+}
+
+.optionsMenu button:hover {
+  background-color: #f3e0da;
+  border-radius: 6px;
+}
+
+.messageMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #8d6a58;
+  text-align: right;
+}
+
+.dateLabel {
+  font-size: 12px;
+  color:#4b2e1e;
+  font-style: italic;
+}
+
+.menuButtonLeft {
+  position: absolute;
+  top: 0;
+  right: -6px;
+  background: none;
+  border: none;
+  color:#4b2e1e;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 5;
 }
