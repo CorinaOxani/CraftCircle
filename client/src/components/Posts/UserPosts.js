@@ -2,6 +2,8 @@ import React from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import styles from "../../CSSfyles/UserProfile.module.css";
 import PostMenuButton from "./PostMenuButton";
+import LikeButton from "./LikeButton";
+
 
 export default function UserPosts({ 
   posts, 
@@ -67,8 +69,18 @@ export default function UserPosts({
               </button>
             </div>
           ) : (
-            <p className={styles.postContent}>{post.content}</p>
-          )}
+            <>
+              <p className={styles.postContent}>{post.content}</p>
+                <div className={styles.likeBar}>
+                  <LikeButton 
+                    postId={post.post_id} 
+                    userId={parseInt(localStorage.getItem("user_id"))} 
+                    isOwner={isOwner}
+                    />
+                </div>
+            </>
+            )}
+          
         </div>
       ))}
 

@@ -1,0 +1,98 @@
+.likeContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    color: #4b2e1e;
+    font-size: 16px;
+    user-select: none;
+  }
+  
+  .heartIcon {
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+    font-size: 20px;
+  }
+  
+  .heartIcon:hover {
+    transform: scale(1.2);
+  }
+  
+  .liked {
+    color: #c94747;
+    animation: pulse 0.3s ease;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.4);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+
+  .likeCount {
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: underline;
+    color: #4b2e1e;
+  }
+  
+  .likerModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+  }
+  
+  .likerModalContent {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    position: relative;
+  }
+  
+  .likerModalContent ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .likerModalContent li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+  }
+  
+  .likerModalContent img {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  
+  .closeButton {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
