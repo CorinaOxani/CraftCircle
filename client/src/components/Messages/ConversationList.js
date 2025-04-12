@@ -1,8 +1,10 @@
 import React from "react";
+import { FaTrash } from "react-icons/fa"; 
 import styles from "../../CSSfyles/Messages.module.css";
 import defaultProfile from "../../images/default-profile.png";
 
-export default function ConversationList({ conversations, onSelectConversation, activeId, unreadCounts = {} }) {
+
+export default function ConversationList({ conversations, onSelectConversation, activeId, unreadCounts = {}, onDeleteConversation }) {
   return (
     <div className={styles.conversationList}>
       {conversations.length === 0 ? (
@@ -12,14 +14,14 @@ export default function ConversationList({ conversations, onSelectConversation, 
           <div
             key={conv.conversation_id || `user-${conv.user_id}`}
             className={`${styles.conversationItem} ${activeId === conv.conversation_id ? styles.active : ""}`}
-            onClick={() => onSelectConversation(conv)}
           >
             <img
               src={conv.profile_picture || defaultProfile}
               alt="Profile"
               className={styles.convProfilePic}
+              onClick={() => onSelectConversation(conv)}
             />
-            <div className={styles.convInfo}>
+            <div className={styles.convInfo} onClick={() => onSelectConversation(conv)}>
               <strong>
                 {conv.user_id === parseInt(localStorage.getItem("user_id"))
                   ? "Me"
@@ -31,9 +33,19 @@ export default function ConversationList({ conversations, onSelectConversation, 
                   : conv.last_message_preview || "Say hi 👋"}
               </p>
             </div>
+
+            <button
+              className={styles.deleteConversationButton}
+              onClick={() => onDeleteConversation(conv.conversation_id)}
+              title="Delete conversation"
+            >
+              <FaTrash />
+            </button>
+
             {unreadCounts[conv.conversation_id] > 0 && (
-            <span className={styles.unreadBadge}>{unreadCounts[conv.conversation_id]}</span>
-          )}
+              <span className={styles.unreadBadge}>{unreadCounts[conv.conversation_id]}</span>
+            )}
+
           </div>
         ))
       )}

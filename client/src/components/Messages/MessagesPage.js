@@ -25,11 +25,11 @@ export default function MessagesPage() {
     fetch(`http://localhost:4000/messages/conversations/${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("📥 Received conversations:", data);
+        console.log("Received conversations:", data);
         if (Array.isArray(data)) {
           setConversations(data);
         } else {
-          console.warn("⚠️ Conversations is not an array:", data);
+          console.warn(" Conversations is not an array:", data);
           setConversations([]); 
         }
       })
@@ -46,10 +46,10 @@ export default function MessagesPage() {
       try {
         const res = await fetch(`http://localhost:4000/messages/${userOrConversation.conversation_id}?user_id=${userId}`);
         const data = await res.json();
-        console.log("📥 messages from server:", data);
+        console.log(" messages from server:", data);
         if (Array.isArray(data)) {
           setMessages(data);
-          console.log("📬 Marking messages as read for conv", userOrConversation.conversation_id);
+          console.log(" Marking messages as read for conv", userOrConversation.conversation_id);
           await fetch("http://localhost:4000/messages/mark-read", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -61,7 +61,7 @@ export default function MessagesPage() {
           refreshUnread();          
 
         } else {
-          console.warn("⚠️ Răspuns invalid la fetch messages:", data);
+          console.warn(" Răspuns invalid la fetch messages:", data);
           setMessages([]);
         }
       } catch (err) {
@@ -123,7 +123,7 @@ export default function MessagesPage() {
         setSearchResults([]);
         setClearSearch(true);
         setTimeout(() => setClearSearch(false), 200);
-        // după trimiterea mesajului
+
         fetch(`http://localhost:4000/messages/conversations/${userId}`)
         .then((res) => res.json())
         .then(setConversations);
@@ -149,6 +149,40 @@ export default function MessagesPage() {
     }
   };
   
+  const handleDeleteConversation = async (conversationId) => {
+    const confirm = window.confirm("Are you sure you want to delete this conversation and all its messages?");
+    if (!confirm) return;
+  
+    try {
+      const res = await fetch("http://localhost:4000/messages/conversations/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversation_id: conversationId,
+          user_id: userId,
+        }),
+      });
+  
+      const data = await res.json();
+      if (data.success) {
+
+        setConversations((prev) =>
+          prev.filter((conv) => conv.conversation_id !== conversationId)
+        );
+  
+        if (activeConversation?.conversation_id === conversationId) {
+          setActiveConversation(null);
+          setMessages([]);
+        }
+  
+        refreshUnread(); 
+      }
+    } catch (err) {
+      console.error("Eroare la ștergerea conversației:", err);
+    }
+  };
+  
+  
 
   return (
     <div className={styles.messagesContainer}>
@@ -163,10 +197,11 @@ export default function MessagesPage() {
         />
 
         <ConversationList
-        conversations={searchResults.length > 0 ? searchResults : conversations}
-        onSelectConversation={handleSelectConversation}
-        activeId={activeConversation?.conversation_id}
-        unreadCounts={perConversation}
+          conversations={searchResults.length > 0 ? searchResults : conversations}
+          onSelectConversation={handleSelectConversation}
+          activeId={activeConversation?.conversation_id}
+          unreadCounts={perConversation}
+          onDeleteConversation={handleDeleteConversation}
         />
 
         </div>
@@ -175,10 +210,10 @@ export default function MessagesPage() {
           {activeConversation ? (
             <>
               {Array.isArray(messages) ? (
-  <MessageThread messages={messages} userId={userId} setMessages={setMessages} />
-) : (
-  <p className={styles.emptyText}>No messages available.</p>
-)}
+                <MessageThread messages={messages} userId={userId} setMessages={setMessages} />
+              ) : (
+                <p className={styles.emptyText}>No messages available.</p>
+              )}
 
               <MessageInput onSend={handleSendMessage} />
             </>

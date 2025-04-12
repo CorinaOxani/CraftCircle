@@ -55,6 +55,26 @@ export default function MessageThread({ messages, userId, setMessages }) {
     }
   };
 
+  const handleDeleteForAll = async (messageId) => {
+    try {
+      const res = await fetch("http://localhost:4000/messages/delete-for-all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message_id: messageId, user_id: userId }),
+      });
+  
+      const data = await res.json();
+      if (data.success) {
+        setMessages((prev) => prev.filter((msg) => msg.message_id !== messageId));
+      }
+    } catch (err) {
+      console.error("Eroare la ștergere pentru toți:", err);
+    } finally {
+      setOpenMenuId(null);
+    }
+  };
+  
+
   const lastSentIndex = [...messages]
     .map((m, index) => (m.sender_id === userId ? index : null))
     .filter((i) => i !== null)
@@ -134,7 +154,9 @@ export default function MessageThread({ messages, userId, setMessages }) {
                       )
                     }
                     onDelete={() => handleDelete(msg.message_id)}
+                    onDeleteForAll={() => handleDeleteForAll(msg.message_id)}
                   />
+
                   <div className={styles.messageBubble}>
                     <p>{msg.content}</p>
                     <div className={styles.messageMeta}>

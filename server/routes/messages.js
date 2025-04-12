@@ -205,9 +205,14 @@ router.get("/conversations/:userId", async (req, res) => {
            (a.user_id = CASE 
               WHEN c.user1_id = $1 THEN c.user2_id 
               ELSE c.user1_id END)
-         WHERE c.user1_id = $1 OR c.user2_id = $1
-         ORDER BY c.created_at DESC`
-      , [userId]);
+         WHERE 
+           (c.user1_id = $1 AND c.deleted_for_user1 = FALSE)
+           OR 
+           (c.user2_id = $1 AND c.deleted_for_user2 = FALSE)
+         ORDER BY c.created_at DESC`,
+        [userId]
+      );
+      
   
       res.json(result.rows);
     } catch (err) {
@@ -293,7 +298,7 @@ router.get("/conversations/:userId", async (req, res) => {
         return res.status(403).json({ error: "Not allowed to delete this message" });
       }
   
-      // Setăm flagul corespunzător
+
       if (isSender) {
         await pool.query(
           `UPDATE messages SET deleted_for_sender = TRUE WHERE message_id = $1`,
@@ -306,7 +311,6 @@ router.get("/conversations/:userId", async (req, res) => {
         );
       }
   
-      // Dacă ambii au șters mesajul, îl ștergem definitiv din DB
       const shouldDelete =
         (isSender && message.deleted_for_receiver) ||
         (isReceiver && message.deleted_for_sender);
@@ -324,5 +328,81 @@ router.get("/conversations/:userId", async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+
+  router.post("/delete-for-all", async (req, res) => {
+    const { message_id, user_id } = req.body;
+  
+    if (!message_id || !user_id) {
+      return res.status(400).json({ error: "Missing parameters" });
+    }
+  
+    try {
+      const result = await pool.query(
+        `SELECT sender_id FROM messages WHERE message_id = $1`,
+        [message_id]
+      );
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+  
+      const senderId = result.rows[0].sender_id;
+      if (parseInt(user_id) !== senderId) {
+        return res.status(403).json({ error: "Only the sender can delete for all" });
+      }
+  
+      await pool.query(
+        `DELETE FROM messages WHERE message_id = $1`,
+        [message_id]
+      );
+  
+      res.json({ success: true });
+    } catch (err) {
+      console.error("Error deleting message for all:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  router.post("/conversations/delete", async (req, res) => {
+    const { conversation_id, user_id } = req.body;
+  
+    if (!conversation_id || !user_id) {
+      return res.status(400).json({ error: "Missing parameters" });
+    }
+  
+    try {
+      const result = await pool.query(
+        `SELECT user1_id, user2_id FROM conversations WHERE conversation_id = $1`,
+        [conversation_id]
+      );
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+  
+      const { user1_id, user2_id } = result.rows[0];
+  
+      if (parseInt(user_id) === user1_id) {
+        await pool.query(
+          `UPDATE conversations SET deleted_for_user1 = TRUE WHERE conversation_id = $1`,
+          [conversation_id]
+        );
+      } else if (parseInt(user_id) === user2_id) {
+        await pool.query(
+          `UPDATE conversations SET deleted_for_user2 = TRUE WHERE conversation_id = $1`,
+          [conversation_id]
+        );
+      } else {
+        return res.status(403).json({ error: "User not part of this conversation" });
+      }
+  
+      res.json({ success: true });
+    } catch (err) {
+      console.error("Error soft-deleting conversation:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+  
   
 module.exports = router;

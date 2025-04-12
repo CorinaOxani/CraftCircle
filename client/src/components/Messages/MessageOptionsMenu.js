@@ -2,7 +2,7 @@ import React from "react";
 import styles from "../../CSSfyles/Messages.module.css";
 
 const MessageOptionsMenu = React.forwardRef(
-  ({ isOpen, onToggle, onDelete, isOwn = true }, ref) => {
+  ({ isOpen, onToggle, onDelete, onDeleteForAll, isOwn = true }, ref) => {
     return (
       <div ref={ref}>
         <button
@@ -14,11 +14,15 @@ const MessageOptionsMenu = React.forwardRef(
         {isOpen && (
           <div className={styles.optionsMenu}>
             <button onClick={onDelete}>Delete for me</button>
+            {isOwn && onDeleteForAll && (
+              <button onClick={onDeleteForAll}>Delete for everyone</button>
+            )}
           </div>
         )}
       </div>
     );
   }
 );
+
 
 export default MessageOptionsMenu;
