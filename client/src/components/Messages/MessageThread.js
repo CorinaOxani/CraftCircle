@@ -2,11 +2,17 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "../../CSSfyles/Messages.module.css";
 import defaultProfile from "../../images/default-profile.png";
 import MessageOptionsMenu from "./MessageOptionsMenu";
+import ConfirmationModal from "../ConfirmationModal";
+import ToastMessage from "../ToastMessage";
 
 export default function MessageThread({ messages, userId, setMessages }) {
   const bottomRef = useRef(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmData, setConfirmData] = useState({ messageId: null, type: null });
+  const [toastMessage, setToastMessage] = useState("");
+
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -36,28 +42,23 @@ export default function MessageThread({ messages, userId, setMessages }) {
     return <p className={styles.emptyText}>No messages.</p>;
   }
 
-  const handleDelete = async (messageId) => {
-    try {
-      const res = await fetch("http://localhost:4000/messages/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message_id: messageId, user_id: userId }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setMessages((prev) => prev.filter((msg) => msg.message_id !== messageId));
-      }
-    } catch (err) {
-      console.error("Eroare la ștergere mesaj:", err);
-    } finally {
-      setOpenMenuId(null);
-    }
+  const handleDelete = (messageId) => {
+    setConfirmData({ messageId, type: "forMe" });
+    setShowConfirm(true);
   };
-
-  const handleDeleteForAll = async (messageId) => {
+  
+  const handleDeleteForAll = (messageId) => {
+    setConfirmData({ messageId, type: "forAll" });
+    setShowConfirm(true);
+  };
+  
+  const handleConfirmDelete = async () => {
+    const { messageId, type } = confirmData;
+    const endpoint =
+      type === "forAll" ? "delete-for-all" : "delete";
+  
     try {
-      const res = await fetch("http://localhost:4000/messages/delete-for-all", {
+      const res = await fetch(`http://localhost:4000/messages/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message_id: messageId, user_id: userId }),
@@ -66,10 +67,16 @@ export default function MessageThread({ messages, userId, setMessages }) {
       const data = await res.json();
       if (data.success) {
         setMessages((prev) => prev.filter((msg) => msg.message_id !== messageId));
+        setToastMessage(
+          type === "forAll" ? "Message deleted for everyone." : "Message deleted."
+        );
+        setTimeout(() => setToastMessage(""), 3000);
       }
     } catch (err) {
-      console.error("Eroare la ștergere pentru toți:", err);
+      console.error("Error deleting message:", err);
     } finally {
+      setConfirmData({ messageId: null, type: null });
+      setShowConfirm(false);
       setOpenMenuId(null);
     }
   };
@@ -185,11 +192,29 @@ export default function MessageThread({ messages, userId, setMessages }) {
                 </>
 
               )}
+              
             </div>
           );
         })
       )}
       <div ref={bottomRef} />
+      {showConfirm && (
+      <ConfirmationModal
+        title={
+          confirmData.type === "forAll"
+            ? "Delete message for everyone?"
+            : "Delete message for you?"
+        }
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setShowConfirm(false);
+          setConfirmData({ messageId: null, type: null });
+        }}
+      />
+    )}
+
+    {toastMessage && <ToastMessage message={toastMessage} />}
+
     </div>
   );
 }

@@ -3,7 +3,6 @@ import { FaTrash } from "react-icons/fa";
 import styles from "../../CSSfyles/Messages.module.css";
 import defaultProfile from "../../images/default-profile.png";
 
-
 export default function ConversationList({ conversations, onSelectConversation, activeId, unreadCounts = {}, onDeleteConversation }) {
   return (
     <div className={styles.conversationList}>
@@ -14,14 +13,14 @@ export default function ConversationList({ conversations, onSelectConversation, 
           <div
             key={conv.conversation_id || `user-${conv.user_id}`}
             className={`${styles.conversationItem} ${activeId === conv.conversation_id ? styles.active : ""}`}
+            onClick={() => onSelectConversation(conv)} 
           >
             <img
               src={conv.profile_picture || defaultProfile}
               alt="Profile"
               className={styles.convProfilePic}
-              onClick={() => onSelectConversation(conv)}
             />
-            <div className={styles.convInfo} onClick={() => onSelectConversation(conv)}>
+            <div className={styles.convInfo}>
               <strong>
                 {conv.user_id === parseInt(localStorage.getItem("user_id"))
                   ? "Me"
@@ -36,7 +35,10 @@ export default function ConversationList({ conversations, onSelectConversation, 
 
             <button
               className={styles.deleteConversationButton}
-              onClick={() => onDeleteConversation(conv.conversation_id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteConversation(conv.conversation_id);
+              }}
               title="Delete conversation"
             >
               <FaTrash />
@@ -45,7 +47,6 @@ export default function ConversationList({ conversations, onSelectConversation, 
             {unreadCounts[conv.conversation_id] > 0 && (
               <span className={styles.unreadBadge}>{unreadCounts[conv.conversation_id]}</span>
             )}
-
           </div>
         ))
       )}
