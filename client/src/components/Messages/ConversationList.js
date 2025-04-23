@@ -9,10 +9,16 @@ export default function ConversationList({ conversations, onSelectConversation, 
       {conversations.length === 0 ? (
         <p className={styles.emptyText}>No conversations yet.</p>
       ) : (
+        
         conversations.map((conv) => (
           <div
-            key={conv.conversation_id || `user-${conv.user_id}`}
-            className={`${styles.conversationItem} ${activeId === conv.conversation_id ? styles.active : ""}`}
+            key={`conv-${conv.user_id}`}
+            className={`${styles.conversationItem} ${
+              activeId === conv.conversation_id || (!conv.conversation_id && conv.user_id === activeId)
+              ? styles.activeConversation
+              : ""
+          }`}
+          
             onClick={() => onSelectConversation(conv)} 
           >
             <img
@@ -50,6 +56,8 @@ export default function ConversationList({ conversations, onSelectConversation, 
           </div>
         ))
       )}
+      
     </div>
+    
   );
 }

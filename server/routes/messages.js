@@ -179,40 +179,59 @@ router.post("/send", async (req, res) => {
     }
   });
 
-router.get("/conversations/:userId", async (req, res) => {
+  router.get("/conversations/:userId", async (req, res) => {
     const { userId } = req.params;
   
     try {
       const result = await pool.query(
-        `SELECT c.conversation_id,
-                a.user_id,
-                a.first_name,
-                a.last_name,
-                a.profile_picture,
-                (
-                  SELECT m.content
-                  FROM messages m
-                  WHERE m.conversation_id = c.conversation_id
-                    AND NOT (
-                      ($1::int = m.sender_id AND m.deleted_for_sender = TRUE) OR
-                      ($1::int = m.receiver_id AND m.deleted_for_receiver = TRUE)
-                    )
-                  ORDER BY m.created_at DESC
-                  LIMIT 1
-                ) AS last_message_preview
-         FROM conversations c
-         JOIN accounts a ON 
-           (a.user_id = CASE 
-              WHEN c.user1_id = $1 THEN c.user2_id 
-              ELSE c.user1_id END)
-         WHERE 
-           (c.user1_id = $1 AND c.deleted_for_user1 = FALSE)
-           OR 
-           (c.user2_id = $1 AND c.deleted_for_user2 = FALSE)
-         ORDER BY c.created_at DESC`,
+        `
+        SELECT c.conversation_id,
+       a.user_id,
+       a.first_name,
+       a.last_name,
+       a.profile_picture,
+       (
+         SELECT m.content
+         FROM messages m
+         WHERE m.conversation_id = c.conversation_id
+           AND NOT (
+             ($1::int = m.sender_id AND m.deleted_for_sender = TRUE) OR
+             ($1::int = m.receiver_id AND m.deleted_for_receiver = TRUE)
+           )
+         ORDER BY m.created_at DESC
+         LIMIT 1
+       ) AS last_message_preview,
+       (
+         SELECT m.created_at
+         FROM messages m
+         WHERE m.conversation_id = c.conversation_id
+           AND NOT (
+             ($1::int = m.sender_id AND m.deleted_for_sender = TRUE) OR
+             ($1::int = m.receiver_id AND m.deleted_for_receiver = TRUE)
+           )
+         ORDER BY m.created_at DESC
+         LIMIT 1
+       ) AS last_message_time
+FROM conversations c
+JOIN accounts a ON (
+  (c.user1_id = $1 AND a.user_id = c.user2_id)
+  OR
+  (c.user2_id = $1 AND a.user_id = c.user1_id)
+)
+WHERE EXISTS (
+  SELECT 1 FROM messages m
+  WHERE m.conversation_id = c.conversation_id
+    AND NOT (
+      ($1::int = m.sender_id AND m.deleted_for_sender = TRUE)
+      OR
+      ($1::int = m.receiver_id AND m.deleted_for_receiver = TRUE)
+    )
+)
+ORDER BY last_message_time DESC
+
+        `,
         [userId]
       );
-      
   
       res.json(result.rows);
     } catch (err) {
@@ -220,6 +239,7 @@ router.get("/conversations/:userId", async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+  
 
   router.post("/mark-read", async (req, res) => {
     const { user_id, conversation_id } = req.body;
@@ -371,37 +391,29 @@ router.get("/conversations/:userId", async (req, res) => {
     }
   
     try {
-      const result = await pool.query(
-        `SELECT user1_id, user2_id FROM conversations WHERE conversation_id = $1`,
-        [conversation_id]
+      // UPDATE 1: mesaje trimise
+      await pool.query(
+        `UPDATE messages
+         SET deleted_for_sender = TRUE
+         WHERE conversation_id = $1 AND sender_id = $2`,
+        [conversation_id, user_id]
       );
   
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: "Conversation not found" });
-      }
-  
-      const { user1_id, user2_id } = result.rows[0];
-  
-      if (parseInt(user_id) === user1_id) {
-        await pool.query(
-          `UPDATE conversations SET deleted_for_user1 = TRUE WHERE conversation_id = $1`,
-          [conversation_id]
-        );
-      } else if (parseInt(user_id) === user2_id) {
-        await pool.query(
-          `UPDATE conversations SET deleted_for_user2 = TRUE WHERE conversation_id = $1`,
-          [conversation_id]
-        );
-      } else {
-        return res.status(403).json({ error: "User not part of this conversation" });
-      }
+      // UPDATE 2: mesaje primite
+      await pool.query(
+        `UPDATE messages
+         SET deleted_for_receiver = TRUE
+         WHERE conversation_id = $1 AND receiver_id = $2`,
+        [conversation_id, user_id]
+      );
   
       res.json({ success: true });
     } catch (err) {
-      console.error("Error soft-deleting conversation:", err);
+      console.error("Error deleting conversation:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
+  
   
   
   

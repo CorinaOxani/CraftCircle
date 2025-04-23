@@ -36,7 +36,14 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start; 
+    position: relative; 
+  }
+
+  .inputWrapper {
+    margin-top: auto;
+    border-top: 1px solid #e3d0c9;
+    padding-top: 12px;
   }
   
   .emptyText {
@@ -48,6 +55,13 @@
   }
   
   /* Conversation List */
+  .conversationList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+  }
+  
   .conversationItem {
     display: flex;
     align-items: center;
@@ -121,6 +135,15 @@
     overflow-y: auto;
     max-height: 450px;
   }
+  
+  .startText {
+    font-size: 20px;
+    color: #9d7e6c;
+    font-style: italic;
+    text-align: center;
+    margin: 0 auto;
+  }
+  
   
   .myMessage {
     align-self: flex-end;

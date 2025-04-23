@@ -7,6 +7,9 @@ import ConversationList from "./ConversationList";
 import MessageThread from "./MessageThread";
 import MessageInput from "./MessageInput";
 import  useUnreadMessages  from "../hooks/useUnreadMessages";
+import ConfirmationModal from "../ConfirmationModal";
+import ToastMessage from "../ToastMessage";
+
 
 export default function MessagesPage() {
   const { userId } = useUser();
@@ -16,7 +19,10 @@ export default function MessagesPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [clearSearch, setClearSearch] = useState(false);
   const { unreadCount, perConversation, refreshUnread } = useUnreadMessages(userId);
-
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [tempUserId, setTempUserId] = useState(null);
 
 
   useEffect(() => {
@@ -41,15 +47,26 @@ export default function MessagesPage() {
   
 
   const handleSelectConversation = async (userOrConversation) => {
+    setSearchResults([]);
+  
+    // 🔁 dacă există o persoană temporară și selectezi altcineva -> elimin-o
+    if (tempUserId && userOrConversation.user_id !== tempUserId) {
+      setConversations((prev) =>
+        prev.filter((conv) => conv.user_id !== tempUserId || conv.conversation_id)
+      );
+      setTempUserId(null);
+    }
+  
     if (userOrConversation.conversation_id) {
+      // Selectează conversație existentă
       setActiveConversation(userOrConversation);
       try {
-        const res = await fetch(`http://localhost:4000/messages/${userOrConversation.conversation_id}?user_id=${userId}`);
+        const res = await fetch(
+          `http://localhost:4000/messages/${userOrConversation.conversation_id}?user_id=${userId}`
+        );
         const data = await res.json();
-        console.log(" messages from server:", data);
         if (Array.isArray(data)) {
           setMessages(data);
-          console.log(" Marking messages as read for conv", userOrConversation.conversation_id);
           await fetch("http://localhost:4000/messages/mark-read", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -58,10 +75,8 @@ export default function MessagesPage() {
               conversation_id: userOrConversation.conversation_id,
             }),
           });
-          refreshUnread();          
-
+          refreshUnread();
         } else {
-          console.warn(" Răspuns invalid la fetch messages:", data);
           setMessages([]);
         }
       } catch (err) {
@@ -69,14 +84,31 @@ export default function MessagesPage() {
         setMessages([]);
       }
     } else {
-      setActiveConversation({
+      // Selectează user nou fără conversație
+      const tempUser = {
         ...userOrConversation,
         conversation_id: null,
         isNew: true,
+      };
+      setActiveConversation(tempUser);
+      setMessages([]);
+      setTempUserId(tempUser.user_id);
+  
+      setConversations((prev) => {
+        const alreadyExists = prev.some(
+          (c) =>
+            (!c.conversation_id && c.user_id === tempUser.user_id) ||
+            c.user_id === tempUser.user_id
+        );
+        if (!alreadyExists) {
+          return [tempUser, ...prev];
+        }
+        return prev;
       });
-      setMessages([]); 
     }
   };
+  
+  
   
 
   const handleSendMessage = async (content) => {
@@ -85,7 +117,6 @@ export default function MessagesPage() {
     try {
       let conversationId = activeConversation.conversation_id;
   
-      
       if (!conversationId) {
         const createRes = await fetch("http://localhost:4000/messages/conversations", {
           method: "POST",
@@ -104,30 +135,32 @@ export default function MessagesPage() {
           conversation_id: conversationId,
           isNew: false,
         }));
+
+        setTempUserId(null);
   
-       
-        setConversations((prev) => [
+        setConversations((prev) => {
+          const filtered = prev.filter(
+            (c) => !(c.user_id === activeConversation.user_id)
+          );
+        
+          return [
             {
-              ...created,
+              conversation_id: conversationId,
               user_id: activeConversation.user_id,
               first_name: activeConversation.first_name,
               last_name: activeConversation.last_name,
               profile_picture: activeConversation.profile_picture || null,
               last_message_preview: content,
             },
-            ...prev,
-          ]);
-          
-  
+            ...filtered,
+          ];
+        });
         
+        
+  
         setSearchResults([]);
         setClearSearch(true);
         setTimeout(() => setClearSearch(false), 200);
-
-        fetch(`http://localhost:4000/messages/conversations/${userId}`)
-        .then((res) => res.json())
-        .then(setConversations);
-
       }
   
 
@@ -144,43 +177,67 @@ export default function MessagesPage() {
   
       const newMessage = await res.json();
       setMessages((prev) => [...prev, newMessage]);
+  
+      setConversations((prev) => {
+        const updated = prev.map((conv) =>
+          conv.conversation_id === conversationId
+            ? { ...conv, last_message_preview: content, last_message_time: new Date().toISOString() }
+            : conv
+        );
+      
+        const updatedConv = updated.find((c) => c.conversation_id === conversationId);
+        const rest = updated.filter((c) => c.conversation_id !== conversationId);
+      
+        return [updatedConv, ...rest];
+      });
+      
+  
     } catch (err) {
       console.error("Error sending message:", err);
     }
   };
   
-  const handleDeleteConversation = async (conversationId) => {
-    const confirm = window.confirm("Are you sure you want to delete this conversation and all its messages?");
-    if (!confirm) return;
+  const confirmDelete = (conversationId) => {
+    setConversationToDelete(conversationId);
+    setShowConfirmModal(true);
+  };
+  
+  const handleDeleteConfirmed = async () => {
+    if (!conversationToDelete) return;
   
     try {
       const res = await fetch("http://localhost:4000/messages/conversations/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          conversation_id: conversationId,
+          conversation_id: conversationToDelete,
           user_id: userId,
         }),
       });
   
       const data = await res.json();
       if (data.success) {
-
         setConversations((prev) =>
-          prev.filter((conv) => conv.conversation_id !== conversationId)
+          prev.filter((conv) => conv.conversation_id !== conversationToDelete)
         );
   
-        if (activeConversation?.conversation_id === conversationId) {
+        if (activeConversation?.conversation_id === conversationToDelete) {
           setActiveConversation(null);
           setMessages([]);
         }
   
-        refreshUnread(); 
+        setToast("Conversation deleted successfully");
+        setTimeout(() => setToast(null), 3000);
       }
     } catch (err) {
-      console.error("Eroare la ștergerea conversației:", err);
+      setToast("Failed to delete conversation");
+      setTimeout(() => setToast(null), 3000);
     }
+  
+    setShowConfirmModal(false);
+    setConversationToDelete(null);
   };
+  
   
   
 
@@ -201,26 +258,47 @@ export default function MessagesPage() {
           onSelectConversation={handleSelectConversation}
           activeId={activeConversation?.conversation_id}
           unreadCounts={perConversation}
-          onDeleteConversation={handleDeleteConversation}
+          onDeleteConversation={confirmDelete}
         />
 
         </div>
 
         <div className={styles.rightPanel}>
-          {activeConversation ? (
-            <>
-              {Array.isArray(messages) ? (
-                <MessageThread messages={messages} userId={userId} setMessages={setMessages} />
+          <div className={styles.threadContainer}>
+            {activeConversation ? (
+              Array.isArray(messages) && messages.length > 0 ? (
+                <MessageThread
+                  messages={messages}
+                  userId={userId}
+                  setMessages={setMessages}
+                />
               ) : (
-                <p className={styles.emptyText}>No messages available.</p>
-              )}
+                <p className={styles.startText}>Start the conversation 💬</p>
+              )
+            ) : (
+              <p className={styles.emptyText}>
+                Select or search for someone to start chatting.
+              </p>
+            )}
+          </div>
 
+          {activeConversation && (
+            <div className={styles.inputWrapper}>
               <MessageInput onSend={handleSendMessage} />
-            </>
-          ) : (
-            <p className={styles.emptyText}>Select or search for someone to start chatting.</p>
+            </div>
           )}
+            {showConfirmModal && (
+            <ConfirmationModal
+              title="Are you sure you want to delete this conversation and all its messages?"
+              onConfirm={handleDeleteConfirmed}
+              onCancel={() => setShowConfirmModal(false)}
+            />
+          )}
+
+          {toast && <ToastMessage message={toast} />}
+
         </div>
+ 
       </div>
     </div>
   );
