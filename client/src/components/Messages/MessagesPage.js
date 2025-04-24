@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Navbar from "../Navbar";
 import styles from "../../CSSfyles/Messages.module.css";
 import { useUser } from "../UserContext";
@@ -9,6 +9,7 @@ import MessageInput from "./MessageInput";
 import  useUnreadMessages  from "../hooks/useUnreadMessages";
 import ConfirmationModal from "../ConfirmationModal";
 import ToastMessage from "../ToastMessage";
+import { io } from "socket.io-client";
 
 
 export default function MessagesPage() {
@@ -23,33 +24,123 @@ export default function MessagesPage() {
   const [conversationToDelete, setConversationToDelete] = useState(null);
   const [toast, setToast] = useState(null);
   const [tempUserId, setTempUserId] = useState(null);
+  const socket = useRef(null);
+  const sentMessageIds = useRef(new Set());
+
+
 
 
   useEffect(() => {
-    if (!userId) return; 
-    console.log("👤 userId:", userId);
+    if (!userId) return;
+
+  
+    // socket.io
+    socket.current = io("http://localhost:4000"); 
+    socket.current.emit("join", userId);
+    
+  
+
     fetch(`http://localhost:4000/messages/conversations/${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Received conversations:", data);
         if (Array.isArray(data)) {
           setConversations(data);
         } else {
-          console.warn(" Conversations is not an array:", data);
-          setConversations([]); 
+          console.warn("Conversations is not an array:", data);
+          setConversations([]);
         }
       })
       .catch((err) => {
         console.error("Error loading conversations:", err);
-        setConversations([]); // fallback pe eroare
+        setConversations([]);
       });
-  }, [userId]);
+  
+      socket.current.on("new_message", async ({ conversation_id, message }) => {
+
+        if (sentMessageIds.current.has(message.message_id)) {
+          sentMessageIds.current.delete(message.message_id); 
+          return;
+        }
+      
+        const isCurrentConversation = activeConversation?.conversation_id === conversation_id;
+      
+        setMessages((prev) => {
+          const alreadyExists = prev.some((m) => m.message_id === message.message_id);
+          if (isCurrentConversation && !alreadyExists) {
+            return [...prev, message];
+          }
+          return prev;
+        });
+
+        if (isCurrentConversation && message.receiver_id === userId) {
+          try {
+            await fetch("http://localhost:4000/messages/mark-read", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                user_id: userId,
+                conversation_id,
+              }),
+            });
+            refreshUnread(); 
+          } catch (err) {
+            console.error("Failed to mark as read:", err);
+          }
+        }
+
+        setConversations((prev) => {
+          const exists = prev.some((c) => c.conversation_id === conversation_id);
+      
+          const updatedList = exists
+            ? prev.map((c) =>
+                c.conversation_id === conversation_id
+                  ? {
+                      ...c,
+                      last_message_preview: message.content,
+                      last_message_time: message.created_at,
+                    }
+                  : c
+              )
+            : [
+                {
+                  conversation_id,
+                  user_id: message.sender_id === userId ? message.receiver_id : message.sender_id,
+                  first_name: "Unknown",
+                  last_name: "",
+                  profile_picture: null,
+                  last_message_preview: message.content,
+                  last_message_time: message.created_at,
+                },
+                ...prev,
+              ];
+      
+          return updatedList.sort(
+            (a, b) => new Date(b.last_message_time) - new Date(a.last_message_time)
+          );
+        });
+      });
+
+      socket.current.on("message_seen", ({ message_id }) => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.message_id === message_id ? { ...msg, is_read: true } : msg
+          )
+        );
+      });
+      
+          
+  
+    return () => {
+      socket.current?.disconnect();
+    };
+  }, [userId, activeConversation]);
+  
   
 
   const handleSelectConversation = async (userOrConversation) => {
     setSearchResults([]);
   
-    // 🔁 dacă există o persoană temporară și selectezi altcineva -> elimin-o
+
     if (tempUserId && userOrConversation.user_id !== tempUserId) {
       setConversations((prev) =>
         prev.filter((conv) => conv.user_id !== tempUserId || conv.conversation_id)
@@ -58,7 +149,7 @@ export default function MessagesPage() {
     }
   
     if (userOrConversation.conversation_id) {
-      // Selectează conversație existentă
+
       setActiveConversation(userOrConversation);
       try {
         const res = await fetch(
@@ -84,7 +175,7 @@ export default function MessagesPage() {
         setMessages([]);
       }
     } else {
-      // Selectează user nou fără conversație
+
       const tempUser = {
         ...userOrConversation,
         conversation_id: null,
@@ -107,8 +198,7 @@ export default function MessagesPage() {
       });
     }
   };
-  
-  
+
   
 
   const handleSendMessage = async (content) => {
@@ -116,7 +206,7 @@ export default function MessagesPage() {
   
     try {
       let conversationId = activeConversation.conversation_id;
-  
+
       if (!conversationId) {
         const createRes = await fetch("http://localhost:4000/messages/conversations", {
           method: "POST",
@@ -128,6 +218,11 @@ export default function MessagesPage() {
         });
   
         const created = await createRes.json();
+        if (!createRes.ok || !created.conversation_id) {
+          console.error(" Failed to create conversation", created);
+          return;
+        }
+  
         conversationId = created.conversation_id;
   
         setActiveConversation((prev) => ({
@@ -135,14 +230,14 @@ export default function MessagesPage() {
           conversation_id: conversationId,
           isNew: false,
         }));
-
+  
         setTempUserId(null);
   
         setConversations((prev) => {
           const filtered = prev.filter(
             (c) => !(c.user_id === activeConversation.user_id)
           );
-        
+  
           return [
             {
               conversation_id: conversationId,
@@ -155,15 +250,12 @@ export default function MessagesPage() {
             ...filtered,
           ];
         });
-        
-        
   
         setSearchResults([]);
         setClearSearch(true);
         setTimeout(() => setClearSearch(false), 200);
       }
   
-
       const res = await fetch("http://localhost:4000/messages/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -176,26 +268,36 @@ export default function MessagesPage() {
       });
   
       const newMessage = await res.json();
-      setMessages((prev) => [...prev, newMessage]);
+  
+      if (!res.ok || !newMessage.message_id) {
+        console.warn(" Message send failed:", newMessage);
+        return;
+      }
+  
+      sentMessageIds.current.add(newMessage.message_id);
+
   
       setConversations((prev) => {
         const updated = prev.map((conv) =>
           conv.conversation_id === conversationId
-            ? { ...conv, last_message_preview: content, last_message_time: new Date().toISOString() }
+            ? {
+                ...conv,
+                last_message_preview: content,
+                last_message_time: new Date().toISOString(),
+              }
             : conv
         );
-      
+  
         const updatedConv = updated.find((c) => c.conversation_id === conversationId);
         const rest = updated.filter((c) => c.conversation_id !== conversationId);
-      
+  
         return [updatedConv, ...rest];
       });
-      
-  
     } catch (err) {
-      console.error("Error sending message:", err);
+      console.error(" Error sending message:", err);
     }
   };
+  
   
   const confirmDelete = (conversationId) => {
     setConversationToDelete(conversationId);

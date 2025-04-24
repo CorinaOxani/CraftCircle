@@ -1,3 +1,5 @@
+const http = require("http");
+const { Server } = require("socket.io");
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
@@ -41,8 +43,38 @@ app.use("/shop", shopRoutes);
 app.use("/cart", cartRoutes);
 app.use("/favorites", favoritesRouter);
 app.use("/follows", followRoutes);
+// Middleware pentru a adăuga io în req
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 app.use("/messages", messagesRoutes);
 app.use("/likes", likesRouter);
 
 // Pornirea serverului
-app.listen(4000, () => console.log("Server running on http://localhost:4000"));
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*", // sau frontend-ul tău (ex: "http://localhost:3000")
+    methods: ["GET", "POST"]
+  }
+});
+
+// Socket.IO 
+io.on("connection", (socket) => {
+  console.log("🔌 Client connected:", socket.id);
+
+  socket.on("join", (userId) => {
+    socket.join(`user-${userId}`);
+    console.log(`User ${userId} joined room user-${userId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+});
+
+server.listen(4000, () => console.log("Server running on http://localhost:4000"));
+

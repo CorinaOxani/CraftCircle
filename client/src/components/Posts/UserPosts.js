@@ -3,6 +3,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import styles from "../../CSSfyles/UserProfile.module.css";
 import PostMenuButton from "./PostMenuButton";
 import LikeButton from "./LikeButton";
+import { useUser } from "../UserContext";
 
 
 export default function UserPosts({ 
@@ -18,7 +19,10 @@ export default function UserPosts({
   setEditedContent,
   isOwner,
   handleReportPost
-}) {
+}) 
+
+{
+  const { userId } = useUser();
 
   return (
     <div className={styles.postsGrid}>
@@ -74,7 +78,7 @@ export default function UserPosts({
                 <div className={styles.likeBar}>
                   <LikeButton 
                     postId={post.post_id} 
-                    userId={parseInt(localStorage.getItem("user_id"))} 
+                    userId={userId} 
                     isOwner={isOwner}
                     />
                 </div>

@@ -102,7 +102,7 @@ export default function MessageThread({ messages, userId, setMessages }) {
 
           return (
             <div
-              key={msg.message_id || i}
+              key={`msg-${msg.message_id ?? `temp-${i}`}`}
               className={isOwn ? styles.myMessage : styles.theirMessage}
               style={{ position: "relative" }}
             >

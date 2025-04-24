@@ -125,7 +125,7 @@ router.get("/:conversationId", async (req, res) => {
   });
   
 
-router.post("/send", async (req, res) => {
+  router.post("/send", async (req, res) => {
     const { sender_id, receiver_id, content } = req.body;
   
     if (!sender_id || !receiver_id || !content) {
@@ -133,7 +133,6 @@ router.post("/send", async (req, res) => {
     }
   
     try {
-
       const convoCheck = await pool.query(
         `SELECT conversation_id
          FROM conversations
@@ -146,10 +145,8 @@ router.post("/send", async (req, res) => {
       let conversation_id;
   
       if (convoCheck.rows.length > 0) {
-
         conversation_id = convoCheck.rows[0].conversation_id;
       } else {
-
         const convoInsert = await pool.query(
           `INSERT INTO conversations (user1_id, user2_id)
            VALUES ($1, $2)
@@ -168,16 +165,42 @@ router.post("/send", async (req, res) => {
           receiver_id,
           content,
           conversation_id,
-          sender_id === receiver_id ? true : false,  
+          sender_id === receiver_id ? true : false,
         ]
       );
   
-      res.status(201).json(insertMessage.rows[0]);
+      const message = insertMessage.rows[0];
+  
+
+      const senderInfo = await pool.query(
+        `SELECT first_name, last_name, profile_picture FROM accounts WHERE user_id = $1`,
+        [sender_id]
+      );
+  
+      const enrichedMessage = {
+        ...message,
+        ...senderInfo.rows[0],
+      };
+  
+      const messageData = {
+        conversation_id,
+        message: enrichedMessage,
+      };
+  
+      req.io.to(`user-${receiver_id}`).emit("new_message", messageData);
+  
+
+      if (sender_id !== receiver_id) {
+        req.io.to(`user-${sender_id}`).emit("new_message", messageData);
+      }
+  
+      res.status(201).json(enrichedMessage);
     } catch (err) {
-      console.error(" Error sending message:", err);
+      console.error("Error sending message:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
+  
 
   router.get("/conversations/:userId", async (req, res) => {
     const { userId } = req.params;
@@ -212,22 +235,22 @@ router.post("/send", async (req, res) => {
          ORDER BY m.created_at DESC
          LIMIT 1
        ) AS last_message_time
-FROM conversations c
-JOIN accounts a ON (
-  (c.user1_id = $1 AND a.user_id = c.user2_id)
-  OR
-  (c.user2_id = $1 AND a.user_id = c.user1_id)
-)
-WHERE EXISTS (
-  SELECT 1 FROM messages m
-  WHERE m.conversation_id = c.conversation_id
-    AND NOT (
-      ($1::int = m.sender_id AND m.deleted_for_sender = TRUE)
-      OR
-      ($1::int = m.receiver_id AND m.deleted_for_receiver = TRUE)
-    )
-)
-ORDER BY last_message_time DESC
+        FROM conversations c
+        JOIN accounts a ON (
+          (c.user1_id = $1 AND a.user_id = c.user2_id)
+          OR
+          (c.user2_id = $1 AND a.user_id = c.user1_id)
+        )
+        WHERE EXISTS (
+          SELECT 1 FROM messages m
+          WHERE m.conversation_id = c.conversation_id
+            AND NOT (
+              ($1::int = m.sender_id AND m.deleted_for_sender = TRUE)
+              OR
+              ($1::int = m.receiver_id AND m.deleted_for_receiver = TRUE)
+            )
+        )
+        ORDER BY last_message_time DESC
 
         `,
         [userId]
@@ -249,18 +272,41 @@ ORDER BY last_message_time DESC
     }
   
     try {
+
+      const selectRes = await pool.query(
+        `SELECT message_id, sender_id FROM messages
+         WHERE conversation_id = $1 AND receiver_id = $2 AND is_read = FALSE`,
+        [conversation_id, user_id]
+      );
+  
+      const messageIds = selectRes.rows.map((row) => row.message_id);
+      const senderIds = selectRes.rows.map((row) => row.sender_id);
+  
+
       await pool.query(
         `UPDATE messages
          SET is_read = TRUE
          WHERE conversation_id = $1 AND receiver_id = $2 AND is_read = FALSE`,
         [conversation_id, user_id]
       );
-      res.status(200).json({ success: true });
+  
+
+      selectRes.rows.forEach(({ message_id, sender_id }) => {
+        if (sender_id !== user_id) {
+          req.io.to(`user-${sender_id}`).emit("message_seen", {
+            message_id,
+            conversation_id,
+          });
+        }
+      });
+  
+      res.status(200).json({ success: true, seen: messageIds });
     } catch (err) {
       console.error("Error marking messages as read:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
+  
   
   router.get("/unread/:userId", async (req, res) => {
     const { userId } = req.params;
@@ -391,15 +437,14 @@ ORDER BY last_message_time DESC
     }
   
     try {
-      // UPDATE 1: mesaje trimise
+
       await pool.query(
         `UPDATE messages
          SET deleted_for_sender = TRUE
          WHERE conversation_id = $1 AND sender_id = $2`,
         [conversation_id, user_id]
       );
-  
-      // UPDATE 2: mesaje primite
+
       await pool.query(
         `UPDATE messages
          SET deleted_for_receiver = TRUE
