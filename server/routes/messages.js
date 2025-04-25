@@ -337,6 +337,34 @@ router.get("/:conversationId", async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+
+  router.get("/unread-latest/:userId", async (req, res) => {
+    const { userId } = req.params;
+  
+    try {
+      const result = await pool.query(
+        `
+        SELECT m.message_id, m.content, m.created_at, m.sender_id,
+       a.first_name, a.last_name, a.profile_picture
+      FROM messages m
+      JOIN accounts a ON m.sender_id = a.user_id
+      WHERE m.receiver_id = $1
+        AND m.is_read = FALSE
+        AND m.was_displayed = FALSE
+      ORDER BY m.created_at DESC
+      LIMIT 3
+
+        `,
+        [userId]
+      );
+  
+      res.json(result.rows || []);
+    } catch (err) {
+      console.error("Error fetching unread message previews:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
   
   router.post("/delete", async (req, res) => {
     const { message_id, user_id } = req.body;
@@ -455,6 +483,24 @@ router.get("/:conversationId", async (req, res) => {
       res.json({ success: true });
     } catch (err) {
       console.error("Error deleting conversation:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+  router.post("/mark-displayed", async (req, res) => {
+    const { user_id } = req.body;
+    if (!user_id) return res.status(400).json({ error: "Missing user_id" });
+  
+    try {
+      await pool.query(`
+        UPDATE messages
+        SET was_displayed = TRUE
+        WHERE receiver_id = $1 AND is_read = FALSE AND was_displayed = FALSE
+      `, [user_id]);
+  
+      res.json({ success: true });
+    } catch (err) {
+      console.error("Error updating was_displayed:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });

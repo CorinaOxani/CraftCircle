@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import styles from "../CSSfyles/Navbar.module.css";
 import logo from "../images/LOGO.png"; 
 import { FaBars, FaShoppingCart, FaHeart } from "react-icons/fa"; 
@@ -7,6 +7,8 @@ import { useCart } from "../components/CartContex";
 import { useFavorites } from "../components/FavoritesContex";
 import { useUser } from "../components/UserContext";
 import  useUnreadMessages  from "../components/hooks/useUnreadMessages";
+import useUnreadPreview from "../components/hooks/useUnreadPreview";
+
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -15,6 +17,30 @@ export default function Navbar() {
   const { favoritesCount } = useFavorites();
   const { logout, userId } = useUser();
   const { unreadCount } = useUnreadMessages(userId);
+  const previews = useUnreadPreview(userId);
+  const location = useLocation();
+  const [showNotif, setShowNotif] = useState(false);
+  const prevCountRef = useRef(unreadCount);
+  const lastNotifiedIdRef = useRef(null);
+
+useEffect(() => {
+  const inMessages = location.pathname.startsWith("/messages");
+
+  const latestMsg = previews[0];
+  const isUnreadToDisplay = latestMsg && latestMsg.message_id !== lastNotifiedIdRef.current;
+
+  if (!inMessages && isUnreadToDisplay) {
+    setShowNotif(true);
+    lastNotifiedIdRef.current = latestMsg.message_id;
+
+    const timeout = setTimeout(() => {
+      setShowNotif(false);
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }
+}, [previews, location.pathname]);
+
   return (
     <nav className={styles.navbar}>
       <img src={logo} alt="Headmade Logo" className={styles.logo} onClick={() => navigate("/")} />
@@ -24,12 +50,33 @@ export default function Navbar() {
         <div className={styles.navLinks}>
           <button onClick={() => navigate(`/profile/${userId}`)}>Home</button>
           <span className={styles.separator}></span>
+          <div className={styles.messagesWrapper}>
           <button onClick={() => navigate("/messages")}>
             Messages
             {unreadCount > 0 && (
-              <span className={styles.cartBadge}>{unreadCount}</span> 
+              <span className={styles.cartBadge}>{unreadCount}</span>
             )}
           </button>
+
+          {showNotif && previews.length > 0 && (
+            <div className={styles.messageNotifContainer}>
+              {previews.map((msg) => (
+                <div key={msg.message_id} className={styles.messageNotif}>
+                  <img
+                    src={msg.profile_picture || require("../images/default-profile.png")}
+                    alt="avatar"
+                    className={styles.notifAvatar}
+                  />
+                  <div>
+                    <strong>{msg.first_name} {msg.last_name}</strong>
+                    <p>{msg.content}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
           <span className={styles.separator}></span>
           <button onClick={() => {
             const userId = localStorage.getItem("user_id");

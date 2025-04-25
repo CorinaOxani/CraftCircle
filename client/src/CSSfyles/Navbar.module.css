@@ -157,3 +157,65 @@
     position: relative;
   }
   
+  .messagesWrapper {
+    position: relative;
+  }
+  
+  .messageNotifContainer {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: #fef5f2; 
+    border: 1px solid #e0cfc6;
+    border-radius: 10px;
+    width: 280px;
+    padding: 12px;
+    z-index: 999;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  }
+  
+  .messageNotif {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-bottom: 1px solid #e8dcd6;
+    transition: background 0.2s ease;
+  }
+  
+  .messageNotif:last-child {
+    border-bottom: none;
+  }
+  
+  .messageNotif:hover {
+    background-color: #f3e5de;
+    cursor: pointer;
+  }
+  
+  .notifAvatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #59341b;
+  }
+  
+  .messageNotif div {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .messageNotif strong {
+    font-family: 'Lateef', sans-serif;
+    font-size: 18px;
+    color: #59341b;
+  }
+  
+  .messageNotif p {
+    font-size: 14px;
+    margin: 2px 0 0 0;
+    color: #4e342e;
+    word-break: break-word;
+  }
+  
+  
