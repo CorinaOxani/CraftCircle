@@ -22,6 +22,7 @@ export default function Navbar() {
   const [showNotif, setShowNotif] = useState(false);
   const prevCountRef = useRef(unreadCount);
   const lastNotifiedIdRef = useRef(null);
+  const notificationSound = new Audio("/notification.mp3");
 
 useEffect(() => {
   const inMessages = location.pathname.startsWith("/messages");
@@ -32,6 +33,7 @@ useEffect(() => {
   if (!inMessages && isUnreadToDisplay) {
     setShowNotif(true);
     lastNotifiedIdRef.current = latestMsg.message_id;
+    notificationSound.play();
 
     const timeout = setTimeout(() => {
       setShowNotif(false);
@@ -61,12 +63,11 @@ useEffect(() => {
           {showNotif && previews.length > 0 && (
             <div className={styles.messageNotifContainer}>
               {previews.map((msg) => (
-                <div key={msg.message_id} className={styles.messageNotif}>
-                  <img
-                    src={msg.profile_picture || require("../images/default-profile.png")}
-                    alt="avatar"
-                    className={styles.notifAvatar}
-                  />
+                <div
+                key={msg.message_id}
+                className={styles.messageNotif}
+                onClick={() => navigate(`/messages`)} 
+                >
                   <div>
                     <strong>{msg.first_name} {msg.last_name}</strong>
                     <p>{msg.content}</p>
