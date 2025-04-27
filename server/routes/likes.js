@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/database");
+const { addAppreciationNotification } = require("./appreciationNotification.js");
 
 // Adaugă like
 router.post("/add", async (req, res) => {
@@ -24,6 +25,27 @@ router.post("/add", async (req, res) => {
       "INSERT INTO likes (user_id, post_id, created_at) VALUES ($1, $2, NOW())",
       [user_id, post_id]
     );
+
+
+    const postOwnerResult = await pool.query(
+      "SELECT user_id FROM posts WHERE post_id = $1",
+      [post_id]
+    );
+
+    if (postOwnerResult.rows.length > 0) {
+      const postOwnerId = postOwnerResult.rows[0].user_id;
+
+
+      if (postOwnerId !== user_id) {
+        await addAppreciationNotification({
+          user_id: postOwnerId,    
+          sender_id: user_id,       
+          type: "like",
+          post_id: post_id,
+          io: req.io               
+        });
+      }
+    }
 
     res.json({ success: true });
   } catch (err) {

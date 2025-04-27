@@ -10,7 +10,7 @@ export default function useUnreadMessages(userId) {
     try {
       const res = await fetch(`http://localhost:4000/messages/unread/${userId}`);
       const data = await res.json();
-      console.log("Unread API response:", data);
+      //console.log("Unread API response:", data);
 
       if (data && typeof data.total === "number") {
         setUnreadCount(data.total);
@@ -29,7 +29,7 @@ export default function useUnreadMessages(userId) {
 
     const interval = setInterval(() => {
       fetchUnread(); 
-    }, 1000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [userId]);

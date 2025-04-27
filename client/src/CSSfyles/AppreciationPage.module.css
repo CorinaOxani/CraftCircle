@@ -1,0 +1,32 @@
+.pageContainer {
+    padding: 20px;
+  }
+  
+  .appreciationList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .appreciationCard {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+  }
+  
+  .text {
+    display: flex;
+    flex-direction: column;
+  }
+  

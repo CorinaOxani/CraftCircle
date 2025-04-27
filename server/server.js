@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const passport = require("./config/passport-config");
+
 const userRoutes = require("./routes/user");
 const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/posts"); 
@@ -14,8 +15,7 @@ const favoritesRouter = require("./routes/favorites");
 const followRoutes = require("./routes/follow");
 const messagesRoutes = require("./routes/messages");
 const likesRouter = require("./routes/likes");
-
-
+const appreciationRouter = require("./routes/appreciationNotification");
 
 const app = express();
 
@@ -33,7 +33,23 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use("/uploads", express.static("uploads"));
 
+// Pornirea serverului
+const server = http.createServer(app);
 
+const io = new Server(server, {
+  cors: {
+    origin: "*", // 
+    methods: ["GET", "POST"]
+  }
+});
+
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+// Rutele aplicației
 app.use("/", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
@@ -43,32 +59,18 @@ app.use("/shop", shopRoutes);
 app.use("/cart", cartRoutes);
 app.use("/favorites", favoritesRouter);
 app.use("/follows", followRoutes);
-// Middleware pentru a adăuga io în req
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
-
 app.use("/messages", messagesRoutes);
 app.use("/likes", likesRouter);
+app.use("/appreciation", appreciationRouter.router);
 
-// Pornirea serverului
-const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: "*", // sau frontend-ul tău (ex: "http://localhost:3000")
-    methods: ["GET", "POST"]
-  }
-});
-
-// Socket.IO 
+// Socket.IO
 io.on("connection", (socket) => {
   console.log("🔌 Client connected:", socket.id);
 
   socket.on("join", (userId) => {
+    console.log(`Received join request for user: ${userId}`);
     socket.join(`user-${userId}`);
-    console.log(`User ${userId} joined room user-${userId}`);
+    console.log(`Joined room: user-${userId}`);
   });
 
   socket.on("disconnect", () => {
@@ -76,5 +78,5 @@ io.on("connection", (socket) => {
   });
 });
 
+// Start server
 server.listen(4000, () => console.log("Server running on http://localhost:4000"));
-

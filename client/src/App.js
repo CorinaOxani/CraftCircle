@@ -16,6 +16,7 @@ import { UserProvider } from "./components/UserContext";
 import FollowersPage from "./components/Profile/FollowersPage";
 import FollowingPage from "./components/Profile/FollowingPage";
 import MessagesPage from "./components/Messages/MessagesPage";
+import AppreciationPage from "./components/Appreciation/AppreciationPage";
 
 
 
@@ -53,6 +54,7 @@ function App() {
               <Route path="/profile/:userId/followers" element={<FollowersPage />} />
               <Route path="/profile/:userId/following" element={<FollowingPage />} />
               <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/appreciation" element={<AppreciationPage />} />
 
             </Routes>
             <ToastContainer position="bottom-right" autoClose={2500} />
