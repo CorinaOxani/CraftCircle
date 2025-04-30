@@ -1,32 +1,55 @@
 .pageContainer {
-    padding: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  min-height: 100vh;
+  padding-top: 150px;
+  background-color: #fff8f6;
+  overflow-x: hidden;
+}
+
+
+.pageContainer::before,
+.pageContainer::after {
+  content: "";
+  position: absolute;
+  position: fixed;
+  top: 40%;
+  transform: translateY(-30%);
+  width: 400px;
+  height: 560px; 
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+  
+}
+
+
+.pageContainer::before {
+  left: 150px;
+  background-image: url("../decor/leaf-left.jpg");
+}
+
+.pageContainer::after {
+  right: 150px;
+  background-image: url("../decor/leaf-right.png");
+}
+
+
+  
+  .title {
+    font-family: 'Italianno', cursive;
+    font-size: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #59341b;
+    z-index: 1;
   }
   
-  .appreciationList {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  .loading {
+    font-size: 20px;
+    margin-top: 50px;
+    color: #59341b;
   }
-  
-  .appreciationCard {
-    display: flex;
-    align-items: center;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
-  
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 12px;
-  }
-  
-  .text {
-    display: flex;
-    flex-direction: column;
-  }
-  

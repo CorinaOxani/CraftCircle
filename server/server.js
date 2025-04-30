@@ -15,7 +15,7 @@ const favoritesRouter = require("./routes/favorites");
 const followRoutes = require("./routes/follow");
 const messagesRoutes = require("./routes/messages");
 const likesRouter = require("./routes/likes");
-const appreciationRouter = require("./routes/appreciationNotification");
+const { router: appreciationRouter } = require("./routes/appreciationNotification");
 
 const app = express();
 
@@ -38,11 +38,10 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*", // 
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
-
 
 app.use((req, res, next) => {
   req.io = io;
@@ -50,10 +49,9 @@ app.use((req, res, next) => {
 });
 
 // Rutele aplicației
-app.use("/", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
-app.use("/posts", postRoutes); 
+app.use("/posts", postRoutes);
 app.use("/uploads", uploadRoutes);
 app.use("/shop", shopRoutes);
 app.use("/cart", cartRoutes);
@@ -61,7 +59,10 @@ app.use("/favorites", favoritesRouter);
 app.use("/follows", followRoutes);
 app.use("/messages", messagesRoutes);
 app.use("/likes", likesRouter);
-app.use("/appreciation", appreciationRouter.router);
+app.use("/appreciation", appreciationRouter);
+
+// 🔻 ACEASTĂ LINIE TREBUIE SĂ FIE ULTIMA
+app.use("/", userRoutes);
 
 // Socket.IO
 io.on("connection", (socket) => {

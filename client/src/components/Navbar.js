@@ -89,7 +89,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (socket && userId) {
-      console.log("Emitting JOIN with userId:", userId);
+      console.log(" Emitting JOIN with userId:", userId);
       socket.emit("join", userId);
     }
   }, [socket, userId]);
