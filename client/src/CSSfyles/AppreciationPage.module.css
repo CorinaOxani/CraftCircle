@@ -6,7 +6,7 @@
   padding: 20px;
   min-height: 100vh;
   padding-top: 150px;
-  background-color: #fff8f6;
+  background: linear-gradient(to bottom right, #fffaf7, #fceae4);
   overflow-x: hidden;
 }
 
@@ -29,7 +29,7 @@
 
 .pageContainer::before {
   left: 150px;
-  background-image: url("../decor/leaf-left.jpg");
+  background-image: url("../decor/leaf-left.png");
 }
 
 .pageContainer::after {

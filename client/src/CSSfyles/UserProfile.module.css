@@ -4,10 +4,10 @@
   align-items: center;
   padding: 20px;
   font-family: "Playfair Display";
-  margin-top: 120px; /* Mută tot conținutul mai jos sub navbar */
-}
+  margin-top: 120px;
+  background: linear-gradient(to bottom right, #fffaf7, #fceae4);
 
-/* Bara de meniu fixă */
+}
 .navbar {
   position: fixed;
   top: 0;
@@ -35,33 +35,32 @@
   text-decoration: underline;
 }
 
-/* Informațiile utilizatorului */
 .userInfo {
   text-align: center;
-  margin-top: 20px; /* Ajustare pentru a muta sub navbar */
+  margin-top: 20px; 
 }
 
-/* 🔹 Asigură un container fix pentru imaginea de profil */
+
 .profileImageContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Asigură centrare */
+  justify-content: center; 
   position: relative;
   width: fit-content;
-  margin: 0 auto; /* Centrează în containerul părinte */
+  margin: 0 auto; 
 }
 
-/* 🔹 Poziționare fixă pentru imaginea de profil */
+
 .profileImage {
   width: 120px;
   height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #5973A8;
+  border: 3px solid #4e8131;
 }
 
-/* 🔹 Menține butonul de editare lângă poză */
+
 .editIcon {
   position: absolute;
   bottom: -10px;
@@ -72,7 +71,7 @@
   cursor: pointer;
 }
 
-/* 🔹 Menține dimensiunea fixă a containerului chiar și în modul editare */
+
 .editImageContainer {
   width: 100%;
   text-align: center;
@@ -84,7 +83,7 @@
 }
 
 
-/* 🔹 Input-ul de fișier să fie ascuns */
+
 .fileInput {
   display: block;
   padding: 8px;
@@ -101,12 +100,12 @@
 .fileInput:hover {
   background-color: #f7e0dc;
 }
-/* Ascunde input-ul standard de fișier */
+
 .hiddenFileInput {
   display: none;
 }
 
-/* Container personalizat pentru butonul "Alege fișierul" */
+
 .customFileInput {
   display: inline-flex;
   align-items: center;
@@ -124,19 +123,19 @@
 
 
 
-/* Adaugă un spațiu pentru numele fișierului selectat */
+
 .customFileInput span {
   margin-left: 5px;
 }
 
-/* 🔹 Container pentru butoanele Save și Revert */
+
 .imageEditButtons {
   display: flex;
   gap: 10px;
 }
 
 
-/* 🔹 Stil pentru butonul Revert */
+
 .revertButton {
   background-color: #f1e6e2;
   color: #59341b;
@@ -164,11 +163,11 @@
   color: #555;
 }
 
-/* Bara cu detalii despre utilizator */
+
 .userDetailsNav {
   display: flex;
   justify-content: center;
-  gap: 40px; /* Crește distanța între butoane */
+  gap: 40px; 
   background-color: #e9d2ca;
   padding: 15px;
   border-radius: 8px;
@@ -206,7 +205,7 @@
 }
 
 
-/* Containerul formularului de postare */
+
 .postFormContainer {
   background-color: #e9d2ca;
   padding: 15px;
@@ -219,7 +218,7 @@
   flex-direction: column;
 }
 
-/* Zona de introducere a textului */
+
 .postTextArea {
   width: 90%;
   height: 50px;
@@ -239,13 +238,11 @@
   color: #59341b;
 }
 
-/* Butoanele pentru atașare fișiere */
 .postOptions {
   display: flex;
   padding: 10px 0;
 }
 
-/* Stiluri pentru butonul de atașare fișiere */
 .postOption {
   display: flex;
   align-items: center;
@@ -254,7 +251,7 @@
   font-family: 'Lateef', sans-serif;
   color: #59341b;
   cursor: pointer;
-  padding: 6px 15px; /* 🔹 Face butonul mai scurt */
+  padding: 6px 15px; 
   border-radius: 20px;
   transition: background 0.3s;
   width: fit-content;
@@ -270,7 +267,6 @@
   background: #ffffff;
 }
 
-/* 🔹 Buton pentru eliminarea imaginilor/video din previzualizare */
 .removePreviewButton {
   position: absolute;
   top: 5px;
@@ -293,7 +289,6 @@
   background: rgb(0, 0, 0);
 }
 
-/* 🔹 Asigură poziționarea corectă a elementului previzualizat */
 .previewItem {
   position: relative;
   width: 100px;
@@ -307,8 +302,6 @@
 }
 
 
-
-/* Butonul de postare */
 .postButton {
   background-color: #f1e6e2;
   color: #59341b;
@@ -324,7 +317,7 @@
   margin: 10px auto; 
 }
 
-/* Hover mai scurt */
+
 .postButton:hover {
   background-color: #ffffff;
   padding: 8px 70px; 
@@ -388,7 +381,7 @@
   transform: scale(1.03);
 }
 
-/* 🔹 Container pentru carusel */
+
 .carouselContainer {
   position: relative;
   width: 100%;
@@ -398,11 +391,9 @@
   justify-content: center;
 }
 
-/* 🔹 Imagini și videoclipuri în carusel */
-/* 🔹 Container pentru grid-ul postărilor */
 .postsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 postări pe rând */
+  grid-template-columns: repeat(3, 1fr); 
   gap: 20px;
   padding: 20px;
   justify-content: center;
@@ -413,10 +404,10 @@
 }
 
 
-/* 🔹 Fiecare postare ocupă același spațiu */
+
 .post {
   width: 100%;
-  max-width: 350px; /* Lățimea maximă pentru fiecare postare */
+  max-width: 350px; 
   background: #ecd9d4;
   padding: 15px;
   border-radius: 10px;
@@ -430,7 +421,6 @@
   background-color: #ffffff;
 }
 
-/* 🔹 Asigură dimensiuni uniforme pentru media (imagini și video) */
 .postMedia {
   width: 100%;
   max-height: 300px;
@@ -439,7 +429,7 @@
   background-color: white;
 }
 
-/* 🔹 Butoane carusel */
+
 .arrowLeft, .arrowRight {
   position: absolute;
   top: 50%;
@@ -465,7 +455,7 @@
   background: rgba(0, 0, 0, 0.8);
 }
 
-/* 🔹 Textul postării */
+
 .postContent {
   font-size: 16px;
   margin-top: 10px;
@@ -497,7 +487,7 @@
 }
 
 .postContent::-webkit-scrollbar-track {
-  background: #f5ebe0; /* Fundal bej deschis */
+  background: #f5ebe0; 
   border-radius: 10px;
 }
 
@@ -527,7 +517,6 @@
   z-index: 50;
 }
 
-/* 🔹 Meniul trebuie să fie absolut și inițial ascuns */
 .postMenu {
   position: absolute;
   top: 35px;
@@ -538,12 +527,11 @@
   padding: 5px 0;
   width: 120px;
   z-index: 100;
-  opacity: 0; /* Inițial invizibil */
+  opacity: 0; 
   visibility: hidden;
   transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
 }
 
-/* 🔹 Când meniul este deschis, îl facem vizibil */
 .postMenu.show {
   opacity: 1;
   visibility: visible;

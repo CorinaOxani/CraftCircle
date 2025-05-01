@@ -18,6 +18,9 @@ import FollowingPage from "./components/Profile/FollowingPage";
 import MessagesPage from "./components/Messages/MessagesPage";
 import AppreciationPage from "./components/Appreciation/AppreciationPage";
 
+import AdminProfile from "./components/Admin/AdminProfile";
+
+
 
 
 import { useEffect } from "react";
@@ -55,6 +58,10 @@ function App() {
               <Route path="/profile/:userId/following" element={<FollowingPage />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/appreciation" element={<AppreciationPage />} />
+
+              <Route path="/admin_profile/:adminId" element={<AdminProfile />} />
+              <Route path="/profile/:userId" element={<UserProfile />} />
+
 
             </Routes>
             <ToastContainer position="bottom-right" autoClose={2500} />

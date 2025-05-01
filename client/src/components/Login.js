@@ -28,8 +28,13 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
+    const isAdmin = formData.email.endsWith("@craft.com");
+    const url = isAdmin
+      ? "http://localhost:4000/admin/login"
+      : "http://localhost:4000/login";
+  
     try {
-      const response = await fetch("http://localhost:4000/login", {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,18 +46,25 @@ export default function Login() {
       });
   
       const result = await response.json();
+  
       if (response.ok) {
-        console.log("User ID saved:", result.user.user_id);
-        login(result.user.user_id);
-        navigate(`/profile/${result.user.user_id}`);
-      }
-      else {
+        if (isAdmin) {
+          console.log("Admin ID saved:", result.admin.admin_id);
+          login(result.admin.admin_id); 
+          navigate(`/admin_profile/${result.admin.admin_id}`);
+        } else {
+          console.log("User ID saved:", result.user.user_id);
+          login(result.user.user_id);
+          navigate(`/profile/${result.user.user_id}`);
+        }
+      } else {
         setErrorMessage(result.error || "Invalid email or password.");
       }
     } catch (err) {
       setErrorMessage("Failed to connect to the server.");
     }
   };
+  
 
   return (
     <div className={styles.container}>

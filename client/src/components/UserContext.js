@@ -5,17 +5,21 @@ const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [userId, setUserId] = useState(null);
-  const [socket, setSocket] = useState(null); 
+  const [isAdmin, setIsAdmin] = useState(false); 
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const storedId = localStorage.getItem("user_id");
+    const storedAdmin = localStorage.getItem("is_admin");
+
     if (storedId) {
       setUserId(parseInt(storedId));
+      setIsAdmin(storedAdmin === "true");
     }
   }, []);
 
   useEffect(() => {
-    if (userId) {
+    if (userId && !isAdmin) {
       const newSocket = io("http://localhost:4000");
 
       newSocket.on("connect", () => {
@@ -31,16 +35,20 @@ export function UserProvider({ children }) {
         newSocket.disconnect();
       };
     }
-  }, [userId]);
+  }, [userId, isAdmin]);
 
-  const login = (id) => {
+  const login = (id, admin = false) => {
     localStorage.setItem("user_id", id);
+    localStorage.setItem("is_admin", admin);
     setUserId(parseInt(id));
+    setIsAdmin(admin);
   };
 
   const logout = () => {
     localStorage.removeItem("user_id");
+    localStorage.removeItem("is_admin");
     setUserId(null);
+    setIsAdmin(false);
     if (socket) {
       socket.disconnect();
       setSocket(null);
@@ -48,7 +56,7 @@ export function UserProvider({ children }) {
   };
 
   return (
-    <UserContext.Provider value={{ userId, login, logout, socket }}>
+    <UserContext.Provider value={{ userId, isAdmin, login, logout, socket }}>
       {children}
     </UserContext.Provider>
   );

@@ -16,6 +16,8 @@ const followRoutes = require("./routes/follow");
 const messagesRoutes = require("./routes/messages");
 const likesRouter = require("./routes/likes");
 const { router: appreciationRouter } = require("./routes/appreciationNotification");
+const adminRoutes = require("./routes/admin/admin");
+const statisticsRoutes = require("./routes/admin/statistics");
 
 const app = express();
 
@@ -60,8 +62,11 @@ app.use("/follows", followRoutes);
 app.use("/messages", messagesRoutes);
 app.use("/likes", likesRouter);
 app.use("/appreciation", appreciationRouter);
+app.use("/admin", adminRoutes);
+app.use("/admin/statistics", statisticsRoutes);
+app.use("/uploads", express.static("uploads"));
 
-// 🔻 ACEASTĂ LINIE TREBUIE SĂ FIE ULTIMA
+
 app.use("/", userRoutes);
 
 // Socket.IO
