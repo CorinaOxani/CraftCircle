@@ -18,9 +18,8 @@ import FollowingPage from "./components/Profile/FollowingPage";
 import MessagesPage from "./components/Messages/MessagesPage";
 import AppreciationPage from "./components/Appreciation/AppreciationPage";
 
-import AdminProfile from "./components/Admin/AdminProfile";
-
-
+import AdminProfile from "./Admin/Pages/AdminProfile";
+import ManageCategoriesPage from "./Admin/Pages/ManageCategoriesPage";
 
 
 import { useEffect } from "react";
@@ -60,6 +59,7 @@ function App() {
               <Route path="/appreciation" element={<AppreciationPage />} />
 
               <Route path="/admin_profile/:adminId" element={<AdminProfile />} />
+              <Route path="/admin/manage-categories" element={<ManageCategoriesPage />} />
               <Route path="/profile/:userId" element={<UserProfile />} />
 
 

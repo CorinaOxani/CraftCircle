@@ -18,6 +18,7 @@ const likesRouter = require("./routes/likes");
 const { router: appreciationRouter } = require("./routes/appreciationNotification");
 const adminRoutes = require("./routes/admin/admin");
 const statisticsRoutes = require("./routes/admin/statistics");
+const categoryRoutes = require("./routes/admin/categories");
 
 const app = express();
 
@@ -65,7 +66,7 @@ app.use("/appreciation", appreciationRouter);
 app.use("/admin", adminRoutes);
 app.use("/admin/statistics", statisticsRoutes);
 app.use("/uploads", express.static("uploads"));
-
+app.use("/admin/categories", categoryRoutes);
 
 app.use("/", userRoutes);
 

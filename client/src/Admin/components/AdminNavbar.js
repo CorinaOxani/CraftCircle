@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../CSSfyles/Navbar.module.css"; 
 import logo from "../../images/LOGO.png";
-import { useUser } from "../UserContext";
+import { useUser } from "../../components/UserContext";
 
 export default function AdminNavbar() {
   const navigate = useNavigate();

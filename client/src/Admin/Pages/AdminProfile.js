@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import AdminNavbar from "./AdminNavbar";
-import ProfilePictureEdit from "../Profile/ProfilePictureEdit";
+import AdminNavbar from "../components/AdminNavbar";
+import ProfilePictureEdit from "../../components/Profile/ProfilePictureEdit";
 import styles from "../../CSSfyles/AdminProfile.module.css";
 
 export default function AdminProfile() {
