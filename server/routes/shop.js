@@ -29,7 +29,7 @@ function extractPublicIdFromUrl(url) {
 
 
 router.post("/add-product", upload.array("images"), async (req, res) => {
-  const { user_id, title, description, price } = req.body;
+  const { user_id, title, description, price, category_id } = req.body;
 
   if (!user_id || !title || !price) {
     return res.status(400).json({ error: "Missing required fields." });
@@ -37,9 +37,9 @@ router.post("/add-product", upload.array("images"), async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO marketplace_items (user_id, title, description, price, created_at)
-       VALUES ($1, $2, $3, $4, NOW()) RETURNING item_id`,
-      [user_id, title, description, price]
+      `INSERT INTO marketplace_items (user_id, title, description, price, created_at, category_id)
+       VALUES ($1, $2, $3, $4, NOW(), $5) RETURNING item_id`,
+      [user_id, title, description, price, category_id || null]
     );
 
     const item_id = result.rows[0].item_id;
@@ -65,6 +65,7 @@ router.post("/add-product", upload.array("images"), async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 //  Produse ale unui utilizator
 router.get("/user-products/:userId", async (req, res) => {

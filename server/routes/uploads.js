@@ -34,7 +34,7 @@ router.post("/upload-profile", upload.single("file"), async (req, res) => {
 
 router.post("/upload-post", upload.array("files", 10), async (req, res) => {
   try {
-    const { user_id, content } = req.body;
+    const { user_id, content, category_id } = req.body;
 
     if (!user_id) {
       return res.status(400).json({ error: "User ID is required." });
@@ -45,14 +45,14 @@ router.post("/upload-post", upload.array("files", 10), async (req, res) => {
       return res.status(400).json({ error: "At least one file is required." });
     }
 
-
     const postResult = await pool.query(
-      "INSERT INTO posts (user_id, content, created_at) VALUES ($1, $2, NOW()) RETURNING post_id",
-      [user_id, content || null]
+      `INSERT INTO posts (user_id, content, category_id, created_at)
+       VALUES ($1, $2, $3, NOW())
+       RETURNING post_id`,
+      [user_id, content || null, category_id || null]
     );
 
     const postId = postResult.rows[0].post_id;
-
 
     for (const file of files) {
       await pool.query(
@@ -67,6 +67,7 @@ router.post("/upload-post", upload.array("files", 10), async (req, res) => {
     res.status(500).json({ error: "Error uploading post." });
   }
 });
+
 
 
 router.get("/user-posts/:user_id", async (req, res) => {

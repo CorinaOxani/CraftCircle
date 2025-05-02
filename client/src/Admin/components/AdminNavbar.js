@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../CSSfyles/Navbar.module.css"; 
 import logo from "../../images/LOGO.png";
 import { useUser } from "../../components/UserContext";
+import { FaBars } from "react-icons/fa";
 
 export default function AdminNavbar() {
   const navigate = useNavigate();
   const { logout, userId } = useUser();
+  const [showDropdown, setShowDropdown] = useState(false);
 
   return (
     <nav className={styles.navbar}>
@@ -28,16 +30,21 @@ export default function AdminNavbar() {
           <button onClick={() => navigate(`/admin/moderate-products`)}>Moderate Products</button>
           <span className={styles.separator}></span>
           <button onClick={() => navigate(`/admin/statistics`)}>Statistics</button>
-        </div>
-
-        <div
+          <div
           className={styles.menuIcon}
-          onClick={() => {
-            logout();
-            navigate("/login");
-          }}
+          onMouseEnter={() => setShowDropdown(true)}
+          onMouseLeave={() => setShowDropdown(false)}
         >
-          <i className={`fas fa-sign-out-alt ${styles.icon}`}></i>
+          <FaBars className={styles.icon} />
+          {showDropdown && (
+            <div className={styles.dropdownMenu}>
+              <button onClick={() => {
+                logout();
+                navigate("/login");
+              }}>Logout</button>
+            </div>
+          )}
+        </div>
         </div>
       </div>
     </nav>

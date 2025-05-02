@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../../CSSfyles/UserProfile.module.css"; 
 import productStyles from "../../CSSfyles/ShopPage.module.css";
 
@@ -9,6 +9,22 @@ export default function ProductForm({onSubmitProduct, isPosting }) {
   const [price, setPrice] = useState("");
   const [files, setFiles] = useState([]);
   const [previewFiles, setPreviewFiles] = useState([]);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
+
+useEffect(() => {
+  fetch("http://localhost:4000/admin/categories/getCategories")
+    .then((res) => res.json())
+    .then((data) => setCategories(data))
+    .catch((err) => console.error("Failed to fetch categories:", err));
+}, []);
+
+const filteredCategories = categories.filter(cat =>
+  cat.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
+  (cat.description || "").toLowerCase().includes(categorySearch.toLowerCase())
+);
+
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
@@ -35,9 +51,12 @@ export default function ProductForm({onSubmitProduct, isPosting }) {
       title,
       description,
       price,
-      files
+      files,
+      category_id: selectedCategory?.category_id || null,
     });
-
+    
+    setSelectedCategory(null);
+    setCategorySearch("");
     setTitle("");
     setDescription("");
     setPrice("");
@@ -103,6 +122,31 @@ export default function ProductForm({onSubmitProduct, isPosting }) {
     ))}
   </div>
 )}
+<input
+  type="text"
+  placeholder="Search category..."
+  className={styles.categoryInput}
+  value={categorySearch}
+  onChange={(e) => setCategorySearch(e.target.value)}
+/>
+
+  {categorySearch && (
+    <div className={styles.categoryGrid}>
+      {filteredCategories.map((cat) => (
+        <div
+          key={cat.category_id}
+          className={styles.categoryBox}
+          onClick={() => {
+            setSelectedCategory(cat);
+            setCategorySearch(cat.name);
+          }}
+        >
+          <span className={styles.categoryName}>{cat.name}</span>
+          <div className={styles.categoryTooltip}>{cat.description}</div>
+        </div>
+      ))}
+    </div>
+  )}
 
 
   <button type="submit" className={styles.postButton} disabled={isPosting}>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AdminNavbar from "../components/AdminNavbar";
 import styles from "../../CSSfyles/ManageCategories.module.css";
+import ConfirmationModal from "../../components/ConfirmationModal";
 
 export default function ManageCategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -8,6 +9,7 @@ export default function ManageCategoriesPage() {
   const [newDescription, setNewDescription] = useState("");
   const [filterName, setFilterName] = useState("");
   const [filterDesc, setFilterDesc] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:4000/admin/categories/getCategories")
@@ -129,14 +131,12 @@ export default function ManageCategoriesPage() {
             <p><strong>{cat.product_count}</strong> products</p>
             {Number(cat.post_count) === 0 && Number(cat.product_count) === 0 && (
                 <button
-                onClick={() => {
-                    const confirmDelete = window.confirm(`Are you sure you want to delete "${cat.name}"?`);
-                    if (confirmDelete) handleDeleteCategory(cat.category_id);
-                }}
-                className={styles.deleteButton}
-                >
+                  onClick={() => setPendingDelete({ category_id: cat.category_id, name: cat.name })}
+                  className={styles.deleteButton}
+              >
                 Delete
-                </button>
+              </button>
+              
             )}
             </div>
         ))}
@@ -144,6 +144,18 @@ export default function ManageCategoriesPage() {
 
 
       </div>
+      {pendingDelete && (
+        <ConfirmationModal
+          title={`Are you sure you want to delete "${pendingDelete.name}" category?`}
+          onConfirm={() => {
+            handleDeleteCategory(pendingDelete.category_id);
+            setPendingDelete(null);
+          }}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
+
     </>
+    
   );
 }

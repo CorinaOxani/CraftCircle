@@ -27,6 +27,10 @@ export default function UserProfile() {
   const [editedContent, setEditedContent] = useState("");
   const [isPosting, setIsPosting] = useState(false);
   const [isFollowingChanged, setIsFollowingChanged] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categorySearch, setCategorySearch] = useState("");
+
+
 
 
   // Fetch user posts
@@ -139,6 +143,9 @@ export default function UserProfile() {
     formData.append("content", postContent);
     postFiles.forEach((file) => formData.append("files", file));
   
+    if (selectedCategory) {
+      formData.append("category_id", selectedCategory.category_id);
+    }
     try {
       setIsPosting(true); 
       const response = await fetch("http://localhost:4000/uploads/upload-post", {
@@ -150,7 +157,9 @@ export default function UserProfile() {
         setPostContent("");
         setPostFiles([]);
         setPreviewFiles([]);
-        fetchUserPosts();
+        setSelectedCategory(null);
+        setCategorySearch("");
+        fetchUserPosts();    
       } else {
         console.error("Error uploading post.");
       }
@@ -262,7 +271,13 @@ export default function UserProfile() {
           previewFiles={previewFiles}
           handleRemovePreview={() => {}}
           isPosting={isPosting}
-        />
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          categorySearch={categorySearch}
+          setCategorySearch={setCategorySearch}
+      />
+      
+      
       )}
       <UserPosts
         posts={posts}

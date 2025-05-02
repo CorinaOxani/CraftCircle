@@ -70,12 +70,15 @@ export default function ShopPage() {
         }
       }, [highlightId, products]);
       
-    const handleAddProduct = async ({ title, description, price, files }) => {
+    const handleAddProduct = async ({ title, description, price, files, category_id }) => {
         const formData = new FormData();
         formData.append("user_id", userId);
         formData.append("title", title);
         formData.append("description", description);
         formData.append("price", price);
+        if (category_id) {
+            formData.append("category_id", category_id);
+        }
         files.forEach((file) => formData.append("images", file));
     
         try {

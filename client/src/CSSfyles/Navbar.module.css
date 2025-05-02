@@ -11,20 +11,20 @@
     z-index: 1000;
   }
   
-  /* Logo-ul pe partea stângă */
+
   .logo {
-    width: 120px; /* Mărim dimensiunea */
+    width: 120px; 
     height: auto;
     cursor: pointer;
     margin-left: 50px;
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
   }
   
-  /* Grupăm link-urile și iconul de meniu */
+
   .navContainer {
     display: flex;
     align-items: center;
-    gap: 20px; /* Spațiere între elemente */
+    gap: 20px; 
   }
   
   /* Link-urile de navigare */
@@ -44,15 +44,15 @@
     padding: 5px 15px;
     transition: color 0.3s ease;
     font-family: 'Lateef', sans-serif;
-    position: relative; /* Necesită poziționare relativă pentru underline */
+    position: relative; 
   }
   
-  /* Adăugăm underline doar sub text */
+
   .navLinks button::after {
     content: "";
     position: absolute;
     left: 50%;
-    bottom: 1px; /* Poziționează linia mai jos */
+    bottom: 1px; 
     width: 0;
     height: 2px;
     background-color: #59341b;
@@ -60,7 +60,7 @@
     transform: translateX(-50%);
   }
   
-  /* Underline apare doar sub text */
+
   .navLinks button:hover {
     color:#59341b;
   }
@@ -82,11 +82,11 @@
   border: none;
   cursor: pointer;
   font-size: 25px;
-  color: #59341b; /* Culoarea textului și a icon-ului de meniu */
+  color: #59341b; 
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Efect de bounce la hover */
+
 .cartIcon:hover {
   transform: scale(1.1);
   color: #5a4633;
@@ -165,7 +165,7 @@
     position: absolute;
     top: 110%;
     right: 0;
-    background: #fef5f2; 
+    background: #fef5f2; /* un bej deschis cald */
     border: 1px solid #e0cfc6;
     border-radius: 10px;
     width: 280px;

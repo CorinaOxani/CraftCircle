@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../../CSSfyles/UserProfile.module.css";
 
 export default function PostForm({
@@ -8,8 +8,26 @@ export default function PostForm({
   handleSubmitPost,
   previewFiles,
   handleRemovePreview,
-  isPosting
+  isPosting,
+  selectedCategory,
+  setSelectedCategory,
+  categorySearch,
+  setCategorySearch
 }) {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/admin/categories/getCategories")
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.error("Failed to fetch categories:", err));
+  }, []);
+
+  const filteredCategories = categories.filter(cat =>
+    cat.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
+    (cat.description || "").toLowerCase().includes(categorySearch.toLowerCase())
+  );
+
   return (
     <div className={styles.postFormContainer}>
       <textarea
@@ -18,6 +36,35 @@ export default function PostForm({
         value={postContent}
         onChange={(e) => setPostContent(e.target.value)}
       />
+
+      {/* Câmp pentru alegerea categoriei */}
+      <input
+        type="text"
+        placeholder="Search category..."
+        className={styles.categoryInput}
+        value={categorySearch}
+        onChange={(e) => setCategorySearch(e.target.value)}
+      />
+      {categorySearch && (
+  <div className={styles.categoryGrid}>
+    {filteredCategories.map((cat) => (
+      <div
+        key={cat.category_id}
+        className={styles.categoryBox}
+        onClick={() => {
+          setSelectedCategory(cat);
+          setCategorySearch(cat.name);
+        }}
+      >
+        <span className={styles.categoryName}>{cat.name}</span>
+        <div className={styles.categoryTooltip}>
+          {cat.description}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
 
       <div className={styles.previewContainer}>
         {previewFiles.map((file, index) => (
