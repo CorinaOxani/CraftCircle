@@ -1,0 +1,63 @@
+.carouselContainer {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: none;
+    padding: 0;
+  }
+  
+  .imageWrapper {
+    flex-grow: 1;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .image {
+    width: 100%;
+    max-width: 280px;
+    max-height: 280px;
+    object-fit: contain; 
+    border-radius: 12px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+  }
+  
+  
+  .arrowLeft,
+  .arrowRight {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    font-size: 15px;
+    padding: 6px 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.2s;
+  }
+  
+  .arrowLeft {
+    left: 0px;
+  }
+  
+  .arrowRight {
+    right: 0px;
+  }
+  
+  .arrowLeft:hover,
+  .arrowRight:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  

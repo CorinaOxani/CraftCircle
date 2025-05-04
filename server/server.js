@@ -19,6 +19,7 @@ const { router: appreciationRouter } = require("./routes/appreciationNotificatio
 const adminRoutes = require("./routes/admin/admin");
 const statisticsRoutes = require("./routes/admin/statistics");
 const categoryRoutes = require("./routes/admin/categories");
+const moderatePostsRoutes = require("./routes/admin/moderatePosts");
 
 const app = express();
 
@@ -67,6 +68,7 @@ app.use("/admin", adminRoutes);
 app.use("/admin/statistics", statisticsRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/admin/categories", categoryRoutes);
+app.use("/admin/moderatePosts", moderatePostsRoutes);
 
 app.use("/", userRoutes);
 

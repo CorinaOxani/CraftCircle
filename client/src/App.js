@@ -18,8 +18,11 @@ import FollowingPage from "./components/Profile/FollowingPage";
 import MessagesPage from "./components/Messages/MessagesPage";
 import AppreciationPage from "./components/Appreciation/AppreciationPage";
 
+
 import AdminProfile from "./Admin/Pages/AdminProfile";
 import ManageCategoriesPage from "./Admin/Pages/ManageCategoriesPage";
+import ModeratePostsPage from "./Admin/Pages/ModeratePostsPage";
+
 
 
 import { useEffect } from "react";
@@ -60,6 +63,8 @@ function App() {
 
               <Route path="/admin_profile/:adminId" element={<AdminProfile />} />
               <Route path="/admin/manage-categories" element={<ManageCategoriesPage />} />
+              <Route path="/admin/moderate-posts" element={<ModeratePostsPage />} />
+
               <Route path="/profile/:userId" element={<UserProfile />} />
 
 
