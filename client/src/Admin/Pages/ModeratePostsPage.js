@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import AdminNavbar from "../components/AdminNavbar";
 import styles from "../../CSSfyles/ModeratePosts.module.css";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import ImageCarousel from "../components/ImageCarousel";
+import ToastMessage from "../../components/ToastMessage";
+import { FaHeart } from "react-icons/fa";
+import { FiFlag } from "react-icons/fi";
+
 
 
 export default function ModeratePostsPage() {
@@ -10,6 +14,32 @@ export default function ModeratePostsPage() {
   const [filters, setFilters] = useState({ name: "", userId: "", content: "" });
   const [pendingDeletePost, setPendingDeletePost] = useState(null);
   const [pendingDeleteUser, setPendingDeleteUser] = useState(null);
+  const [reporters, setReporters] = useState([]);
+  const [reportDetailsOpen, setReportDetailsOpen] = useState(null);
+  const reporterBoxRef = useRef(null);
+  const [toastMessage, setToastMessage] = useState("");
+
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        reporterBoxRef.current &&
+        !reporterBoxRef.current.contains(event.target)
+      ) {
+        setReportDetailsOpen(null);
+      }
+    }
+  
+    if (reportDetailsOpen !== null) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+  
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [reportDetailsOpen]);
+  
+
 
   useEffect(() => {
     fetch("http://localhost:4000/admin/moderatePosts/all")
@@ -35,13 +65,38 @@ export default function ModeratePostsPage() {
       const res = await fetch(`http://localhost:4000/admin/moderatePosts/delete-post/${postId}`, {
         method: "DELETE",
       });
+  
+      const data = await res.json();
+  
       if (res.ok) {
         setPosts((prev) => prev.filter((p) => p.post_id !== postId));
+        setToastMessage(data.message || "Post deleted and email sent.");
+  
+        setTimeout(() => {
+          setToastMessage("");
+        }, 4000);
       } else {
         alert("Failed to delete post.");
       }
     } catch (err) {
       console.error("Error deleting post:", err);
+    }
+  };
+  
+
+  const fetchReporters = async (postId) => {
+    if (reportDetailsOpen === postId) {
+      setReportDetailsOpen(null);
+      return;
+    }
+  
+    try {
+      const res = await fetch(`http://localhost:4000/admin/moderatePosts/reports/${postId}`);
+      const data = await res.json();
+      setReporters(data);
+      setReportDetailsOpen(postId);
+    } catch (err) {
+      console.error("Error fetching reporters", err);
     }
   };
 
@@ -63,6 +118,7 @@ export default function ModeratePostsPage() {
   return (
     <>
       <AdminNavbar />
+      {toastMessage && <ToastMessage message={toastMessage} />}
       <div className={styles.container}>
         <h2 className={styles.sectionTitle}>Moderate Posts</h2>
 
@@ -96,8 +152,28 @@ export default function ModeratePostsPage() {
            <div className={styles.statCard}>
               <div className={styles.cardHeader}>
                 <h4>@{post.username} (ID: {post.user_id})</h4>
-                <p>❤️ {post.like_count || 0} · 🚩 {post.report_count || 0}</p>
+                <div className={styles.postStats}>
+                  <span style={{ color: "#5b3120" }}><FaHeart /> {post.like_count || 0}</span>
+                  <span 
+                    style={{ marginLeft: '12px', cursor: 'pointer', color: "#3e3e3e" }}
+                    onClick={() => fetchReporters(post.post_id)}
+                  >
+                    <FiFlag /> {post.report_count || 0}
+                  </span>
+                </div>
               </div>
+
+              {reportDetailsOpen === post.post_id && reporters.length > 0 && (
+              <div className={styles.reporterList} ref={reporterBoxRef}>
+                <p><strong>Reported by:</strong></p>
+                {reporters.map((u) => (
+                  <p key={u.user_id}>
+                    {u.first_name} {u.last_name} (ID: {u.user_id})
+                  </p>
+                ))}
+              </div>
+            )}
+
 
               <div className={styles.cardDescriptionScroll}>
                 <p>{post.content}</p>
@@ -109,7 +185,6 @@ export default function ModeratePostsPage() {
 
               <div className={styles.cardFooter}>
                 <button onClick={() => setPendingDeletePost(post)} className={styles.deleteButton}>Delete Post</button>
-                <button onClick={() => setPendingDeleteUser(post)} className={styles.deleteButton}>Delete User</button>
               </div>
         </div>
         ))}
