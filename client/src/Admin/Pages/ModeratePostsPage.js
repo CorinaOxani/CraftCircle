@@ -69,12 +69,12 @@ export default function ModeratePostsPage() {
       const data = await res.json();
   
       if (res.ok) {
-        setPosts((prev) => prev.filter((p) => p.post_id !== postId));
-        setToastMessage(data.message || "Post deleted and email sent.");
+        const updated = await fetch("http://localhost:4000/admin/moderatePosts/all");
+        const newData = await updated.json();
+        setPosts(Array.isArray(newData) ? newData : []);
   
-        setTimeout(() => {
-          setToastMessage("");
-        }, 4000);
+        setToastMessage(data.message || "Post deleted and email sent.");
+        setTimeout(() => setToastMessage(""), 4000);
       } else {
         alert("Failed to delete post.");
       }
@@ -82,6 +82,7 @@ export default function ModeratePostsPage() {
       console.error("Error deleting post:", err);
     }
   };
+  
   
 
   const fetchReporters = async (postId) => {

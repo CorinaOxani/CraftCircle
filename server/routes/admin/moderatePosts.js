@@ -78,6 +78,9 @@ router.delete("/delete-post/:postId", async (req, res) => {
 
     const { content, email, first_name, image_url } = postInfo.rows[0];
 
+    // Șterge like-urile postării
+    await client.query("DELETE FROM likes WHERE post_id = $1", [postId]);
+
     //  Șterge postarea
     await client.query("DELETE FROM posts WHERE post_id = $1", [postId]);
 
