@@ -143,6 +143,11 @@ router.delete("/delete-product/:itemId", async (req, res) => {
   const { itemId } = req.params;
 
   try {
+    // Șterge din coș și favorite
+    await pool.query(`DELETE FROM shopping_cart WHERE item_id = $1`, [itemId]);
+    await pool.query(`DELETE FROM favorites WHERE item_id = $1`, [itemId]);
+
+    // Șterge imaginile din Cloudinary
     const imagesRes = await pool.query(
       `SELECT image_url FROM shop_item_images WHERE item_id = $1`,
       [itemId]
@@ -159,9 +164,11 @@ router.delete("/delete-product/:itemId", async (req, res) => {
       }
     }
 
+    // Șterge imaginile din baza de date
     await pool.query(`DELETE FROM shop_item_images WHERE item_id = $1`, [itemId]);
     await pool.query(`DELETE FROM product_reports WHERE item_id = $1`, [itemId]);
 
+    // Șterge produsul din baza de date
     const result = await pool.query(
       `DELETE FROM marketplace_items WHERE item_id = $1`,
       [itemId]
@@ -171,12 +178,15 @@ router.delete("/delete-product/:itemId", async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    res.json({ message: "Product deleted" });
+    // Trimite un singur mesaj de succes
+    res.status(200).json({ message: "Product deleted successfully." });
+
   } catch (error) {
     console.error("Error deleting product:", error);
     res.status(500).json({ error: "Failed to delete product" });
   }
 });
+
 
 router.put("/update-product", upload.array("newImages"), async (req, res) => {
   const { item_id, title, description, price, stock, imagesToDelete } = req.body;
