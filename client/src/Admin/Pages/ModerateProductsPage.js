@@ -4,7 +4,6 @@ import styles from "../../CSSfyles/ModeratePosts.module.css";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import ImageCarousel from "../components/ImageCarousel";
 import ToastMessage from "../../components/ToastMessage";
-import { FaHeart } from "react-icons/fa";
 import { FiFlag } from "react-icons/fi";
 
 export default function ModerateProductsPage() {
@@ -158,8 +157,8 @@ export default function ModerateProductsPage() {
 
         <div className={styles.statsGrid}>
           {filtered.map((product) => (
-            <div className={styles.statCard} key={product.item_id}>
-              <div className={styles.cardHeader}>
+            <div className={styles.statCardProducts} key={product.item_id}>
+              <div className={styles.cardHeaderProducts}>
                 <h4>@{product.username} (ID: {product.user_id})</h4>
                 <div className={styles.postStats}>
                   <span 

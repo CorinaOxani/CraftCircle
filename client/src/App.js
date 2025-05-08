@@ -23,6 +23,7 @@ import AdminProfile from "./Admin/Pages/AdminProfile";
 import ManageCategoriesPage from "./Admin/Pages/ManageCategoriesPage";
 import ModeratePostsPage from "./Admin/Pages/ModeratePostsPage";
 import ModerateProductsPage from "./Admin/Pages/ModerateProductsPage";
+import AdminStatisticsPage from "./Admin/Pages/AdminStatisticsPage.js";
 
 
 import { useEffect } from "react";
@@ -65,6 +66,7 @@ function App() {
               <Route path="/admin/manage-categories" element={<ManageCategoriesPage />} />
               <Route path="/admin/moderate-posts" element={<ModeratePostsPage />} />
               <Route path="/admin/moderate-products" element={<ModerateProductsPage />} />
+              <Route path="/admin/statistics" element={<AdminStatisticsPage />} />
 
               <Route path="/profile/:userId" element={<UserProfile />} />
 
