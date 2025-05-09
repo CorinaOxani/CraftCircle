@@ -80,69 +80,72 @@ export default function ManageCategoriesPage() {
 
   return (
     <>
-      <AdminNavbar />
-      <div className={styles.container}>
-        <h3 className={styles.sectionTitle}>Manage Categories</h3>
 
-        <form onSubmit={handleAddCategory} className={styles.form}>
-          <input
-            type="text"
-            placeholder="Category name"
-            value={newName}
-            onChange={e => setNewName(e.target.value)}
-            className={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Description (optional)"
-            value={newDescription}
-            onChange={e => setNewDescription(e.target.value)}
-            className={styles.input}
-          />
-          <button type="submit" className={styles.addButton}>Add</button>
-        </form>
+      <div className={styles.adminManageCategoriesContainer}>
+        <AdminNavbar />
+        <div className={styles.container}>
+          <h3 className={styles.sectionTitle}>Manage Categories</h3>
 
-        <div className={styles.filterBox}>
+          <form onSubmit={handleAddCategory} className={styles.form}>
             <input
-                type="text"
-                placeholder="Filter by name"
-                value={filterName}
-                onChange={e => setFilterName(e.target.value)}
-                className={styles.input}
+              type="text"
+              placeholder="Category name"
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              className={styles.input}
             />
             <input
-                type="text"
-                placeholder="Filter by description"
-                value={filterDesc}
-                onChange={e => setFilterDesc(e.target.value)}
-                className={styles.input}
+              type="text"
+              placeholder="Description (optional)"
+              value={newDescription}
+              onChange={e => setNewDescription(e.target.value)}
+              className={styles.input}
             />
-            <button type="button" onClick={handleClearFilters} className={styles.clearButton}>
-                Clear Filters
-            </button>
-        </div>
+            <button type="submit" className={styles.addButton}>Add</button>
+          </form>
 
-        <div className={styles.statsGrid}>
-        {filteredCategories.map(cat => (
-            <div key={cat.category_id} className={styles.statCard}>
-            <h4>{cat.name}</h4>
-            <p>{cat.description || "—"}</p>
-            <p><strong>{cat.post_count}</strong> posts</p>
-            <p><strong>{cat.product_count}</strong> products</p>
-            {Number(cat.post_count) === 0 && Number(cat.product_count) === 0 && (
-                <button
-                  onClick={() => setPendingDelete({ category_id: cat.category_id, name: cat.name })}
-                  className={styles.deleteButton}
-              >
-                Delete
+          <div className={styles.filterBox}>
+              <input
+                  type="text"
+                  placeholder="Filter by name"
+                  value={filterName}
+                  onChange={e => setFilterName(e.target.value)}
+                  className={styles.input}
+              />
+              <input
+                  type="text"
+                  placeholder="Filter by description"
+                  value={filterDesc}
+                  onChange={e => setFilterDesc(e.target.value)}
+                  className={styles.input}
+              />
+              <button type="button" onClick={handleClearFilters} className={styles.clearButton}>
+                  Clear Filters
               </button>
-              
-            )}
-            </div>
-        ))}
+          </div>
+
+          <div className={styles.statsGrid}>
+          {filteredCategories.map(cat => (
+              <div key={cat.category_id} className={styles.statCard}>
+              <h4>{cat.name}</h4>
+              <p>{cat.description || "—"}</p>
+              <p><strong>{cat.post_count}</strong> posts</p>
+              <p><strong>{cat.product_count}</strong> products</p>
+              {Number(cat.post_count) === 0 && Number(cat.product_count) === 0 && (
+                  <button
+                    onClick={() => setPendingDelete({ category_id: cat.category_id, name: cat.name })}
+                    className={styles.deleteButton}
+                >
+                  Delete
+                </button>
+                
+              )}
+              </div>
+          ))}
+          </div>
+
+
         </div>
-
-
       </div>
       {pendingDelete && (
         <ConfirmationModal

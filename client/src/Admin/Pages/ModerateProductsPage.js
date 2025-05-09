@@ -57,6 +57,7 @@ export default function ModerateProductsPage() {
   );
 
   const handleDeleteProduct = async (productId) => {
+    console.log(`🗑️ Deleting product with ID: ${productId}...`);
     try {
         setIsDeleting(true);
 
@@ -65,20 +66,25 @@ export default function ModerateProductsPage() {
         });
         
         const data = await res.json();
+        console.log("🗑️ Delete response:", data);
     
         if (res.ok) {
             // Actualizează lista de produse
+            console.log("✅ Product deleted successfully, refreshing list...");
             const updated = await fetch("http://localhost:4000/admin/moderateProducts/all");
             const newData = await updated.json();
+            console.log("🔄 Updated products list:", newData);
             setProducts(Array.isArray(newData) ? newData : []);
             
             // Setează toast o singură dată
             setToastMessage(data.message || "Product deleted successfully.");
             setTimeout(() => setToastMessage(""), 4000);
         } else {
+          console.error("❌ Failed to delete product:", data);
             alert("Failed to delete product.");
         }
     } catch (err) {
+      console.error("❌ Error deleting product:", err);
         console.error("Error deleting product:", err);
     } finally {
         setIsDeleting(false);
@@ -106,99 +112,101 @@ export default function ModerateProductsPage() {
 
   return (
     <>
-      <AdminNavbar />
-      {toastMessage && <ToastMessage message={toastMessage} />}
+      <div className={styles.adminManagePostsContainer}>
+        <AdminNavbar />
+        {toastMessage && <ToastMessage message={toastMessage} />}
 
-      {/* Loader Overlay */}
-      {isDeleting && (
-        <div className={styles.loaderOverlay}>
-          <div className={styles.loader}></div>
-          <p className={styles.loadingText}>Deleting product, please wait...</p>
-        </div>
-      )}
-      
-      {pendingDeleteProduct && (
-        <ConfirmationModal
-          title={`Are you sure you want to delete the product "${pendingDeleteProduct.title}"?`}
-          onConfirm={() => {
-            handleDeleteProduct(pendingDeleteProduct.item_id);
-            setPendingDeleteProduct(null);
-          }}
-          onCancel={() => setPendingDeleteProduct(null)}
-        />
-      )}
-
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Moderate Products</h2>
-
-        <div className={styles.filterBox}>
-          <input
-            type="text"
-            placeholder="Filter by name"
-            value={filters.name}
-            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-            className={styles.input}
+        {/* Loader Overlay */}
+        {isDeleting && (
+          <div className={styles.loaderOverlay}>
+            <div className={styles.loader}></div>
+            <p className={styles.loadingText}>Deleting product, please wait...</p>
+          </div>
+        )}
+        
+        {pendingDeleteProduct && (
+          <ConfirmationModal
+            title={`Are you sure you want to delete the product "${pendingDeleteProduct.title}"?`}
+            onConfirm={() => {
+              handleDeleteProduct(pendingDeleteProduct.item_id);
+              setPendingDeleteProduct(null);
+            }}
+            onCancel={() => setPendingDeleteProduct(null)}
           />
-          <input
-            type="text"
-            placeholder="Filter by user ID"
-            value={filters.userId}
-            onChange={(e) => setFilters({ ...filters, userId: e.target.value })}
-            className={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Filter by description"
-            value={filters.description}
-            onChange={(e) => setFilters({ ...filters, description: e.target.value })}
-            className={styles.input}
-          />
-        </div>
+        )}
 
-        <div className={styles.statsGrid}>
-          {filtered.map((product) => (
-            <div className={styles.statCardProducts} key={product.item_id}>
-              <div className={styles.cardHeaderProducts}>
-                <h4>@{product.username} (ID: {product.user_id})</h4>
-                <div className={styles.postStats}>
-                  <span 
-                    style={{ marginLeft: '12px', cursor: 'pointer', color: "#3e3e3e" }}
-                    onClick={() => fetchReporters(product.item_id)}
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Moderate Products</h2>
+
+          <div className={styles.filterBox}>
+            <input
+              type="text"
+              placeholder="Filter by name"
+              value={filters.name}
+              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+              className={styles.input}
+            />
+            <input
+              type="text"
+              placeholder="Filter by user ID"
+              value={filters.userId}
+              onChange={(e) => setFilters({ ...filters, userId: e.target.value })}
+              className={styles.input}
+            />
+            <input
+              type="text"
+              placeholder="Filter by description"
+              value={filters.description}
+              onChange={(e) => setFilters({ ...filters, description: e.target.value })}
+              className={styles.input}
+            />
+          </div>
+
+          <div className={styles.statsGrid}>
+            {filtered.map((product) => (
+              <div className={styles.statCardProducts} key={product.item_id}>
+                <div className={styles.cardHeaderProducts}>
+                  <h4>@{product.username} (ID: {product.user_id})</h4>
+                  <div className={styles.postStats}>
+                    <span 
+                      style={{ marginLeft: '12px', cursor: 'pointer', color: "#3e3e3e" }}
+                      onClick={() => fetchReporters(product.item_id)}
+                    >
+                      <FiFlag /> {product.report_count || 0}
+                    </span>
+                  </div>
+                </div>
+
+                {reportDetailsOpen === product.item_id && reporters.length > 0 && (
+                <div className={styles.reporterList} ref={reporterBoxRef}>
+                  <p><strong>Reported by:</strong></p>
+                  {reporters.map((u) => (
+                    <p key={u.user_id}>
+                      {u.first_name} {u.last_name} (ID: {u.user_id})
+                    </p>
+                  ))}
+                </div>
+              )}
+
+                <div className={styles.cardDescriptionScroll}>
+                  <p>{product.description}</p>
+                </div>
+
+                <div className={styles.cardBody}>
+                  <ImageCarousel images={product.media_urls} />
+                </div>
+
+                <div className={styles.cardFooter}>
+                  <button
+                    onClick={() => setPendingDeleteProduct(product)}
+                    className={styles.deleteButton}
                   >
-                    <FiFlag /> {product.report_count || 0}
-                  </span>
+                    Delete Product
+                  </button>
                 </div>
               </div>
-
-              {reportDetailsOpen === product.item_id && reporters.length > 0 && (
-              <div className={styles.reporterList} ref={reporterBoxRef}>
-                <p><strong>Reported by:</strong></p>
-                {reporters.map((u) => (
-                  <p key={u.user_id}>
-                    {u.first_name} {u.last_name} (ID: {u.user_id})
-                  </p>
-                ))}
-              </div>
-            )}
-
-              <div className={styles.cardDescriptionScroll}>
-                <p>{product.description}</p>
-              </div>
-
-              <div className={styles.cardBody}>
-                <ImageCarousel images={product.media_urls} />
-              </div>
-
-              <div className={styles.cardFooter}>
-                <button
-                  onClick={() => setPendingDeleteProduct(product)}
-                  className={styles.deleteButton}
-                >
-                  Delete Product
-                </button>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </>

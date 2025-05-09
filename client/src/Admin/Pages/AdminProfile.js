@@ -18,9 +18,12 @@ export default function AdminProfile() {
       .then(setAdmin)
       .catch(err => console.error("Admin fetch failed", err));
 
-    fetch("http://localhost:4000/admin/statistics/overview")
+      fetch(`http://localhost:4000/admin/${adminId}/actions`)
       .then(res => res.json())
-      .then(setStats)
+      .then(data => {
+        console.log("Stats Loaded:", data); 
+        setStats(data);
+      })
       .catch(err => console.error("Stats fetch failed", err));
   }, [adminId]);
 
@@ -65,50 +68,52 @@ export default function AdminProfile() {
 
   return (
     <>
-      <AdminNavbar />
-      <div className={styles.container}>
-        <div className={styles.profileInfo}>
-          <ProfilePictureEdit
-            user={admin}
-            previewImage={previewImage}
-            isEditingImage={isEditingImage}
-            handleImageChange={handleImageChange}
-            handleSaveImage={handleSaveImage}
-            handleRevertImage={handleRevertImage}
-            setIsEditingImage={setIsEditingImage}
-            isOwnProfile={true}
-          />
+      <div className={styles.adminProfileContainer}>
+        <AdminNavbar />
+        <div className={styles.container}>
+          <div className={styles.profileInfo}>
+            <ProfilePictureEdit
+              user={admin}
+              previewImage={previewImage}
+              isEditingImage={isEditingImage}
+              handleImageChange={handleImageChange}
+              handleSaveImage={handleSaveImage}
+              handleRevertImage={handleRevertImage}
+              setIsEditingImage={setIsEditingImage}
+              isOwnProfile={true}
+            />
 
-          <div className={styles.adminDetails}>
-            <h2>{admin.first_name} {admin.last_name}</h2>
-            <p>Email: {admin.email}</p>
-            <p>City: {admin.city}</p>
-            <p>Country: {admin.country}</p>
-            <p>
-            Birthdate: {
-                new Date(admin.birthdate).toLocaleDateString('ro-RO', {
-                day: '2-digit',
-                month: '2-digit',
-                year: '2-digit'
-                })
-            }
-            </p>
+            <div className={styles.adminDetails}>
+              <h2>{admin.first_name} {admin.last_name}</h2>
+              <p>Email: {admin.email}</p>
+              <p>City: {admin.city}</p>
+              <p>Country: {admin.country}</p>
+              <p>
+              Birthdate: {
+                  new Date(admin.birthdate).toLocaleDateString('ro-RO', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: '2-digit'
+                  })
+              }
+              </p>
 
-            <p>Joined: {new Date(admin.created_at).toLocaleDateString()}</p>
-          </div>
-        </div>
-
-        {stats && (
-          <>
-            <h3 className={styles.sectionTitle}>Platform Overview</h3>
-            <div className={styles.statsGrid}>
-              <StatCard title="Users" value={stats.userCount} />
-              <StatCard title="Posts" value={stats.postCount} />
-              <StatCard title="Products" value={stats.productCount} />
-              <StatCard title="Categories" value={stats.categoryCount} />
+              <p>Joined: {new Date(admin.created_at).toLocaleDateString()}</p>
             </div>
-          </>
-        )}
+          </div>
+
+          {stats && (
+            <>
+              <h3 className={styles.sectionTitle}>Admin Actions</h3>
+              <div className={styles.statsGrid}>
+                <StatCard title="Deleted Users" value={stats.deleted_users} />
+                <StatCard title="Deleted Posts" value={stats.deleted_posts} />
+                <StatCard title="Deleted Products" value={stats.deleted_products} />
+              </div>
+            </>
+          )}
+
+        </div>
       </div>
     </>
   );

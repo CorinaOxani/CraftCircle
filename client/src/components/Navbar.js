@@ -88,11 +88,15 @@ export default function Navbar() {
 
 
   useEffect(() => {
-    if (socket && userId) {
-      console.log(" Emitting JOIN with userId:", userId);
-      socket.emit("join", userId);
+    if (socket) {
+        const validUserId = Number(userId);
+        if (!isNaN(validUserId) && validUserId > 0) {
+            console.log("Emitting JOIN with userId:", validUserId);
+            socket.emit("join", validUserId);
+        }
     }
-  }, [socket, userId]);
+}, [socket, userId]);
+
 
 
   useEffect(() => {
@@ -216,6 +220,7 @@ export default function Navbar() {
             <div className={styles.dropdownMenu}>
               <button onClick={() => navigate("/settings")}>Change Password</button>
               <button onClick={() => {
+                localStorage.removeItem("user_id");
                 logout();
                 navigate("/login");
               }}>Logout</button>

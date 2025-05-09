@@ -50,11 +50,13 @@ export default function Login() {
       if (response.ok) {
         if (isAdmin) {
           console.log("Admin ID saved:", result.admin.admin_id);
-          login(result.admin.admin_id); 
+          localStorage.setItem("is_admin", "true");
+          login(result.admin.admin_id, true); 
           navigate(`/admin_profile/${result.admin.admin_id}`);
         } else {
           console.log("User ID saved:", result.user.user_id);
-          login(result.user.user_id);
+          localStorage.setItem("is_admin", "false");
+          login(result.user.user_id, false);
           navigate(`/profile/${result.user.user_id}`);
         }
       } else {

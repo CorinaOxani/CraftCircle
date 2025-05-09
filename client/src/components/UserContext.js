@@ -39,7 +39,7 @@ export function UserProvider({ children }) {
 
   const login = (id, admin = false) => {
     localStorage.setItem("user_id", id);
-    localStorage.setItem("is_admin", admin);
+    localStorage.setItem("is_admin", admin ? "true" : "false");
     setUserId(parseInt(id));
     setIsAdmin(admin);
   };

@@ -67,6 +67,8 @@ function App() {
               <Route path="/admin/moderate-posts" element={<ModeratePostsPage />} />
               <Route path="/admin/moderate-products" element={<ModerateProductsPage />} />
               <Route path="/admin/statistics" element={<AdminStatisticsPage />} />
+              <Route path="/admin/users/:userId" element={<UserProfile adminMode={true} />} />
+
 
               <Route path="/profile/:userId" element={<UserProfile />} />
 

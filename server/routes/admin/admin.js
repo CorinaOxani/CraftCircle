@@ -62,6 +62,25 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: "Server error." });
   }
 });
+router.get("/:adminId/actions", async (req, res) => {
+  const { adminId } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT deleted_users, deleted_posts, deleted_products FROM admins WHERE admin_id = $1",
+      [adminId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error fetching admin actions:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 router.post("/upload-admin-profile", upload.single("file"), async (req, res) => {

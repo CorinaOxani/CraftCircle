@@ -2,6 +2,21 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../../config/database");
 
+const generateMonthsQuery = (tableName, dateColumn) => `
+    WITH months AS (
+        SELECT 
+            TO_CHAR(date_trunc('month', CURRENT_DATE) - INTERVAL '1 month' * s.a, 'YYYY-MM') AS month
+        FROM generate_series(0, 11) AS s(a)
+    )
+    SELECT 
+        m.month,
+        COALESCE(SUM(CASE WHEN TO_CHAR(${dateColumn}, 'YYYY-MM') <= m.month THEN 1 ELSE 0 END), 0) AS count
+    FROM months m
+    LEFT JOIN ${tableName} t ON TO_CHAR(t.${dateColumn}, 'YYYY-MM') <= m.month
+    GROUP BY m.month
+    ORDER BY m.month;
+`;
+
 // Total Users și New This Month
 router.get("/users", async (req, res) => {
   try {
@@ -30,13 +45,11 @@ router.get("/posts", async (req, res) => {
         const totalPosts = await pool.query(`SELECT COUNT(*) AS total FROM posts`);
         
         const reportedPosts = await pool.query(`SELECT COUNT(*) AS reported FROM post_reports`);
-        
-        const totalLikes = await pool.query(`SELECT COUNT(*) AS likes FROM likes`);
+
         
         res.json({
             total: totalPosts.rows[0].total,
-            reported: reportedPosts.rows[0].reported,
-            likes: totalLikes.rows[0].likes
+            reported: reportedPosts.rows[0].reported
         });
     } catch (err) {
         console.error("Error fetching posts stats:", err);
@@ -124,6 +137,102 @@ router.get("/app", async (req, res) => {
     } catch (err) {
         console.error("Error fetching app stats:", err);
         res.status(500).json({ error: "Failed to fetch app statistics" });
+    }
+});
+// Monthly Cumulative User Growth
+router.get("/users/progress", async (req, res) => {
+    try {
+        const result = await pool.query(generateMonthsQuery("accounts", "created_at"));
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error fetching users growth stats:", err);
+        res.status(500).json({ error: "Failed to fetch users growth statistics" });
+    }
+});
+
+// Monthly Cumulative Post Growth
+router.get("/posts/progress", async (req, res) => {
+    try {
+        const result = await pool.query(generateMonthsQuery("posts", "created_at"));
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error fetching posts growth stats:", err);
+        res.status(500).json({ error: "Failed to fetch posts growth statistics" });
+    }
+});
+
+// Monthly Cumulative Product Growth
+router.get("/products/progress", async (req, res) => {
+    try {
+        const result = await pool.query(generateMonthsQuery("marketplace_items", "created_at"));
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error fetching products growth stats:", err);
+        res.status(500).json({ error: "Failed to fetch products growth statistics" });
+    }
+});
+
+// Monthly Cumulative Message Growth
+router.get("/messages/progress", async (req, res) => {
+    try {
+        const result = await pool.query(generateMonthsQuery("messages", "created_at"));
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error fetching messages growth stats:", err);
+        res.status(500).json({ error: "Failed to fetch messages growth statistics" });
+    }
+});
+
+// Monthly Cumulative Order Growth
+router.get("/orders/progress", async (req, res) => {
+    try {
+        const result = await pool.query(generateMonthsQuery("orders", "created_at"));
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error fetching orders growth stats:", err);
+        res.status(500).json({ error: "Failed to fetch orders growth statistics" });
+    }
+});
+
+// Monthly Cumulative Likes and Follows Growth
+router.get("/app/progress", async (req, res) => {
+    try {
+        const likesGrowth = await pool.query(generateMonthsQuery("likes", "created_at"));
+        const followsGrowth = await pool.query(generateMonthsQuery("follows", "created_at"));
+        
+        res.json({
+            likes: likesGrowth.rows,
+            follows: followsGrowth.rows
+        });
+    } catch (err) {
+        console.error("Error fetching app growth stats:", err);
+        res.status(500).json({ error: "Failed to fetch app growth statistics" });
+    }
+});
+// Lista tuturor utilizatorilor
+router.get("/users/all", async (req, res) => {
+    try {
+        const allUsers = await pool.query(`SELECT user_id, first_name, last_name, email FROM accounts ORDER BY created_at DESC`);
+        res.json(allUsers.rows);
+    } catch (err) {
+        console.error("Error fetching all users:", err);
+        res.status(500).json({ error: "Failed to fetch all users" });
+    }
+});
+
+// Lista utilizatorilor noi din această lună
+router.get("/users/new", async (req, res) => {
+    try {
+        const newUsers = await pool.query(`
+            SELECT user_id, first_name, last_name, email 
+            FROM accounts 
+            WHERE DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE)
+            ORDER BY created_at DESC
+        `);
+        res.json(newUsers.rows);
+    } catch (err) {
+        console.error("Error fetching new users:", err);
+        res.status(500).json({ error: "Failed to fetch new users" });
     }
 });
 

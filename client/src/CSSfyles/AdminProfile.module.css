@@ -1,13 +1,23 @@
+.adminProfileContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #fffaf7, #fceae4);
+}
+
 .container {
     min-height: 100vh;
     padding: 6rem 5% 3rem;
     font-family: 'Lateef', sans-serif;
     background: linear-gradient(to bottom right, #fffaf7, #fceae4);
-    overflow: visible;
+    overflow: visible; /* Asigură că conținutul nu este tăiat */
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
+    z-index: 1; /* Adăugat pentru a fi deasupra decorului */
   }
   
   .container::before,
@@ -39,13 +49,13 @@
   
   .profileInfo,
   .statsGrid {
+    
     z-index: 2;
     position: relative;
   }
   
   .profileInfo {
-    width: 100%;
-    max-width: 960px;
+    width: 850px;
     background: #fff6f3;
     border-radius: 20px;
     padding: 3rem 2.5rem;
@@ -59,7 +69,8 @@
     transition: all 0.3s ease;
     animation: fadeIn 0.6s ease-out;
     margin-top: 6rem;
-  }
+}
+
   
   .profileInfo:hover {
     transform: translateY(-2px);
@@ -96,6 +107,8 @@
     font-weight: 600;
     border-left: 4px solid #d18771;
     padding-left: 12px;
+    z-index: 2; /* Asigură că este deasupra decorului */
+    position: relative;
   }
   
   .statsGrid {
@@ -105,6 +118,8 @@
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 30px;
     margin-top: 1rem;
+    z-index: 2; /* Asigură că este deasupra decorului */
+    position: relative;
     animation: fadeIn 0.8s ease-out 0.1s backwards;
   }
   

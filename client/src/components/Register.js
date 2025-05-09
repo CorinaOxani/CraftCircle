@@ -102,6 +102,7 @@ export default function Register() {
         setSuccessMessage("User registered successfully!");
          // Salvează user_id în localStorage
       localStorage.setItem("user_id", result.user.user_id);
+      localStorage.setItem("is_admin", "false");
   
         setFormData({
           firstName: "",

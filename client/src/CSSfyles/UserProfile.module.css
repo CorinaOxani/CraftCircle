@@ -8,38 +8,10 @@
   background: linear-gradient(to bottom right, #fffaf7, #fceae4);
 
 }
-.navbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background-color: #5973A8;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-.navbar button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  margin: 0 10px;
-}
-
-.navbar button:hover {
-  text-decoration: underline;
-}
-
 .userInfo {
   text-align: center;
   margin-top: 20px; 
 }
-
 
 .profileImageContainer {
   display: flex;

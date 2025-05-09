@@ -118,77 +118,78 @@ export default function ModeratePostsPage() {
 
   return (
     <>
-      <AdminNavbar />
-      {toastMessage && <ToastMessage message={toastMessage} />}
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Moderate Posts</h2>
+      <div className={styles.adminManagePostsContainer}>
+        <AdminNavbar />
+        {toastMessage && <ToastMessage message={toastMessage} />}
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Moderate Posts</h2>
 
-        <div className={styles.filterBox}>
-          <input
-            type="text"
-            placeholder="Filter by name"
-            value={filters.name}
-            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-            className={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Filter by user ID"
-            value={filters.userId}
-            onChange={(e) => setFilters({ ...filters, userId: e.target.value })}
-            className={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Filter by content"
-            value={filters.content}
-            onChange={(e) => setFilters({ ...filters, content: e.target.value })}
-            className={styles.input}
-          />
-        </div>
+          <div className={styles.filterBox}>
+            <input
+              type="text"
+              placeholder="Filter by name"
+              value={filters.name}
+              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+              className={styles.input}
+            />
+            <input
+              type="text"
+              placeholder="Filter by user ID"
+              value={filters.userId}
+              onChange={(e) => setFilters({ ...filters, userId: e.target.value })}
+              className={styles.input}
+            />
+            <input
+              type="text"
+              placeholder="Filter by content"
+              value={filters.content}
+              onChange={(e) => setFilters({ ...filters, content: e.target.value })}
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.statsGrid}>
+            {filtered.map((post) => (
+              <div key={post.post_id} className={styles.statCard}>
+                <div className={styles.cardHeader}>
+                  <h4>@{post.username} (ID: {post.user_id})</h4>
+                  <div className={styles.postStats}>
+                    <span style={{ color: "#5b3120" }}>
+                      <FaHeart /> {post.like_count || 0}
+                    </span>
+                    <span
+                      style={{ marginLeft: "12px", cursor: "pointer", color: "#3e3e3e" }}
+                      onClick={() => fetchReporters(post.post_id)}
+                    >
+                      <FiFlag /> {post.report_count || 0}
+                    </span>
+                  </div>
+                </div>
 
-        <div className={styles.statsGrid}>
-          {filtered.map((post) => (
-           
-           <div className={styles.statCard}>
-              <div className={styles.cardHeader}>
-                <h4>@{post.username} (ID: {post.user_id})</h4>
-                <div className={styles.postStats}>
-                  <span style={{ color: "#5b3120" }}><FaHeart /> {post.like_count || 0}</span>
-                  <span 
-                    style={{ marginLeft: '12px', cursor: 'pointer', color: "#3e3e3e" }}
-                    onClick={() => fetchReporters(post.post_id)}
-                  >
-                    <FiFlag /> {post.report_count || 0}
-                  </span>
+                {reportDetailsOpen === post.post_id && reporters.length > 0 && (
+                  <div className={styles.reporterList} ref={reporterBoxRef}>
+                    <p><strong>Reported by:</strong></p>
+                    {reporters.map((u) => (
+                      <p key={u.user_id}>
+                        {u.first_name} {u.last_name} (ID: {u.user_id})
+                      </p>
+                    ))}
+                  </div>
+                )}
+
+                <div className={styles.cardDescriptionScroll}>
+                  <p>{post.content}</p>
+                </div>
+
+                <div className={styles.cardBody}>
+                  <ImageCarousel images={post.media_urls} />
+                </div>
+
+                <div className={styles.cardFooter}>
+                  <button onClick={() => setPendingDeletePost(post)} className={styles.deleteButton}>Delete Post</button>
                 </div>
               </div>
-
-              {reportDetailsOpen === post.post_id && reporters.length > 0 && (
-              <div className={styles.reporterList} ref={reporterBoxRef}>
-                <p><strong>Reported by:</strong></p>
-                {reporters.map((u) => (
-                  <p key={u.user_id}>
-                    {u.first_name} {u.last_name} (ID: {u.user_id})
-                  </p>
-                ))}
-              </div>
-            )}
-
-
-              <div className={styles.cardDescriptionScroll}>
-                <p>{post.content}</p>
-              </div>
-
-              <div className={styles.cardBody}>
-                <ImageCarousel images={post.media_urls} />
-              </div>
-
-              <div className={styles.cardFooter}>
-                <button onClick={() => setPendingDeletePost(post)} className={styles.deleteButton}>Delete Post</button>
-              </div>
-        </div>
-        ))}
+            ))}
+          </div>
         </div>
       </div>
 

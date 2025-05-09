@@ -7,12 +7,13 @@ import ProfileHeader from "./ProfileHeader";
 import ProfileStats from "./ProfileStats";
 import ProfilePictureEdit from "./ProfilePictureEdit";
 import PostForm from "./PostForm";
+import AdminNavbar from "../../Admin/components/AdminNavbar";
 import { useUser } from "../UserContext";
 
 export default function UserProfile() {
   const navigate = useNavigate();
   const { userId: urlUserId } = useParams(); 
-  const { userId: loggedInUserId } = useUser();
+  const { userId: loggedInUserId, isAdmin} = useUser();
   const userId = urlUserId || loggedInUserId;
   const isOwner = parseInt(userId) === parseInt(loggedInUserId);
   const [user, setUser] = useState(null);
@@ -241,7 +242,7 @@ export default function UserProfile() {
 
   return (
     <div className={styles.profileContainer}>
-      <Navbar />
+      {isAdmin ? <AdminNavbar /> : <Navbar />}
       <ProfilePictureEdit
         user={user}
         previewImage={previewImage}

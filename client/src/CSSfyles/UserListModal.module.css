@@ -1,0 +1,74 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background-color: #ffffff;
+    padding: 30px 50px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow-y: auto;
+    max-height: 80vh;
+    font-family: 'Lateef', sans-serif;
+    font-weight: 800;
+    color: #5b3120;
+    border: 1px solid #dca08a;
+}
+
+.closeButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: transparent;
+    border: none;
+    font-size: 30px;
+    color: #d36b56;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.closeButton:hover {
+    color: #a94442;
+}
+
+.userList {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0 0;
+}
+
+.userList li {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 700;
+    color: #5b3120;
+}
+
+.userList li:last-child {
+    border-bottom: none;
+}
+
+.userList li .userName {
+    font-weight: 800;
+    color: #5b3120;
+}
+
+.userList li .userEmail {
+    color: #d36b56;
+    font-weight: 600;
+    font-size: 14px;
+}

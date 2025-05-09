@@ -15,7 +15,8 @@ export default function ShopPage() {
     const params = useParams();
     const navigate = useNavigate();
     const { userId: loggedInUserId } = useUser();
-    const userId = parseInt(params.userId) || loggedInUserId;
+    const { userId: paramUserId } = useParams();
+    const userId = paramUserId ? parseInt(paramUserId) : loggedInUserId;
     const [editingProductId, setEditingProductId] = useState(null);
     const [user, setUser] = useState(null);
     const [products, setProducts] = useState([]);
@@ -43,16 +44,22 @@ export default function ShopPage() {
 
     useEffect(() => {
         fetch(`http://localhost:4000/shop/user-products/${userId}`)
-        .then((res) => res.json())
-        .then((data) => {
-            const productsWithIndex = data.map((product) => ({
-            ...product,
-            currentIndex: 0
-            }));
-            setProducts(productsWithIndex);
-        })
-        .catch((err) => console.error("Error loading products:", err));
+            .then((res) => res.json())
+            .then((data) => {
+                if (Array.isArray(data)) {
+                    const productsWithIndex = data.map((product) => ({
+                        ...product,
+                        currentIndex: 0
+                    }));
+                    setProducts(productsWithIndex);
+                } else {
+                    console.error("Expected an array but got:", data);
+                    setProducts([]);
+                }
+            })
+            .catch((err) => console.error("Error loading products:", err));
     }, [userId]);
+    
 
     useEffect(() => {
         if (highlightId && products.length > 0) {
