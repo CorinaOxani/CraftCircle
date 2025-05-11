@@ -1,29 +1,9 @@
 const express = require("express");
 const pool = require("../../config/database");
 const router = express.Router();
-const nodemailer = require("nodemailer");
+const transporter = require("../../config/emailTransporter");
 
-// === CONFIGURARE EMAIL ===
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: "oxanicorina0@gmail.com",
-        pass: "zssj zxlz jaok bcpw",
-    },
-    logger: true,
-    debug: true,
-});
-
-// === Verifică dacă serverul de email este pregătit ===
-transporter.verify((error, success) => {
-    if (error) {
-        console.error("Email server verification error:", error);
-    } else {
-        console.log(" Email server is ready to take messages");
-    }
-});
-
-// === GET all products for moderation ===
+// Fetch all products
 router.get("/all", async (req, res) => {
     try {
         const result = await pool.query(`
@@ -57,72 +37,92 @@ router.get("/all", async (req, res) => {
     }
 });
 
-// === DELETE a Product and Send Email ===
+// Delete a product and update admin stats
 router.delete("/delete-product/:itemId", async (req, res) => {
     const { itemId } = req.params;
+    const adminId = req.query.admin_id || 1;
     const client = await pool.connect();
 
     try {
+        console.log(`Attempting to delete product with ID: ${itemId}...`);
+
         await client.query("BEGIN");
 
-        // === Obține informațiile despre produs ===
+        // Get product info
         const productInfo = await client.query(`
             SELECT 
                 m.title, 
+                m.description,
                 m.price,
                 a.email, 
-                a.first_name
+                a.first_name,
+                (SELECT image_url FROM shop_item_images WHERE item_id = m.item_id LIMIT 1) AS image_url
             FROM marketplace_items m
             JOIN accounts a ON m.user_id = a.user_id
             WHERE m.item_id = $1
         `, [itemId]);
 
-        // === Verifică dacă produsul există ===
         if (productInfo.rows.length === 0) {
             await client.query("ROLLBACK");
-            console.warn(` Product with ID ${itemId} not found.`);
+            console.warn(`Product with ID ${itemId} not found.`);
             return res.status(404).json({ error: "Product not found" });
         }
 
-        const { title, price, email, first_name } = productInfo.rows[0];
+        const { title, description, price, email, first_name, image_url } = productInfo.rows[0];
 
-        // === Trimite email de notificare ===
+        // Delete product from cart and favorites
+        await client.query("DELETE FROM shopping_cart WHERE item_id = $1", [itemId]);
+        await client.query("DELETE FROM favorites WHERE item_id = $1", [itemId]);
+
+        // Delete product and related images
+        await client.query("DELETE FROM shop_item_images WHERE item_id = $1", [itemId]);
+        await client.query("DELETE FROM product_reports WHERE item_id = $1", [itemId]);
+        await client.query("DELETE FROM marketplace_items WHERE item_id = $1", [itemId]);
+
+        console.log(`Product "${title}" deleted from database.`);
+
+        // Update admin stats
+        await client.query(`
+            UPDATE admins
+            SET deleted_products = deleted_products + 1
+            WHERE admin_id = $1
+        `, [adminId]);
+
+        console.log("Admin product count updated.");
+
+        await client.query("COMMIT");
+
+        // Send notification email
         try {
-            console.log(" Ready to send email to:", email);
             const emailContent = `
                 <p>Hi <strong>${first_name}</strong>,</p>
-                <p>Your product has been removed by an administrator.</p>
+                <p>Your product has been removed by an administrator, due to reports by other users.</p>
             
                 <p><strong>Product details:</strong></p>
                 <ul>
                     <li><strong>Title:</strong> ${title}</li>
+                    <li><strong>Description:</strong> ${description}</li>
                     <li><strong>Price:</strong> $${price}</li>
                 </ul>
+                
+                ${image_url ? `<p><strong>Image:</strong><br/><img src="${image_url}" alt="Product image" style="max-width: 400px; border: 1px solid #ddd;"/></p>` : ""}
             
                 <p>Best regards,<br/>Moderation Team</p>
             `;
 
-            console.log(" Email content prepared:", emailContent);
+            console.log("Email content prepared.");
 
-            const emailResponse = await transporter.sendMail({
+            await transporter.sendMail({
                 from: "oxanicorina0@gmail.com",
                 to: email,
                 subject: "Your product has been removed by the admin",
                 html: emailContent
             });
 
-            console.log(" Email sent successfully:", emailResponse);
+            console.log("Email sent successfully.");
         } catch (mailErr) {
-            console.warn(" Product deleted but failed to send email:", mailErr);
+            console.warn("Failed to send email:", mailErr);
         }
-
-        // === Șterge produsul din baza de date ===
-        await client.query("DELETE FROM shop_item_images WHERE item_id = $1", [itemId]);
-        await client.query("DELETE FROM product_reports WHERE item_id = $1", [itemId]);
-        await client.query("DELETE FROM marketplace_items WHERE item_id = $1", [itemId]);
-
-        await client.query("COMMIT");
-        console.log(` Product "${title}" deleted successfully.`);
 
         res.json({ message: "Product deleted and email sent" });
     } catch (err) {

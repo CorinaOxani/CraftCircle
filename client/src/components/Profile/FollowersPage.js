@@ -7,10 +7,10 @@ import ProfilePictureDisplay from "./ProfilePictureDisplay";
 import styles from "../../CSSfyles/FollowersPage.module.css";
 import { useUser } from "../UserContext";
 import defaultProfile from "../../images/default-profile.png";
-
+import AdminNavbar from "../../Admin/components/AdminNavbar";
 
 export default function FollowersPage() {
-  const { userId: loggedInUserId } = useUser();
+  const { userId: loggedInUserId, isAdmin } = useUser();
   const { userId } = useParams();
   const navigate = useNavigate();
   const isOwner = parseInt(userId) === parseInt(loggedInUserId);
@@ -66,11 +66,18 @@ export default function FollowersPage() {
     }
   };
 
-  if (!user) return <p>Loading followers...</p>;
+  if (!user) {
+    return (
+      <div className={styles.shopContainer}>
+        {isAdmin ? <AdminNavbar /> : <Navbar />}
+        <p>Loading followers...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.shopContainer}>
-      <Navbar />
+      {isAdmin ? <AdminNavbar /> : <Navbar />}
       <ProfilePictureDisplay user={user} />
 
       <div className={styles.shopHeader}>
@@ -108,16 +115,16 @@ export default function FollowersPage() {
                 onClick={() => navigate(`/profile/${follower.user_id}`)}
               >
                 <img
-                    src={follower.profile_picture || defaultProfile}
-                    alt="Profile"
-                    className={styles.followerPic}
+                  src={follower.profile_picture || defaultProfile}
+                  alt="Profile"
+                  className={styles.followerPic}
                 />
-                            <span style={{ fontSize: "18px", fontWeight: "bold" }}>
+                <span style={{ fontSize: "18px", fontWeight: "bold" }}>
                   {follower.first_name} {follower.last_name}
                 </span>
               </div>
 
-              {follower.user_id !== parseInt(loggedInUserId) && (
+              {!isAdmin && follower.user_id !== parseInt(loggedInUserId) && (
                 <button
                   className={styles.followButton}
                   onClick={() =>

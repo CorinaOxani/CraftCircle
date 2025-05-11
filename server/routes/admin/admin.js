@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const multer = require("multer");
 const { cloudinary, upload } = require("../../config/cloudinary"); 
 const path = require("path");
+const transporter = require("../../config/emailTransporter");
 
 
 router.get("/:id", async (req, res) => {
@@ -110,5 +111,57 @@ router.post("/upload-admin-profile", upload.single("file"), async (req, res) => 
       res.status(500).json({ error: "Failed to upload profile picture" });
     }
   });
+
+  // POST /admin/change-password
+router.post("/change-password", async (req, res) => {
+  const { admin_id, oldPassword, newPassword } = req.body;
+
+  try {
+      // Verifică dacă adminul există
+      const result = await pool.query("SELECT password_hash, email, first_name FROM admins WHERE admin_id = $1", [admin_id]);
+      
+      if (result.rows.length === 0) {
+          return res.status(404).json({ error: "Admin not found." });
+      }
+
+      const admin = result.rows[0];
+
+      // Verifică parola veche
+      const isPasswordValid = await bcrypt.compare(oldPassword, admin.password_hash);
+      if (!isPasswordValid) {
+          return res.status(401).json({ error: "Incorrect old password." });
+      }
+
+      // Generează hash pentru noua parolă
+      const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+      // Actualizează parola
+      await pool.query("UPDATE admins SET password_hash = $1 WHERE admin_id = $2", [newPasswordHash, admin_id]);
+
+      // Trimite email de confirmare
+      try {
+          await transporter.sendMail({
+              from: "support@craftcircle.com",
+              to: admin.email,
+              subject: "Password Changed Successfully",
+              html: `
+                  <p>Hi <strong>${admin.first_name}</strong>,</p>
+                  <p>Your password has been successfully changed.</p>
+                  <p>If you did not request this change, please contact our support team immediately.</p>
+                  <p>Best Regards,<br>CraftCircle Team</p>
+              `
+          });
+          console.log("Password change email sent.");
+      } catch (emailErr) {
+          console.error("Failed to send password change email:", emailErr);
+      }
+
+      res.json({ message: "Password updated successfully." });
+  } catch (err) {
+      console.error("Error changing password:", err);
+      res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 module.exports = router;

@@ -61,7 +61,7 @@ export default function ModerateProductsPage() {
     try {
         setIsDeleting(true);
 
-        const res = await fetch(`http://localhost:4000/shop/delete-product/${productId}`, {
+        const res = await fetch(`http://localhost:4000/admin/moderateProducts/delete-product/${productId}`, {
             method: "DELETE"
         });
         

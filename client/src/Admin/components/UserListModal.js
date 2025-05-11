@@ -24,8 +24,8 @@ const UserListModal = ({ onClose, title, endpoint }) => {
     }, [endpoint]);
 
     const handleUserClick = (userId) => {
-        onClose();  // Închide modalul
-        navigate(`/admin/users/${userId}`);  // Navighează la pagina profilului
+        onClose();  
+        navigate(`/admin/users/${userId}`); 
     };
 
     return (

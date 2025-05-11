@@ -1,18 +1,9 @@
 const express = require("express");
 const pool = require("../../config/database");
 const router = express.Router();
-const nodemailer = require("nodemailer");
+const transporter = require("../../config/emailTransporter");
 
-// === CONFIGURARE EMAIL ===
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "oxanicorina0@gmail.com",
-    pass: "zssj zxlz jaok bcpw",
-  },
-});
-
-
+// Fetch all posts
 router.get("/all", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -43,7 +34,6 @@ router.get("/all", async (req, res) => {
         ORDER BY 
         COALESCE(report_counts.report_count, 0) DESC,
         p.created_at DESC;
-
     `);
 
     res.json(result.rows || []);
@@ -53,91 +43,100 @@ router.get("/all", async (req, res) => {
   }
 });
 
+// Delete a post and update admin stats
 router.delete("/delete-post/:postId", async (req, res) => {
   const { postId } = req.params;
+  const adminId = req.query.admin_id || 1;  // Admin ID, use session or token in production
   const client = await pool.connect();
 
   try {
-    await client.query("BEGIN");
+      await client.query("BEGIN");
 
-    // Obține informațiile postării
-    const postInfo = await client.query(`
-      SELECT 
-        p.content, a.email, a.first_name,
-        (SELECT file_url FROM post_media WHERE post_id = p.post_id LIMIT 1) AS image_url
-      FROM posts p
-      JOIN accounts a ON p.user_id = a.user_id
-      WHERE p.post_id = $1
-    `, [postId]);
-    
-
-    if (postInfo.rows.length === 0) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({ error: "Post not found" });
-    }
-
-    const { content, email, first_name, image_url } = postInfo.rows[0];
-
-    // Șterge like-urile postării
-    await client.query("DELETE FROM likes WHERE post_id = $1", [postId]);
-
-    //  Șterge postarea
-    await client.query("DELETE FROM posts WHERE post_id = $1", [postId]);
-
-    await client.query("COMMIT");
-
-    // Trimite email
-    try {
-      await transporter.sendMail({
-        from: "youremail@gmail.com",
-        to: email,
-        subject: "Your post has been removed by the admin",
-        html: `
-          <p>Hi <strong>${first_name}</strong>,</p>
-          <p>Your post has been removed by an administrator, due to reports by other users.</p>
+      // Get post info
+      const postInfo = await client.query(`
+          SELECT 
+              p.content, 
+              a.email, 
+              a.first_name,
+              (SELECT file_url FROM post_media WHERE post_id = p.post_id LIMIT 1) AS image_url
+          FROM posts p
+          JOIN accounts a ON p.user_id = a.user_id
+          WHERE p.post_id = $1
+      `, [postId]);
       
-          <p><strong>Content of the post:</strong></p>
-          <blockquote style="border-left: 4px solid #ccc; margin: 10px 0; padding-left: 10px;">
-            ${content}
-          </blockquote>
-      
-          ${image_url ? `<p><strong>Image:</strong><br/><img src="${image_url}" alt="Post image" style="max-width: 400px; border: 1px solid #ddd;"/></p>` : ""}
-      
-          <p>Best regards,<br/>Moderation Team</p>
-        `
-      });
-      
-    } catch (mailErr) {
-      console.warn("Post deleted but failed to send email:", mailErr);
-    }
+      if (postInfo.rows.length === 0) {
+          await client.query("ROLLBACK");
+          return res.status(404).json({ error: "Post not found" });
+      }
 
-    res.json({ message: "Post deleted and email sent" });
+      const { content, email, first_name, image_url } = postInfo.rows[0];
+
+      // Delete post likes
+      await client.query("DELETE FROM likes WHERE post_id = $1", [postId]);
+
+      // Delete post
+      await client.query("DELETE FROM posts WHERE post_id = $1", [postId]);
+
+      // Update admin stats
+      await client.query(`
+          UPDATE admins
+          SET deleted_posts = deleted_posts + 1
+          WHERE admin_id = $1
+      `, [adminId]);
+
+      await client.query("COMMIT");
+
+      // Send notification email
+      try {
+          await transporter.sendMail({
+              from: "oxanicorina0@gmail.com",
+              to: email,
+              subject: "Your post has been removed by the admin",
+              html: `
+                  <p>Hi <strong>${first_name}</strong>,</p>
+                  <p>Your post has been removed by an administrator, due to reports by other users.</p>
+              
+                  <p><strong>Content of the post:</strong></p>
+                  <blockquote style="border-left: 4px solid #ccc; margin: 10px 0; padding-left: 10px;">
+                      ${content}
+                  </blockquote>
+              
+                  ${image_url ? `<p><strong>Image:</strong><br/><img src="${image_url}" alt="Post image" style="max-width: 400px; border: 1px solid #ddd;"/></p>` : ""}
+              
+                  <p>Best regards,<br/>Moderation Team</p>
+              `
+          });
+          console.log("Email sent successfully.");
+      } catch (mailErr) {
+          console.warn("Failed to send email:", mailErr);
+      }
+
+      res.json({ message: "Post deleted and email sent" });
   } catch (err) {
-    await client.query("ROLLBACK");
-    console.error("Error deleting post:", err);
-    res.status(500).json({ error: "Internal server error" });
+      await client.query("ROLLBACK");
+      console.error("Error deleting post:", err);
+      res.status(500).json({ error: "Internal server error" });
   } finally {
-    client.release();
+      client.release();
   }
 });
 
+// Fetch post reports
+router.get("/reports/:postId", async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const result = await pool.query(`
+      SELECT a.user_id, a.first_name, a.last_name, a.profile_picture
+      FROM post_reports pr
+      JOIN accounts a ON pr.user_id = a.user_id
+      WHERE pr.post_id = $1
+    `, [postId]);
 
-  router.get("/reports/:postId", async (req, res) => {
-    const { postId } = req.params;
-    try {
-      const result = await pool.query(`
-        SELECT a.user_id, a.first_name, a.last_name, a.profile_picture
-        FROM post_reports pr
-        JOIN accounts a ON pr.user_id = a.user_id
-        WHERE pr.post_id = $1
-      `, [postId]);
-  
-      res.json(result.rows || []);
-    } catch (err) {
-      console.error("Error fetching report users:", err);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-  
-   
-  module.exports = router;
+    res.json(result.rows || []);
+  } catch (err) {
+    console.error("Error fetching report users:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+module.exports = router;

@@ -4,7 +4,8 @@ import styles from "../../CSSfyles/ShopPage.module.css";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ProductMenuButton from "./ProductMenuButton";
 import { useCart } from "../CartContex";
-import { useFavorites } from "../FavoritesContex"; 
+import { useFavorites } from "../FavoritesContex";
+import { useUser } from "../UserContext";
 
 
 
@@ -18,6 +19,7 @@ export default function ProductCard({
   onReportProduct,
   id,
 }) {
+  const { isAdmin } = useUser();
   const media = product.images || [];
   const [title, setTitle] = useState(product.title);
   const [description, setDescription] = useState(product.description);
@@ -313,12 +315,12 @@ export default function ProductCard({
             <div className={styles.flexSpacer} /> 
 
             <strong>€{product.price}</strong>
-            {isOwner && !isEditing && (
+            {!isAdmin &&isOwner && !isEditing && (
               <p className={styles.stockStatus}>
                 {stock === "yes" ? "In stock" : "Out of stock"}
               </p>
             )}
-            {!isOwner && (
+            {!isAdmin && !isOwner && (
               stock === "yes" ? (
                 <>
                   <button className={styles.cartButton} onClick={() => handleAddToCart(product.item_id)}>

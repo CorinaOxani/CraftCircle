@@ -3,13 +3,12 @@ import styles from "../../CSSfyles/UserProfile.module.css";
 import { useUser } from "../UserContext";
 
 export default function ProfileStats({ user, setUser, navigate, isOwner }) {
-  const { userId: loggedInUserId } = useUser();
+  const { userId: loggedInUserId, isAdmin } = useUser();
   const [isFollowing, setIsFollowing] = useState(false);
 
   const fetchFollowStatus = async () => {
-    if (!isOwner && user?.user_id && loggedInUserId) {
+    if (!isOwner && user?.user_id && loggedInUserId && !isAdmin) {
       try {
-        console.log("🔍 Checking follow status...");
         const res = await fetch(
           `http://localhost:4000/follows/check?follower_id=${loggedInUserId}&following_id=${user.user_id}`
         );
@@ -23,14 +22,12 @@ export default function ProfileStats({ user, setUser, navigate, isOwner }) {
 
   useEffect(() => {
     fetchFollowStatus();
-  }, [loggedInUserId, user?.user_id, isOwner]);
+  }, [loggedInUserId, user?.user_id, isOwner, isAdmin]);
 
   const handleFollowToggle = async () => {
-    if (!loggedInUserId || !user?.user_id) return;
+    if (!loggedInUserId || !user?.user_id || isAdmin) return;
 
     const method = isFollowing ? "DELETE" : "POST";
-    const action = isFollowing ? "Unfollowing" : "Following";
-    console.log(` ${action} user ${user.user_id}...`);
 
     try {
       const res = await fetch("http://localhost:4000/follows", {
@@ -42,13 +39,11 @@ export default function ProfileStats({ user, setUser, navigate, isOwner }) {
         }),
       });
 
-      if (!res.ok) {
-        return;
-      }
+      if (!res.ok) return;
+
       const newFollowState = !isFollowing;
       setIsFollowing(newFollowState);
 
-      
       const updatedUserRes = await fetch(
         `http://localhost:4000/users/${user.user_id}`
       );
@@ -56,7 +51,7 @@ export default function ProfileStats({ user, setUser, navigate, isOwner }) {
       setUser(updatedUser);
 
     } catch (err) {
-      console.error("⚠️ Error toggling follow:", err);
+      console.error("Error toggling follow:", err);
     }
   };
 
@@ -80,9 +75,11 @@ export default function ProfileStats({ user, setUser, navigate, isOwner }) {
           <button onClick={() => navigate(`/profile/${user.user_id}/shop`)}>
             🛒 Shop
           </button>
-          <button onClick={handleFollowToggle}>
-            {isFollowing ? "Stop Follow" : " Start Follow"}
-          </button>
+          {!isAdmin && (  
+            <button onClick={handleFollowToggle}>
+              {isFollowing ? "Stop Follow" : "Start Follow"}
+            </button>
+          )}
         </>
       )}
     </div>

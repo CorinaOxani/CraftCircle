@@ -8,13 +8,14 @@ import ProfileStats from "../Profile/ProfileStats";
 import ProductForm from "./ProductForm";
 import ProductCard from "./ProductCard";
 import { useUser } from "../UserContext";
+import AdminNavbar from "../../Admin/components/AdminNavbar";
 
 
 
 export default function ShopPage() {
     const params = useParams();
     const navigate = useNavigate();
-    const { userId: loggedInUserId } = useUser();
+    const { userId: loggedInUserId, isAdmin } = useUser();
     const { userId: paramUserId } = useParams();
     const userId = paramUserId ? parseInt(paramUserId) : loggedInUserId;
     const [editingProductId, setEditingProductId] = useState(null);
@@ -43,6 +44,14 @@ export default function ShopPage() {
     }, [userId, navigate]);
 
     useEffect(() => {
+        if (!userId || isNaN(userId)) {
+            console.warn("No valid userId found, redirecting to login...");
+            navigate("/login");
+            return;
+        }
+    
+        console.log("Fetching products for user:", userId);
+    
         fetch(`http://localhost:4000/shop/user-products/${userId}`)
             .then((res) => res.json())
             .then((data) => {
@@ -51,6 +60,7 @@ export default function ShopPage() {
                         ...product,
                         currentIndex: 0
                     }));
+                    console.log("Products loaded:", productsWithIndex);
                     setProducts(productsWithIndex);
                 } else {
                     console.error("Expected an array but got:", data);
@@ -58,7 +68,8 @@ export default function ShopPage() {
                 }
             })
             .catch((err) => console.error("Error loading products:", err));
-    }, [userId]);
+    }, [userId, navigate]);
+    
     
 
     useEffect(() => {
@@ -180,11 +191,18 @@ export default function ShopPage() {
     
     
 
-    if (!user) return <p>Loading shop...</p>;
+    if (!user) {
+          return (
+              <div className={styles.shopContainer}>
+                  {isAdmin ? <AdminNavbar /> : <Navbar />}
+                  <p>Loading shop...</p>
+              </div>
+          );
+      }
 
     return (
         <div className={styles.shopContainer}>
-        <Navbar />
+         {isAdmin ? <AdminNavbar /> : <Navbar />}
         <ProfilePictureDisplay user={user} />
         <div className={styles.shopHeader}>
             <ProfileHeader user={user} />

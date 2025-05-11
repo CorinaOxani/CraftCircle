@@ -22,20 +22,24 @@ export default function UserPosts({
 }) 
 
 {
-  const { userId } = useUser();
+  const { userId, isAdmin} = useUser();
 
   return (
     <div className={styles.postsGrid}>
       {posts.map((post) => (
-         <div key={post.post_id} className={styles.post} style={{ position: "relative" }}>
+        <div key={post.post_id} className={styles.post} style={{ position: "relative" }}>
           <div className={styles.carouselContainer}>
-            <PostMenuButton 
-              postId={post.post_id} 
-              isOwner={isOwner}
-              onDelete={onDeletePost} 
-              onEdit={() => onEditPost(post.post_id, post.content)} 
-              onReport={handleReportPost}
-            />
+            
+            {/* Ascunde PostMenuButton pentru admini */}
+            {!isAdmin && (
+              <PostMenuButton 
+                postId={post.post_id} 
+                isOwner={isOwner}
+                onDelete={onDeletePost} 
+                onEdit={() => onEditPost(post.post_id, post.content)} 
+                onReport={handleReportPost}
+              />
+            )}
 
             {post.media_urls?.length > 1 && (
               <button className={styles.arrowLeft} onClick={() => handlePrev(post.post_id)}>
@@ -75,15 +79,15 @@ export default function UserPosts({
           ) : (
             <>
               <p className={styles.postContent}>{post.content}</p>
-                <div className={styles.likeBar}>
-                  <LikeButton 
-                    postId={post.post_id} 
-                    userId={userId} 
-                    isOwner={isOwner}
-                    />
-                </div>
+              <div className={styles.likeBar}>
+                <LikeButton 
+                  postId={post.post_id} 
+                  userId={userId} 
+                  isOwner={isOwner}
+                />
+              </div>
             </>
-            )}
+          )}
           
         </div>
       ))}
@@ -92,7 +96,6 @@ export default function UserPosts({
           Array.from({ length: 3 - posts.length }).map((_, index) => (
             <div key={`empty-${index}`} className={`${styles.post} ${styles.emptySlot}`} />
       ))}
-
     </div>
   );
 }

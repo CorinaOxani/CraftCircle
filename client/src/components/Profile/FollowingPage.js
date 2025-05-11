@@ -7,9 +7,10 @@ import ProfilePictureDisplay from "./ProfilePictureDisplay";
 import styles from "../../CSSfyles/FollowersPage.module.css";
 import { useUser } from "../UserContext";
 import defaultProfile from "../../images/default-profile.png";
+import AdminNavbar from "../../Admin/components/AdminNavbar";
 
 export default function FollowingPage() {
-  const { userId: loggedInUserId } = useUser();
+  const { userId: loggedInUserId, isAdmin } = useUser();
   const { userId } = useParams();
   const navigate = useNavigate();
   const isOwner = parseInt(userId) === parseInt(loggedInUserId);
@@ -65,11 +66,19 @@ export default function FollowingPage() {
     }
   };
 
-  if (!user) return <p>Loading following...</p>;
+  if (!user) {
+    return (
+        <div className={styles.shopContainer}>
+            {isAdmin ? <AdminNavbar /> : <Navbar />}
+            <p>Loading following...</p>
+        </div>
+    );
+}
+
 
   return (
     <div className={styles.shopContainer}>
-      <Navbar />
+      {isAdmin ? <AdminNavbar /> : <Navbar />}
       <ProfilePictureDisplay user={user} />
 
       <div className={styles.shopHeader}>
@@ -116,7 +125,7 @@ export default function FollowingPage() {
                 </span>
               </div>
 
-              {person.user_id !== parseInt(loggedInUserId) && (
+              {!isAdmin && person.user_id !== parseInt(loggedInUserId) && (
                 <button
                   className={styles.followButton}
                   onClick={() =>
