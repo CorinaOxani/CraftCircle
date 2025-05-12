@@ -64,21 +64,31 @@ export default function CartProductList({ groupedCart, onQuantityChange }) {
                 <div className={styles.quantityRow}>
                   <button
                     className={styles.qtyBtn}
-                    onClick={() => handleQuantityChange(item.cart_id, item.quantity - 1)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuantityChange(item.cart_id, item.quantity - 1);
+                    }}
                   >−</button>
                   {item.quantity}
                   <button
                     className={styles.qtyBtn}
-                    onClick={() => handleQuantityChange(item.cart_id, item.quantity + 1)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuantityChange(item.cart_id, item.quantity + 1);
+                    }}
                   >+</button>
                 </div>
                 <button
                   className={styles.deleteBtn}
-                  onClick={() => handleDelete(item.cart_id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item.cart_id);
+                  }}
                 >
                   Delete
                 </button>
               </div>
+
             </div>
           ))}
         </div>

@@ -4,7 +4,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -12,24 +12,24 @@
 }
 
 .modalContent {
-    background-color: #ffffff;
-    padding: 30px 50px;
-    border-radius: 15px;
+    background-color: #fffaf7;
+    padding: 40px 60px;
+    border-radius: 20px;
     width: 90%;
-    max-width: 600px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    max-width: 650px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow-y: auto;
     max-height: 80vh;
     font-family: 'Lateef', sans-serif;
-    font-weight: 800;
+    font-weight: 600;
     color: #5b3120;
     border: 1px solid #dca08a;
 }
 
 .closeButton {
     position: absolute;
-    top: 20px;
+    top: 15px;
     right: 20px;
     background-color: transparent;
     border: none;
@@ -46,16 +46,24 @@
 .userList {
     list-style: none;
     padding: 0;
-    margin: 20px 0 0 0;
+    margin: 30px 0 0 0;
 }
 
 .userList li {
     display: flex;
     justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-    font-weight: 700;
+    padding: 15px 0;
+    border-bottom: 1px solid #f4dfd5;
+    font-weight: 600;
+    font-size: 20px;
     color: #5b3120;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.userList li:hover {
+    background-color: #fbeae3;
+    color: #d36b56;
 }
 
 .userList li:last-child {
@@ -63,12 +71,32 @@
 }
 
 .userList li .userName {
-    font-weight: 800;
+    font-weight: 700;
     color: #5b3120;
 }
 
 .userList li .userEmail {
     color: #d36b56;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 14px;
+}
+
+.searchBar {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 20px 0;
+    border: 1px solid #dca08a;
+    border-radius: 8px;
+    font-family: 'Lateef', sans-serif;
+    font-weight: 100;
+    color: #5b3120;
+    background-color: #fff;
+    font-size: 20px;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.searchBar:focus {
+    outline: none;
+    border-color: #d36b56;
+    background-color: #fbeae3;
 }

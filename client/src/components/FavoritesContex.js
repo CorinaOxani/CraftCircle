@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { useUser } from "../components/UserContext";
 
-const FavoritesContex = createContext();
+const FavoritesContext = createContext();
 
 export function FavoritesProvider({ children }) {
   const [favoritesCount, setFavoritesCount] = useState(0);
-  const userId = localStorage.getItem("user_id");
+  const { userId } = useUser();
 
   const fetchFavoritesCount = async () => {
     if (!userId) return;
@@ -17,17 +18,18 @@ export function FavoritesProvider({ children }) {
     }
   };
 
+  // Fetch la fiecare schimbare de utilizator
   useEffect(() => {
     fetchFavoritesCount();
   }, [userId]);
 
   return (
-    <FavoritesContex.Provider value={{ favoritesCount, fetchFavoritesCount }}>
+    <FavoritesContext.Provider value={{ favoritesCount, fetchFavoritesCount, setFavoritesCount }}>
       {children}
-    </FavoritesContex.Provider>
+    </FavoritesContext.Provider>
   );
 }
 
 export function useFavorites() {
-  return useContext(FavoritesContex);
+  return useContext(FavoritesContext);
 }

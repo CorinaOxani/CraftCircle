@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useUser } from "../components/UserContext";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [cartCount, setCartCount] = useState(0);
+  const { userId } = useUser();
 
   const fetchCartCount = async () => {
-    const userId = localStorage.getItem("user_id");
     if (!userId) return;
-
     try {
       const res = await fetch(`http://localhost:4000/cart/user-cart/${userId}`);
       const data = await res.json();
@@ -19,12 +19,13 @@ export function CartProvider({ children }) {
     }
   };
 
+  // Fetch la fiecare schimbare de utilizator
   useEffect(() => {
     fetchCartCount();
-  }, []);
+  }, [userId]);
 
   return (
-    <CartContext.Provider value={{ cartCount, setCartCount, fetchCartCount }}>
+    <CartContext.Provider value={{ cartCount, fetchCartCount, setCartCount }}>
       {children}
     </CartContext.Provider>
   );
