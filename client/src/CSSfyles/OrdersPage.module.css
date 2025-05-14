@@ -1,0 +1,122 @@
+.pageContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    min-height: 100vh;
+    padding-top: 150px;
+    background: linear-gradient(to bottom right, #fffaf7, #fceae4);
+    overflow-x: hidden;
+  }
+  
+  .pageContainer::before,
+  .pageContainer::after {
+    content: "";
+    position: absolute;
+    position: fixed;
+    top: 40%;
+    transform: translateY(-30%);
+    width: 400px;
+    height: 560px; 
+    background-repeat: no-repeat;
+    background-size: contain;
+    pointer-events: none;
+  }
+  
+  .pageContainer::before {
+    left: 150px;
+    background-image: url("../decor/leaf-left.png");
+  }
+  
+  .pageContainer::after {
+    right: 150px;
+    background-image: url("../decor/leaf-right.png");
+  }
+  
+  .title {
+    font-family: 'Italianno', cursive;
+    font-size: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #59341b;
+    z-index: 1;
+  }
+  
+  .loading {
+    font-size: 20px;
+    margin-top: 50px;
+    color: #59341b;
+  }
+  
+  .noAppreciations {
+    font-size: 18px;
+    text-align: center;
+    color: #b37860;
+    margin-top: 30px;
+  }
+  
+  .listContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+    z-index: 1;
+  }
+  
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(135deg, #fff1ec, #d9c8bc);
+    padding: 18px 22px;
+    border-radius: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    font-family: 'Lateef', sans-serif;
+    font-size: 18px;
+  }
+  
+  .card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+  }
+  
+  .card:hover::after {
+    left: 100%;
+  }
+  
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .textContent {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .textContent strong {
+    color: #5e2c1c;
+  }
+  
+  .textContent p {
+    color: #7a4a39;
+    margin: 0;
+  }
+  
+  .textContent small {
+    color: #a87664;
+  }
+  

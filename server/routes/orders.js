@@ -69,4 +69,18 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get('/user/:user_id', async (req, res) => {
+  const { user_id } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT * FROM orders WHERE buyer_id = $1 ORDER BY created_at DESC`,
+      [user_id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error fetching user orders");
+  }
+});
+
 module.exports = router;

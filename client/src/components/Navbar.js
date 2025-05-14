@@ -112,6 +112,9 @@ export default function Navbar() {
               <span className={styles.cartBadge}>{cartCount}</span>
             )}
           </button>
+          <span className={styles.separator}></span>
+          <button onClick={() => navigate(`/orders`)}>Orders</button>
+          <span className={styles.separator}></span>
         </div>
         <div className={styles.menuIcon} onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
           <FaBars className={styles.icon} />

@@ -17,12 +17,15 @@ import FollowersPage from "./components/Profile/FollowersPage";
 import FollowingPage from "./components/Profile/FollowingPage";
 import MessagesPage from "./components/Messages/MessagesPage";
 import AppreciationPage from "./components/Appreciation/AppreciationPage";
+import OrdersPage from "./components/Orders/OrdersPage";
+
 
 import AdminProfile from "./Admin/Pages/AdminProfile";
 import ManageCategoriesPage from "./Admin/Pages/ManageCategoriesPage";
 import ModeratePostsPage from "./Admin/Pages/ModeratePostsPage";
 import ModerateProductsPage from "./Admin/Pages/ModerateProductsPage";
 import AdminStatisticsPage from "./Admin/Pages/AdminStatisticsPage.js";
+
 
 
 import { useEffect } from "react";
@@ -60,6 +63,7 @@ function App() {
               <Route path="/profile/:userId/following" element={<FollowingPage />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/appreciation" element={<AppreciationPage />} />
+              <Route path="/orders" element={<OrdersPage />} />
 
               <Route path="/admin_profile/:adminId" element={<AdminProfile />} />
               <Route path="/admin/manage-categories" element={<ManageCategoriesPage />} />
