@@ -46,7 +46,7 @@ export default function Cart() {
 
       <div className={styles.cartContent}>
         <CartProductList groupedCart={groupedCart} onQuantityChange={fetchCartData} />
-        <CartSummary groupedCart={groupedCart} />
+        <CartSummary groupedCart={groupedCart} onOrderPlaced={fetchCartData} />
       </div>
     </div>
   );

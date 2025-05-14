@@ -3,7 +3,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(to bottom right, #fffaf7, #fceae4);
   }
   
 
@@ -132,17 +131,194 @@
   }
   
   .title {
-    margin-bottom: 0;
+    margin-bottom: 1rem;
     text-align: center;
-    font-family: 'Lateef', sans-serif;
-    font-size: 35px;
-    color: #59341b;
+    font-size: 28px;
+    font-weight: bold;
+    color: #3c2e2e;
   }
   
-  .sellerTitle {
-    margin: 20px 0 10px 30px;
-    font-size: 30px;
-    color: #59341b;
-    font-family: 'Lateef', sans-serif;
+  .shippingCard {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f9f4f0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
   }
+  
+  .shippingNote {
+    font-style: italic;
+    color: #666;
+    margin-top: 5px;
+  }
+  
+  .totalPrice {
+    font-size: 18px;
+    text-align: right;
+    margin-top: 20px;
+  }
+  
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(5px);
+    background: rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modalContent {
+    background: white;
+    padding: 2rem;
+    border-radius: 14px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .modalButton {
+    padding: 8px 20px;
+    font-size: 20px;
+    font-family: 'Lateef', sans-serif;
+    background: #b98374;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .modalButton:hover {
+    background: #a56f63;
+  }
+  
+  .addressInput {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-family: 'Lateef', sans-serif;
+    resize: vertical;
+  }
+  
+  .paymentSelect {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-family: 'Lateef', sans-serif;
+    margin-bottom: 16px;
+  }
+  
+  .addressGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  
+  .addressGrid input,
+  .addressInput {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #cbb4aa;
+    border-radius: 6px;
+    font-family: 'Lateef', sans-serif;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .inputError {
+    border: 2px solid #cc3c3c !important;
+    background-color: #fff3f3;
+  }
+  
+  .stripeModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(5px);
+    background: rgba(0, 0, 0, 0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+  
+  .stripeModalContent {
+    background: white;
+    padding: 2rem;
+    border-radius: 14px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .stripeTextInput {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbb4aa;
+    border-radius: 6px;
+    font-family: 'Lateef', sans-serif;
+    font-size: 16px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+  
+  .stripeCardWrapper {
+    border: 1px solid #cbb4aa;
+    border-radius: 6px;
+    padding: 12px;
+    background-color: #fff8f6;
+    margin-bottom: 20px;
+  }
+  
+  .stripeButtonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .stripePayButton {
+    background: #b98374;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Lateef', sans-serif;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .stripePayButton:hover {
+    background-color: #a56f63;
+  }
+  
+  .stripeCancelButton {
+    background: none;
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Lateef', sans-serif;
+    font-size: 18px;
+    cursor: pointer;
+    color: #555;
+  }
+  
   

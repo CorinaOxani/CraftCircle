@@ -70,11 +70,11 @@ export default function ProfileStats({ user, setUser, navigate, isOwner }) {
       >
         <strong>{user?.posts_count ?? 0}</strong> Posts
       </button>
-      {!isOwner && (
-        <>
-          <button onClick={() => navigate(`/profile/${user.user_id}/shop`)}>
+      <button onClick={() => navigate(`/profile/${user.user_id}/shop`)}>
             🛒 Shop
           </button>
+      {!isOwner && (
+        <>
           {!isAdmin && (  
             <button onClick={handleFollowToggle}>
               {isFollowing ? "Stop Follow" : "Start Follow"}

@@ -1,26 +1,47 @@
+body {
+  background: linear-gradient(to bottom right, #fffaf7, #e9dcd8);
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
+}
 .profileContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  font-family: "Playfair Display";
-  margin-top: 120px;
-  background: linear-gradient(to bottom right, #fffaf7, #fceae4);
-
+  padding: 40px 20px;
+  font-family: "Playfair Display", serif;
+  margin-top: 100px;
+  position: relative;
+  overflow: visible;
+  z-index: 1;
 }
-.userInfo {
-  text-align: center;
-  margin-top: 20px; 
+
+.profileContent {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.userInfo h1 {
+  font-size: 2rem;
+  color: #4e342e;
+  margin: 15px 0 5px;
+}
+
+.userInfo p {
+  font-size: 1.2rem;
+  color: #7a5c54;
 }
 
 .profileImageContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
   position: relative;
   width: fit-content;
-  margin: 0 auto; 
+  margin-bottom: 20px;
 }
 
 
@@ -30,6 +51,13 @@
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #4e8131;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profileImage:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
 }
 
 
@@ -132,7 +160,8 @@
 
 .bio {
   font-style: italic;
-  color: #555;
+  color: #7a5c54;
+  margin-bottom: 20px;
 }
 
 

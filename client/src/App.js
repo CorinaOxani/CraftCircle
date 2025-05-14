@@ -18,7 +18,6 @@ import FollowingPage from "./components/Profile/FollowingPage";
 import MessagesPage from "./components/Messages/MessagesPage";
 import AppreciationPage from "./components/Appreciation/AppreciationPage";
 
-
 import AdminProfile from "./Admin/Pages/AdminProfile";
 import ManageCategoriesPage from "./Admin/Pages/ManageCategoriesPage";
 import ModeratePostsPage from "./Admin/Pages/ModeratePostsPage";
@@ -45,7 +44,7 @@ function App() {
           <FavoritesProvider>
             <ScrollToTop />
             <Routes>
-              <Route path="/" element={<h1>Welcome to the Home Page! Add more components here.</h1>} />
+              <Route path="/" element={<h1>Welcome to the Home Page!</h1>} />
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
               <Route path="/auth-success" element={<AuthRedirect />} />
@@ -68,10 +67,6 @@ function App() {
               <Route path="/admin/moderate-products" element={<ModerateProductsPage />} />
               <Route path="/admin/statistics" element={<AdminStatisticsPage />} />
               <Route path="/admin/users/:userId" element={<UserProfile adminMode={true} />} />
-
-
-              <Route path="/profile/:userId" element={<UserProfile />} />
-
 
             </Routes>
             <ToastContainer position="bottom-right" autoClose={2500} />

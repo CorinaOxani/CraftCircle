@@ -8,15 +8,27 @@ router.get("/user-cart/:userId", async (req, res) => {
   try {
     const cartItems = await pool.query(
       `SELECT 
-         c.cart_id, c.user_id, c.item_id, c.seller_id, c.quantity, c.added_at,
-         m.title, m.description, m.price,
+         c.cart_id, 
+         c.user_id, 
+         c.item_id, 
+         c.seller_id, 
+         c.quantity, 
+         c.added_at,
+         m.title, 
+         m.description, 
+         m.price,
          u.first_name || ' ' || u.last_name AS seller_name,
+         u.city AS seller_city,
+         u.country AS seller_country,
          i.image_url
        FROM shopping_cart c
        JOIN marketplace_items m ON c.item_id = m.item_id
        JOIN accounts u ON c.seller_id = u.user_id
        LEFT JOIN LATERAL (
-         SELECT image_url FROM shop_item_images WHERE item_id = c.item_id LIMIT 1
+         SELECT image_url 
+         FROM shop_item_images 
+         WHERE item_id = c.item_id 
+         LIMIT 1
        ) i ON true
        WHERE c.user_id = $1
        ORDER BY u.last_name, u.first_name, c.added_at DESC`,
@@ -29,6 +41,7 @@ router.get("/user-cart/:userId", async (req, res) => {
     res.status(500).json({ error: "Failed to load cart" });
   }
 });
+
 
 
 router.put("/update-quantity", async (req, res) => {
@@ -57,6 +70,19 @@ router.delete("/delete/:cartId", async (req, res) => {
       res.status(500).json({ error: "Failed to delete cart item" });
     }
   });
+
+  router.post("/clear", async (req, res) => {
+    const { user_id } = req.body;
+  
+    try {
+      await pool.query("DELETE FROM shopping_cart WHERE user_id = $1", [user_id]);
+      res.sendStatus(200);
+    } catch (err) {
+      console.error("Error clearing cart:", err);
+      res.status(500).json({ error: "Failed to clear cart" });
+    }
+  });
+  
   
 
 module.exports = router;
