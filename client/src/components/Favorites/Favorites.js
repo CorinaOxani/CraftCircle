@@ -39,10 +39,20 @@ export default function Favorites() {
     <div className={styles.cartContainer}>
       <Navbar />
       <h2 className={styles.title}>Favorites</h2>
-
-      <div className={styles.cartContent}>
-        <FavoritesProductList groupedFavorites={groupedFavorites} onFavoritesChange={fetchFavoritesData} />
-      </div>
+  
+      {Object.keys(groupedFavorites).length === 0 ? (
+        <div className={styles.emptyWrapper}>
+          <p className={styles.emptyCartMessage}>You haven't added any favorites yet.</p>
+        </div>
+      ) : (
+        <div className={styles.cartContent}>
+          <FavoritesProductList
+            groupedFavorites={groupedFavorites}
+            onFavoritesChange={fetchFavoritesData}
+          />
+        </div>
+      )}
     </div>
   );
+  
 }

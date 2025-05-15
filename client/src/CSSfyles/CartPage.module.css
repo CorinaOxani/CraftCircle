@@ -1,17 +1,48 @@
 .cartContainer {
-    padding-top: 150px; 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
+  position: relative;
+  padding-top: 150px; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #fffaf7, #fceae4);
+  overflow-x: hidden;
+  z-index: 1;
+}
+
+/* Decorative background leaves */
+.cartContainer::before,
+.cartContainer::after {
+  content: "";
+  position: absolute;
+  position: fixed;
+  top: 40%;
+  transform: translateY(-30%);
+  width: 400px;
+  height: 560px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: -1;
+}
+
+.cartContainer::before {
+  left: 150px;
+  background-image: url("../decor/leaf-left.png");
+}
+
+.cartContainer::after {
+  right: 150px;
+  background-image: url("../decor/leaf-right.png");
+}
 
 .productCard {
     display: flex;
     background: #ecd9d4;
     padding: 15px 20px;
     border-radius: 12px;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); 
     align-items: center;
     justify-content: space-between;
     margin-bottom: 10px;
@@ -129,13 +160,38 @@
   .summaryBox h3 {
     margin-top: 0;
   }
+  .emptyCartMessage {
+    font-size: 25px;
+    color: #a65648;
+    font-family: 'Lateef', sans-serif;
+    margin-top: 40px;
+    text-align: center;
+  }
+  
   
   .title {
-    margin-bottom: 1rem;
-    text-align: center;
-    font-size: 28px;
-    font-weight: bold;
-    color: #3c2e2e;
+    font-family: 'Italianno', cursive;
+    font-size: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #59341b;
+    z-index: 1;
+  }
+  
+  .sellerTitle {
+    font-family: 'Lateef', sans-serif;
+    font-size: 25px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #59341b;
+    z-index: 1;
+  }
+
+  .emptyWrapper {
+    display: flex;
+    justify-content: center;
+    min-height: 300px;
+    width: 100%;
   }
   
   .shippingCard {

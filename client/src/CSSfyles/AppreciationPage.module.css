@@ -23,6 +23,7 @@
   background-repeat: no-repeat;
   background-size: contain;
   pointer-events: none;
+  opacity: 0.5;
   
 }
 
@@ -49,7 +50,9 @@
   }
   
   .loading {
-    font-size: 20px;
-    margin-top: 50px;
-    color: #59341b;
+    text-align: center; 
+    font-size: 25px;
+    color: #a65648;
+    font-family: 'Lateef', sans-serif;
+    margin-top: 40px;
   }

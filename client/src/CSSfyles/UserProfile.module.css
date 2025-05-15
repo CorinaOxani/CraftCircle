@@ -5,16 +5,45 @@ body {
   position: relative;
 }
 .profileContainer {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 40px 20px;
   font-family: "Playfair Display", serif;
   margin-top: 100px;
-  position: relative;
   overflow: visible;
   z-index: 1;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #fffaf7, #e9dcd8);
 }
+
+/* Decor frunze - exact ca în celelalte pagini */
+.profileContainer::before,
+.profileContainer::after {
+  content: "";
+  position: fixed;
+  top: 40%;
+  transform: translateY(-30%);
+  width: 400px;
+  height: 560px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: -1;
+}
+
+.profileContainer::before {
+  left: 150px;
+  background-image: url("../decor/leaf-left.png");
+}
+
+.profileContainer::after {
+  right: 150px;
+  background-image: url("../decor/leaf-right.png");
+}
+
 
 .profileContent {
   position: relative;
@@ -166,16 +195,18 @@ body {
 
 
 .userDetailsNav {
-  display: flex;
+  display: inline-flex;
   justify-content: center;
-  gap: 40px; 
-  background-color: #e9d2ca;
-  padding: 15px;
+  gap: 40px;
+  background-color: #cfb9b2;
+  padding: 15px 30px;
   border-radius: 8px;
   margin-top: 20px;
-  width: 85%;
   text-align: center;
+  max-width: 95%;
+  flex-wrap: wrap;
 }
+
 
 .userDetailsNav button {
   background: #ffffff;

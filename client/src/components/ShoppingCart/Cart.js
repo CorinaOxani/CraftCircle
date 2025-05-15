@@ -43,11 +43,15 @@ export default function Cart() {
     <div className={styles.cartContainer}>
       <Navbar />
       <h2 className={styles.title}>Shopping Cart</h2>
-
-      <div className={styles.cartContent}>
-        <CartProductList groupedCart={groupedCart} onQuantityChange={fetchCartData} />
-        <CartSummary groupedCart={groupedCart} onOrderPlaced={fetchCartData} />
-      </div>
+  
+      {Object.keys(groupedCart).length === 0 ? (
+        <p className={styles.emptyCartMessage}>Your cart is empty.</p>       
+      ) : (
+        <div className={styles.cartContent}>
+          <CartProductList groupedCart={groupedCart} onQuantityChange={fetchCartData} />
+          <CartSummary groupedCart={groupedCart} onOrderPlaced={fetchCartData} />
+        </div>
+      )}
     </div>
-  );
+  );  
 }

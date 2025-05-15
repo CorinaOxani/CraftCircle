@@ -22,6 +22,7 @@
     background-repeat: no-repeat;
     background-size: contain;
     pointer-events: none;
+    opacity: 0.5;
   }
   
   .pageContainer::before {
@@ -50,10 +51,11 @@
   }
   
   .noAppreciations {
-    font-size: 18px;
-    text-align: center;
-    color: #b37860;
-    margin-top: 30px;
+    text-align: center; 
+    font-size: 25px;
+    color: #a65648;
+    font-family: 'Lateef', sans-serif;
+    margin-top: 40px;
   }
   
   .listContainer {
