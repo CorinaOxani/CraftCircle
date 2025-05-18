@@ -65,7 +65,7 @@ export default function ProfileStats({ user, setUser, navigate, isOwner }) {
       </button>
       <button
         onClick={() =>
-          navigate(isOwner ? "/profile" : `/profile/${user.user_id}`)
+          navigate(`/profile/${user.user_id}`)
         }
       >
         <strong>{user?.posts_count ?? 0}</strong> Posts

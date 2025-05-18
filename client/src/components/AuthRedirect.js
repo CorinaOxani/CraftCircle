@@ -17,10 +17,10 @@ export default function AuthRedirect() {
         navigate("/additional-info");
       } else {
         localStorage.removeItem("isNewUser"); 
-        navigate(`/`); 
+        navigate(`/profile/${userId}`);
       }
     }
   }, [navigate]);
 
-  return <div>Redirecting...</div>; // Afișează un mesaj scurt de redirecționare
+  return <div>Redirecting...</div>; 
 }

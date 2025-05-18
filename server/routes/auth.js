@@ -11,22 +11,47 @@ router.get(
   })
 );
 
-// Callback-ul pentru Google OAuth
 router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "http://localhost:3000/login" }),
   (req, res) => {
     if (!req.user) {
+      console.log("❌ No user returned from Google.");
       return res.redirect("http://localhost:3000/login");
     }
 
-    // URL-ul de redirecționare cu `user_id` și `isNewUser`
-    const redirectUrl = `http://localhost:3000/auth-success?user_id=${req.user.user_id}&isNewUser=${req.user.isNewUser}`;
+    console.log("✅ Google login callback reached.");
+    console.log("👤 User:", req.user);
+    console.log("🆕 isNewUser:", req.user.isNewUser);
 
+    const redirectUrl = `http://localhost:3000/login?user_id=${req.user.user_id}&isNewUser=${req.user.isNewUser}`;
     res.redirect(redirectUrl);
   }
 );
 
+// Ruta pentru Facebook OAuth
+router.get(
+  "/facebook",
+  passport.authenticate("facebook", { scope: ["email"] })
+);
+
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "http://localhost:3000/login" }),
+  (req, res) => {
+    if (!req.user) {
+      console.log("❌ No user returned from Facebook.");
+      return res.redirect("http://localhost:3000/login");
+    }
+
+    console.log("✅ Facebook login callback reached.");
+    console.log("👤 User:", req.user);
+    console.log("🆕 isNewUser:", req.user.isNewUser);
+
+    const redirectUrl = `http://localhost:3000/login?user_id=${req.user.user_id}&isNewUser=${req.user.isNewUser}`;
+    res.redirect(redirectUrl);
+  }
+);
 
 // Ruta pentru logout
 router.get("/logout", (req, res) => {

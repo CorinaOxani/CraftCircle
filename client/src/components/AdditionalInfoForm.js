@@ -5,6 +5,8 @@ import styles from "../CSSfyles/SignUpForm.module.css";
 import profileImage from "../images/LogInRegister/bobina.png";
 import headerImage from "../images/LogInRegister/foarfeca.png";
 import logo from "../images/LOGO.png";
+import { useUser } from "./UserContext";
+
 
 export default function AdditionalInfoForm() {
   const navigate = useNavigate();
@@ -20,13 +22,17 @@ export default function AdditionalInfoForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false); 
+  const { login } = useUser();
+
 
   useEffect(() => {
-    const isNewUser = localStorage.getItem("isNewUser") === "true";
+    const isNewUserRaw = localStorage.getItem("isNewUser");
+    const isNewUser = isNewUserRaw === "true";
+  
     if (!isNewUser) {
-      navigate("/home"); 
+      navigate("/home");
     }
-
+  
     const fetchCountries = async () => {
       try {
         const response = await axios.get("https://restcountries.com/v3.1/all");
@@ -35,14 +41,15 @@ export default function AdditionalInfoForm() {
           code: country.cca2,
         }));
         setCountries(countryList.sort((a, b) => a.name.localeCompare(b.name)));
-        setFilteredCountries(countryList); 
+        setFilteredCountries(countryList);
       } catch (error) {
         console.error("Error fetching countries:", error);
       }
     };
-
+  
     fetchCountries();
   }, [navigate]);
+  
 
   const handleCountryInputChange = async (e) => {
     const inputValue = e.target.value;
@@ -111,9 +118,25 @@ export default function AdditionalInfoForm() {
       return;
     }
 
+    const birthDate = new Date(formData.birth_date);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
+    const isAtLeast16 = age > 16 || (age === 16 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
+  
+    if (!isAtLeast16) {
+      setErrorMessage("You must be at least 16 years old to use this platform.");
+      setTimeout(() => {
+        setErrorMessage("");
+      }, 5000);
+      return;
+    }
+    
+  
     setLoading(true); 
     console.log("Loading set to true");
-
+  
     try {
       const response = await fetch("http://localhost:4000/additional-info", {
         method: "POST",
@@ -125,13 +148,18 @@ export default function AdditionalInfoForm() {
           city: formData.city,
         }),
       });
-
+  
       const result = await response.json();
       
       if (response.ok) {
         setSuccessMessage(result.message || "Additional info saved successfully!");
-        setTimeout(() => navigate("/"),);
-      } else {
+        login(user_id, false); 
+        setTimeout(() => {
+          localStorage.removeItem("isNewUser");
+          navigate(`/profile/${user_id}`);
+        }, 1500);
+      }
+       else {
         setErrorMessage(result.error || "Failed to save additional info. Please try again.");
       }
     } catch (err) {
@@ -141,6 +169,7 @@ export default function AdditionalInfoForm() {
       console.log("Loading set to false"); 
     }
   };
+  
 
   return (
     <div className={styles.container}>
@@ -213,6 +242,13 @@ export default function AdditionalInfoForm() {
                 City <span className={styles.required}>*</span>
               </label>
             </div>
+            {errorMessage && (
+              <p className={styles.loginText}>{errorMessage}</p>
+            )}
+            {successMessage && (
+              <p className={styles.loginText}>{successMessage}</p>
+            )}
+
 
             <div className={styles.centeredButton}>
               <button type="submit" className={styles.signupButton} disabled={loading}>

@@ -100,7 +100,11 @@ export default function FollowersPage() {
 
       <div className={styles.productsGrid}>
         {followers.length === 0 ? (
-          <p>This user has no followers yet.</p>
+          <p className={styles.emptyStateMessage}>
+            {isOwner
+              ? "You have no followers yet."
+              : `${user.first_name} has no followers yet.`}
+        </p>
         ) : (
           followers.map((follower) => (
             <div key={follower.user_id} className={styles.followerItem}>

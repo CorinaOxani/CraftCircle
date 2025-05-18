@@ -24,6 +24,19 @@ export default function UserPosts({
 {
   const { userId, isAdmin} = useUser();
 
+  if (posts.length === 0) {
+    return (
+      <div className={styles.postsGrid}>
+        <p className={styles.emptyStateMessage}>
+          {isOwner
+            ? "You haven’t posted anything yet. Start sharing your creations!"
+            : "This user hasn't posted anything yet."}
+        </p>
+      </div>
+    );
+  }
+  
+
   return (
     <div className={styles.postsGrid}>
       {posts.map((post) => (

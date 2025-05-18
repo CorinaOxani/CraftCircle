@@ -33,7 +33,7 @@ export default function Register() {
         navigate("/additional-info");
       } else {
         localStorage.removeItem("isNewUser"); // Elimină flag-ul dacă nu este nou
-        navigate("/home");
+        navigate(`/profile/${userId}`);
       }
     }
     inputs.forEach((input) => {
@@ -100,32 +100,32 @@ export default function Register() {
       const result = await response.json();
       if (response.ok) {
         setSuccessMessage("User registered successfully!");
-         // Salvează user_id în localStorage
+
       localStorage.setItem("user_id", result.user.user_id);
       localStorage.setItem("is_admin", "false");
-  
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-        });
-  
-        // Așteaptă 3 secunde și apoi navighează către pagina următoare
-        setTimeout(() => {
-          navigate("/additional-info");
-        }, 2000);
-  
-      } else {
-        setErrorMessage(result.error || "An error occurred.");
-        hideMessageAfterDelay(setErrorMessage);
-      }
-    } catch (err) {
-      setErrorMessage("Failed to connect to the server.");
-      hideMessageAfterDelay(setErrorMessage);
-    }
-  };
+
+      localStorage.setItem("isNewUser", "true");
+
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+
+      setTimeout(() => {
+        navigate("/additional-info");
+      }, 2000);
+          } else {
+            setErrorMessage(result.error || "An error occurred.");
+            hideMessageAfterDelay(setErrorMessage);
+          }
+        } catch (err) {
+          setErrorMessage("Failed to connect to the server.");
+          hideMessageAfterDelay(setErrorMessage);
+        }
+      };
   
 
   const hideMessageAfterDelay = (setterFunction) => {

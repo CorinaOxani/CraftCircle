@@ -101,7 +101,11 @@ export default function FollowingPage() {
 
       <div className={styles.productsGrid}>
         {following.length === 0 ? (
-          <p>This user is not following anyone yet.</p>
+          <p className={styles.emptyStateMessage}>
+            {isOwner
+              ? "You are not following anyone yet."
+              : `${user.first_name} is not following anyone yet.`}
+        </p>
         ) : (
           following.map((person) => (
             <div key={person.user_id} className={styles.followerItem}>

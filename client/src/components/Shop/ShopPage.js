@@ -246,6 +246,14 @@ export default function ShopPage() {
             />  
             ))}
         </div>
+        {products.length === 0 && (
+            <p className={styles.emptyStateMessage}>
+                {isOwnShop
+                ? "You haven't added any products yet. Start uploading your creations!"
+                : "This user hasn't listed any products yet."}
+            </p>
+            )}
+
         </div>
     );
 }

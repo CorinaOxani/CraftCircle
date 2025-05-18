@@ -738,3 +738,13 @@ body {
   visibility: visible;
 }
 
+.emptyStateMessage {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  color: #7c5b45;
+  font-size: 18px;
+  text-align: center;
+  margin-top: 40px;
+  grid-column: 1 / -1;
+  justify-self: center;
+}

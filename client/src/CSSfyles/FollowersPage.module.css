@@ -105,4 +105,16 @@
   .followButton:hover {
     background-color: #fff;
   }
+  .emptyStateMessage {
+    font-size: 18px;
+    font-style: italic;
+    color: #8b6e5d;
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #f5eae6;
+    border: 1px dashed #d6bfb5;
+    border-radius: 12px;
+    max-width: 500px;
+  }
   

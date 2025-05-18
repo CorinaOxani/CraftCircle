@@ -119,20 +119,22 @@ passport.use(
 
 // Serializare utilizator
 passport.serializeUser((user, done) => {
-  done(null, user.user_id); // Stocăm user_id în sesiune
+  done(null, { user_id: user.user_id, isNewUser: user.isNewUser }); // păstrăm ambele
 });
 
 // Deserializare utilizator
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (data, done) => {
   try {
-    const user = await pool.query(`SELECT * FROM accounts WHERE user_id = $1`, [id]);
+    const result = await pool.query("SELECT * FROM accounts WHERE user_id = $1", [data.user_id]);
 
-    if (user.rows.length === 0) {
-      // Utilizatorul nu există
+    if (result.rows.length === 0) {
       return done(null, false);
     }
 
-    done(null, user.rows[0]); // Returnează utilizatorul găsit
+    const user = result.rows[0];
+    user.isNewUser = data.isNewUser; // restaurăm flag-ul
+
+    done(null, user);
   } catch (err) {
     console.error("Error deserializing user:", err);
     done(err, null);

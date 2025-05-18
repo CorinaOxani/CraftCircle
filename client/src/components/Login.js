@@ -1,5 +1,5 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import React, { useState } from "react"; 
+import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
 import styles from "../CSSfyles/SignUpForm.module.css";
 import profileImage from "../images/LogInRegister/bobina.png";
@@ -17,6 +17,30 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState(""); 
   const { login } = useUser();
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("user_id");
+    const isNewUser = params.get("isNewUser") === "true";
+  
+    if (userId) {
+      console.log("🟢 Social login detected");
+      console.log("👤 userId:", userId);
+      console.log("🆕 isNewUser:", isNewUser);
+  
+      localStorage.setItem("user_id", userId);
+      localStorage.setItem("is_admin", "false");
+      login(userId, false);
+  
+      if (isNewUser) {
+        localStorage.setItem("isNewUser", "true");
+        navigate("/additional-info");
+      } else {
+        localStorage.removeItem("isNewUser");
+        navigate(`/profile/${userId}`);
+      }
+    }
+  }, [login, navigate]);
+  
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
