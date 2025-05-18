@@ -1,0 +1,208 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #fffaf7, #fceae4);
+  font-family: 'Lateef', sans-serif;
+  padding: 6rem 5% 3rem;
+  position: relative;
+  overflow: visible;
+  z-index: 1;
+}
+
+.pageContainer::before,
+.pageContainer::after {
+  content: "";
+  position: fixed;
+  top: 300px;
+  width: 400px;
+  height: 500px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 0;
+  opacity: 0.5;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+  transition: transform 0.3s ease;
+}
+
+.pageContainer::before {
+  left: 50px;
+  background-image: url("../decor/admin_profile_left.png");
+}
+
+.pageContainer::after {
+  right: 50px;
+  background-image: url("../decor/admin_profile_right.png");
+}
+
+.editIcon {
+  margin-left: 10px;
+  background: none;
+  border: none;
+  color: #a16e5c;
+  cursor: pointer;
+}
+
+.saveButton {
+  margin-left: 8px;
+  padding: 4px 8px;
+  background-color: #d18771;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.statusSelect {
+  margin-left: 10px;
+  padding: 4px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+.sectionTitle {
+  width: 100%;
+  max-width: 960px;
+  margin: 3rem auto 1.5rem;
+  font-size: 24px;
+  color: #6a3926;
+  font-weight: 600;
+  border-left: 4px solid #d18771;
+  padding-left: 12px;
+  z-index: 2;
+  position: relative;
+}
+
+.ordersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 32px;
+  width: 100%;
+  max-width: 1200px;
+  z-index: 2;
+  position: relative;
+}
+
+.card {
+  background: linear-gradient(145deg, #fff7f5, #fbe5dd);
+  border: 1px solid #f3dbd1;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 90px;
+  height: 90px;
+  background: #ffe3d8;
+  border-radius: 50%;
+  opacity: 0.2;
+  z-index: 0;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+
+.card p {
+  font-size: 17px;
+  color: #59341b;
+  margin-bottom: 10px;
+  z-index: 1;
+  position: relative;
+}
+
+.card strong {
+  font-size: 20px;
+  color: #3c1b0d;
+}
+
+select {
+  padding: 6px 10px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #cbb5a0;
+  background-color: #fffaf7;
+  color: #40291f;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+select:hover,
+select:focus {
+  border-color: #a16e5c;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filterBox {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  max-width: 960px;
+  width: 100%;
+  background: #fff6f3;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0d3c7;
+  margin-bottom: 2.5rem;
+  z-index: 2;
+  animation: fadeIn 0.6s ease;
+}
+
+.filterBox input,
+.filterBox select {
+  flex: 1 1 200px;
+  padding: 12px 16px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #d8b9aa;
+  background-color: #fffaf7;
+  font-family: 'Lateef', sans-serif;
+  color: #5b3120;
+  transition: border 0.2s ease;
+}
+
+.filterBox input:focus,
+.filterBox select:focus {
+  border-color: #d57a57;
+  outline: none;
+}
+
+.resetButton {
+  background-color: #d57a57;
+  color: #fff;
+  font-size: 16px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Lateef', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.resetButton:hover {
+  background-color: #c26a4d;
+}
+
+

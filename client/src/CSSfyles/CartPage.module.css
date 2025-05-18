@@ -38,17 +38,27 @@
 }
 
 .productCard {
-    display: flex;
-    background: #ecd9d4;
-    padding: 15px 20px;
-    border-radius: 12px;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); 
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    width: 100%;
-    max-width: 1000px;
-  }
+  display: flex;
+  flex-direction: row;
+  background: linear-gradient(to bottom right, #f1dbd2, #d4b9ae);
+  padding: 20px 26px;
+  border-radius: 16px;
+  border: 1px solid #bfa197;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 1000px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.productCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  background: linear-gradient(to bottom right, #e4c5bb, #f1ded8);
+}
+
 
   
   .cartImageWrapper {
@@ -77,12 +87,12 @@
   
   .productDetails h3 {
     margin: 0 0 6px 0;
-    font-size: 18px;
+    font-size: 22px;
   }
   
   .productDetails p {
     margin: 4px 0;
-    font-size: 20px;
+    font-size: 17px;
   }
   
   .cartActions {
@@ -122,7 +132,7 @@
   .deleteBtn {
     background: none;
     border: none;
-    color: #7e4f41;
+    color: #59341b;
     font-size: 14px;
     text-decoration: underline;
     cursor: pointer;

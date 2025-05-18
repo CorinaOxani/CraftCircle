@@ -107,31 +107,37 @@
   /* Dropdown-ul pentru meniu */
   .dropdownMenu {
     position: absolute;
-    top: 30px;
+    top: 40px;
     right: 0;
-    background: #fff;
-    border: 1px solid #ccc;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    background: #fffdfc;
+    border: 1px solid #d0bfb3;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    padding: 10px;
-    min-width: 150px;
+    padding: 12px;
+    min-width: 160px;
+    z-index: 9999;
+    border-radius: 12px;
   }
+  
+  
   
   .dropdownMenu button {
     background: none;
     border: none;
-    font-size: 16px;
-    padding: 10px;
+    font-size: 17px;
+    padding: 10px 12px;
     text-align: left;
     cursor: pointer;
-    color: #59341b;
-    font-weight: bold;
+    color: #4d2e2e;
+    font-family: 'Lateef', sans-serif;
+    transition: background 0.3s ease;
   }
   
   .dropdownMenu button:hover {
-    background-color: #f0f0f0;
+    background-color: #f5e6df;
   }
+  
   
   .cartWrapper {
     position: relative;
@@ -166,7 +172,7 @@
     position: absolute;
     top: 110%;
     right: 0;
-    background: #fef5f2; /* un bej deschis cald */
+    background: #fef5f2; 
     border: 1px solid #e0cfc6;
     border-radius: 10px;
     width: 280px;

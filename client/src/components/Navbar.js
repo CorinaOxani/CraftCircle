@@ -8,7 +8,11 @@ import { useFavorites } from "../components/FavoritesContex";
 import { useUser, useSocket } from "../components/UserContext";
 import useUnreadMessages from "../components/hooks/useUnreadMessages";
 import useUnreadPreview from "../components/hooks/useUnreadPreview";
-import useAppreciationNotifications from "../components/hooks/useAppreciationNotifications"; 
+import useAppreciationNotifications from "../components/hooks/useAppreciationNotifications";
+import UserPasswordModal from "./UserPasswordModal";
+import ConfirmationModal from "./ConfirmationModal";
+import MessageNotificationBox from "./MessageNotificationBox";
+
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -26,6 +30,18 @@ export default function Navbar() {
   const lastNotifiedIdRef = useRef(null);
   const notificationSoundRef = useRef(new Audio("/notification.mp3"));
   const [liveNotifData, setLiveNotifData] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const userIdRef = useRef(null);
+
+
+const handleLogout = () => {
+  localStorage.removeItem("user_id");
+  logout();
+  setFavoritesCount(0);
+  setCartCount(0);
+  navigate("/login");
+};
 
   // Actualizare la schimbare de utilizator
   useEffect(() => {
@@ -37,35 +53,61 @@ export default function Navbar() {
     }
   }, [userId]);
 
-  // Gestionare mesaj nou
   useEffect(() => {
-    if (!socket) return;
+    userIdRef.current = userId;
+  }, [userId]);
+  
 
-    const handleNewMessage = (message) => {
-      const inMessages = location.pathname.startsWith("/messages");
+  const handleNewMessage = (data) => {
+    const incomingMessage = data.message; //  extrage obiectul real
+  
+    console.log("Primire mesaj socket:", incomingMessage);
+  
+    if (incomingMessage.sender_id === Number(userIdRef.current)) return;
+  
+    const inMessages = location.pathname.startsWith("/messages");
+    const activeChatId = parseInt(location.pathname.split("/messages/")[1]);
+
+    const isCurrentConversation = inMessages && activeChatId === incomingMessage.sender_id;
+
+    if (!isCurrentConversation) {
       notificationSoundRef.current.play().catch((e) => {
         console.warn("Sunet blocat de browser până la interacțiune.", e);
       });
+    
+      setShowNotif(true);
+      setLiveNotifData({
+        senderName: `${incomingMessage.first_name || ""} ${incomingMessage.last_name || ""}`.trim() || "New message",
+        message: incomingMessage.content,
+        userId: incomingMessage.sender_id,
+        senderProfilePic: incomingMessage.profile_picture || null,
+      });
+      
+    
+      lastNotifiedIdRef.current = incomingMessage.message_id;
+    
+      const timeout = setTimeout(() => {
+        setShowNotif(false);
+        setLiveNotifData(null);
+      }, 5000);
+    
+      return () => clearTimeout(timeout);
+    }
+    
 
-      if (!inMessages) {
-        setShowNotif(true);
-        lastNotifiedIdRef.current = message.message_id;
-
-        const timeout = setTimeout(() => {
-          setShowNotif(false);
-        }, 5000);
-
-        return () => clearTimeout(timeout);
-      }
-    };
-
+  };
+      
+  
+  useEffect(() => {
+    if (!socket) return;
+  
     socket.on("new_message", handleNewMessage);
-
+  
     return () => {
       socket.off("new_message", handleNewMessage);
     };
-  }, [socket, location.pathname]);
-
+  }, [socket, userId, location.pathname]);
+  
 
   useEffect(() => {
     if (socket) {
@@ -78,60 +120,100 @@ export default function Navbar() {
   }, [socket, userId]);
 
   return (
-    <nav className={styles.navbar}>
-      <img src={logo} alt="Headmade Logo" className={styles.logo} onClick={() => navigate("/")} />
+    <>
+      <nav className={styles.navbar}>
+        <img
+          src={logo}
+          alt="Headmade Logo"
+          className={styles.logo}
+          onClick={() => navigate("/")}
+        />
+  
+        <div className={styles.navContainer}>
+          <div className={styles.navLinks}>
+            <button onClick={() => navigate(`/profile/${userId}`)}>Home</button>
+            <span className={styles.separator}></span>
+            <button onClick={() => navigate("/appreciation")}>
+              Appreciation
+              {appreciationCount > 0 && (
+                <span className={styles.cartBadge}>{appreciationCount}</span>
+              )}
+            </button>
+            <span className={styles.separator}></span>
+            <div className={styles.messagesWrapper}>
+              <button onClick={() => navigate("/messages")}>
+                Messages
+                {unreadCount > 0 && (
+                  <span className={styles.cartBadge}>{unreadCount}</span>
+                )}
+              </button>
 
-      <div className={styles.navContainer}>
-        <div className={styles.navLinks}>
-          <button onClick={() => navigate(`/profile/${userId}`)}>Home</button>
-          <span className={styles.separator}></span>
-          <button onClick={() => navigate("/appreciation")}>
-            Appreciation
-            {appreciationCount > 0 && (
-              <span className={styles.cartBadge}>{appreciationCount}</span>
-            )}
-          </button>
-          <span className={styles.separator}></span>
-          <button onClick={() => navigate("/messages")}>
-            Messages
-            {unreadCount > 0 && (
-              <span className={styles.cartBadge}>{unreadCount}</span>
-            )}
-          </button>
-          <span className={styles.separator}></span>
-          <button onClick={() => navigate("/favorites")}>
-            <FaHeart />
-            {favoritesCount > 0 && (
-              <span className={styles.cartBadge}>{favoritesCount}</span>
-            )}
-          </button>
-          <span className={styles.separator}></span>
-          <button onClick={() => navigate("/cart")}>
-            <FaShoppingCart />
-            {cartCount > 0 && (
-              <span className={styles.cartBadge}>{cartCount}</span>
-            )}
-          </button>
-          <span className={styles.separator}></span>
-          <button onClick={() => navigate(`/orders`)}>Orders</button>
-          <span className={styles.separator}></span>
-        </div>
-        <div className={styles.menuIcon} onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
-          <FaBars className={styles.icon} />
-          {showDropdown && (
-            <div className={styles.dropdownMenu}>
-              <button onClick={() => navigate("/settings")}>Schimbă parola</button>
-              <button onClick={() => {
-                localStorage.removeItem("user_id");
-                logout();
-                setFavoritesCount(0);
-                setCartCount(0);
-                navigate("/login");
-              }}>Logout</button>
+              {showNotif && liveNotifData && (
+                <div className={styles.messageNotifContainer}>
+                  <MessageNotificationBox
+                    senderName={liveNotifData.senderName}
+                    message={liveNotifData.message}
+                    senderProfilePic={liveNotifData.senderProfilePic}
+                    onClick={() => {
+                      navigate(`/messages/${liveNotifData.userId}`);
+                      setShowNotif(false);
+                    }}
+                  />
+                </div>
+              )}
             </div>
-          )}
+
+            <span className={styles.separator}></span>
+            <button onClick={() => navigate("/favorites")}>
+              <FaHeart />
+              {favoritesCount > 0 && (
+                <span className={styles.cartBadge}>{favoritesCount}</span>
+              )}
+            </button>
+            <span className={styles.separator}></span>
+            <button onClick={() => navigate("/cart")}>
+              <FaShoppingCart />
+              {cartCount > 0 && (
+                <span className={styles.cartBadge}>{cartCount}</span>
+              )}
+            </button>
+            <span className={styles.separator}></span>
+            <button onClick={() => navigate("/orders")}>Orders</button>
+          </div>
+  
+          <div
+            className={styles.menuIcon}
+            onMouseEnter={() => setShowDropdown(true)}
+            onMouseLeave={() => setShowDropdown(false)}
+          >
+            <FaBars className={styles.icon} />
+            {showDropdown && (
+              <div className={styles.dropdownMenu}>
+                <button onClick={() => setShowPasswordModal(true)}>Change Password</button>
+                <button onClick={() => setShowLogoutModal(true)}>Logout</button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+  
+      {showPasswordModal && (
+        <UserPasswordModal onClose={() => setShowPasswordModal(false)} />
+      )}
+  
+      {showLogoutModal && (
+        <ConfirmationModal
+          title="Are you sure you want to logout?"
+          onConfirm={() => {
+            localStorage.removeItem("user_id");
+            logout();
+            setFavoritesCount(0);
+            setCartCount(0);
+            navigate("/login");
+          }}
+          onCancel={() => setShowLogoutModal(false)}
+        />
+      )}
+    </>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../Navbar";
 import styles from "../../CSSfyles/Messages.module.css";
 import { useUser } from "../UserContext";
@@ -26,13 +27,12 @@ export default function MessagesPage() {
   const [tempUserId, setTempUserId] = useState(null);
   const socket = useRef(null);
   const sentMessageIds = useRef(new Set());
-
-
-
+  const { user_id: urlUserId } = useParams(); 
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     if (!userId) return;
-
+  
   
     // socket.io
     socket.current = io("http://localhost:4000"); 
@@ -135,71 +135,110 @@ export default function MessagesPage() {
     };
   }, [userId, activeConversation]);
   
-  
+  const previousUrlUserId = useRef(null);
 
-  const handleSelectConversation = async (userOrConversation) => {
-    setSearchResults([]);
-  
+useEffect(() => {
+  if (!urlUserId || conversations.length === 0) return;
 
-    if (tempUserId && userOrConversation.user_id !== tempUserId) {
-      setConversations((prev) =>
-        prev.filter((conv) => conv.user_id !== tempUserId || conv.conversation_id)
+  const userIdNumber = parseInt(urlUserId);
+
+  // Previne dublu apel
+  if (previousUrlUserId.current === userIdNumber) return;
+
+  const targetConv = conversations.find(c => c.user_id === userIdNumber);
+  if (targetConv) {
+    console.log("useEffect: selecting conversation from URL:", userIdNumber);
+    previousUrlUserId.current = userIdNumber;
+    handleSelectConversation(targetConv, true);
+  }
+}, [urlUserId, conversations]);
+
+const handleSelectConversation = async (userOrConversation, skipNavigate = false) => {
+  console.log("handleSelectConversation CALLED for:", userOrConversation);
+
+  setSearchResults([]);
+
+  if (tempUserId && userOrConversation.user_id !== tempUserId) {
+    console.log("Removing temp user from conversations:", tempUserId);
+    setConversations((prev) =>
+      prev.filter((conv) => conv.user_id !== tempUserId || conv.conversation_id)
+    );
+    setTempUserId(null);
+  }
+
+  if (userOrConversation.conversation_id) {
+    console.log("Existing conversation selected:", userOrConversation.conversation_id);
+    setActiveConversation(userOrConversation);
+
+    try {
+      const res = await fetch(
+        `http://localhost:4000/messages/${userOrConversation.conversation_id}?user_id=${userId}`
       );
-      setTempUserId(null);
-    }
-  
-    if (userOrConversation.conversation_id) {
+      const data = await res.json();
 
-      setActiveConversation(userOrConversation);
-      try {
-        const res = await fetch(
-          `http://localhost:4000/messages/${userOrConversation.conversation_id}?user_id=${userId}`
-        );
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setMessages(data);
-          await fetch("http://localhost:4000/messages/mark-read", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              user_id: userId,
-              conversation_id: userOrConversation.conversation_id,
-            }),
-          });
-          refreshUnread();
-        } else {
-          setMessages([]);
-        }
-      } catch (err) {
-        console.error("Error loading messages:", err);
+      if (Array.isArray(data)) {
+        console.log("Messages loaded:", data.length);
+        setMessages(data);
+
+        await fetch("http://localhost:4000/messages/mark-read", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: userId,
+            conversation_id: userOrConversation.conversation_id,
+          }),
+        });
+
+        refreshUnread();
+      } else {
+        console.warn("No messages array returned");
         setMessages([]);
       }
-    } else {
-
-      const tempUser = {
-        ...userOrConversation,
-        conversation_id: null,
-        isNew: true,
-      };
-      setActiveConversation(tempUser);
+    } catch (err) {
+      console.error("Error loading messages:", err);
       setMessages([]);
-      setTempUserId(tempUser.user_id);
-  
-      setConversations((prev) => {
-        const alreadyExists = prev.some(
-          (c) =>
-            (!c.conversation_id && c.user_id === tempUser.user_id) ||
-            c.user_id === tempUser.user_id
-        );
-        if (!alreadyExists) {
-          return [tempUser, ...prev];
-        }
-        return prev;
-      });
     }
-  };
 
-  
+    if (!skipNavigate) {
+      console.log("Navigating to user:", userOrConversation.user_id);
+      previousUrlUserId.current = userOrConversation.user_id; 
+      navigate(`/messages/${userOrConversation.user_id}`);
+    }
+
+  } else {
+    console.log("New conversation (no conversation_id), for user:", userOrConversation.user_id);
+    const tempUser = {
+      ...userOrConversation,
+      conversation_id: null,
+      isNew: true,
+    };
+
+    setActiveConversation(tempUser);
+    setMessages([]);
+    setTempUserId(tempUser.user_id);
+
+    setConversations((prev) => {
+      const alreadyExists = prev.some(
+        (c) =>
+          (!c.conversation_id && c.user_id === tempUser.user_id) ||
+          c.user_id === tempUser.user_id
+      );
+
+      if (!alreadyExists) {
+        console.log("Adding temp user to conversations list");
+        return [tempUser, ...prev];
+      }
+
+      return prev;
+    });
+
+    if (!skipNavigate) {
+      console.log("Navigating to temp user:", userOrConversation.user_id);
+      previousUrlUserId.current = userOrConversation.user_id;
+      navigate(`/messages/${userOrConversation.user_id}`);
+    }
+  }
+};
 
   const handleSendMessage = async (content) => {
     if (!activeConversation || !content.trim()) return;
@@ -339,8 +378,6 @@ export default function MessagesPage() {
     setShowConfirmModal(false);
     setConversationToDelete(null);
   };
-  
-  
   
 
   return (

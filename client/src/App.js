@@ -25,7 +25,7 @@ import ManageCategoriesPage from "./Admin/Pages/ManageCategoriesPage";
 import ModeratePostsPage from "./Admin/Pages/ModeratePostsPage";
 import ModerateProductsPage from "./Admin/Pages/ModerateProductsPage";
 import AdminStatisticsPage from "./Admin/Pages/AdminStatisticsPage.js";
-
+import AdminOrdersPage from "./Admin/Pages/AdminOrdersPage.js";
 
 
 import { useEffect } from "react";
@@ -62,6 +62,7 @@ function App() {
               <Route path="/profile/:userId/followers" element={<FollowersPage />} />
               <Route path="/profile/:userId/following" element={<FollowingPage />} />
               <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/messages/:user_id" element={<MessagesPage />} />
               <Route path="/appreciation" element={<AppreciationPage />} />
               <Route path="/orders" element={<OrdersPage />} />
 
@@ -71,6 +72,7 @@ function App() {
               <Route path="/admin/moderate-products" element={<ModerateProductsPage />} />
               <Route path="/admin/statistics" element={<AdminStatisticsPage />} />
               <Route path="/admin/users/:userId" element={<UserProfile adminMode={true} />} />
+              <Route path="/admin/orders" element={<AdminOrdersPage/>} />
 
             </Routes>
             <ToastContainer position="bottom-right" autoClose={2500} />

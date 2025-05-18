@@ -77,7 +77,12 @@ router.post("/remove", async (req, res) => {
 
 
 router.get("/:post_id/:user_id", async (req, res) => {
-  const { post_id, user_id } = req.params;
+  const post_id = parseInt(req.params.post_id);
+  const user_id = parseInt(req.params.user_id);
+
+  if (isNaN(post_id) || isNaN(user_id)) {
+    return res.status(400).json({ error: "Invalid post_id or user_id" });
+  }
 
   try {
     const countResult = await pool.query(
@@ -99,6 +104,7 @@ router.get("/:post_id/:user_id", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
   

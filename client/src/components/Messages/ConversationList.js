@@ -1,25 +1,32 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa"; 
 import styles from "../../CSSfyles/Messages.module.css";
 import defaultProfile from "../../images/default-profile.png";
 
-export default function ConversationList({ conversations, onSelectConversation, activeId, unreadCounts = {}, onDeleteConversation }) {
+export default function ConversationList({
+  conversations,
+  onSelectConversation,
+  activeId,
+  unreadCounts = {},
+  onDeleteConversation
+}) {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.conversationList}>
       {conversations.length === 0 ? (
         <p className={styles.emptyText}>No conversations yet.</p>
       ) : (
-        
         conversations.map((conv) => (
           <div
             key={`conv-${conv.user_id}`}
             className={`${styles.conversationItem} ${
               activeId === conv.conversation_id || (!conv.conversation_id && conv.user_id === activeId)
-              ? styles.activeConversation
-              : ""
-          }`}
-          
-            onClick={() => onSelectConversation(conv)} 
+                ? styles.activeConversation
+                : ""
+            }`}
+            onClick={() => onSelectConversation(conv)} //  Fără navigate aici
           >
             <img
               src={conv.profile_picture || defaultProfile}
@@ -56,8 +63,6 @@ export default function ConversationList({ conversations, onSelectConversation, 
           </div>
         ))
       )}
-      
     </div>
-    
   );
 }

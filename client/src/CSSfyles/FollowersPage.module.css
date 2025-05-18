@@ -1,11 +1,39 @@
 .shopContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 160px;
-    font-family: "Playfair Display", serif;
-  }
-  
+  position: relative;
+  padding-top: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #fffaf7, #fceae4);
+  overflow-x: hidden;
+  z-index: 1;
+}
+.shopContainer::before,
+.shopContainer::after {
+  content: "";
+  position: fixed;
+  top: 40%;
+  transform: translateY(-30%);
+  width: 400px;
+  height: 560px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: -1;
+}
+
+.shopContainer::before {
+  left: 150px;
+  background-image: url("../decor/leaf-left.png");
+}
+
+.shopContainer::after {
+  right: 150px;
+  background-image: url("../decor/leaf-right.png");
+}
+
   .shopHeader {
     text-align: center;
   }

@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../config/database"); 
+const pool = require("../config/database");
 const bcrypt = require("bcrypt");
-const multer = require("multer");
+const transporter = require("../config/emailTransporter");
 const saltRounds = 10;
+const multer = require("multer");
 
 
 const storage = multer.diskStorage({
@@ -162,7 +163,46 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
+// SCHIMBARE PAROLĂ USER + email notificare
+router.post("/change-password", async (req, res) => {
+  const { user_id, oldPassword, newPassword } = req.body;
 
+  try {
+    const result = await pool.query("SELECT email, password, first_name FROM accounts WHERE user_id = $1", [user_id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    const { password: hashedPassword, email, first_name } = result.rows[0];
+    const isMatch = await bcrypt.compare(oldPassword, hashedPassword);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Old password is incorrect." });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+    await pool.query("UPDATE accounts SET password = $1 WHERE user_id = $2", [hashedNewPassword, user_id]);
+
+    // Trimitere email
+    const mailOptions = {
+      from: "oxanicorina0@gmail.com",
+      to: email,
+      subject: "Your CraftCircle password was changed",
+      html: `<p>Hi ${first_name},</p>
+             <p>This is a confirmation that your CraftCircle password has been changed successfully.</p>
+             <p>If you didn’t perform this action, please contact our support team immediately.</p>
+             <br/>
+             <p>CraftCircle Team</p>`
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ message: "Password updated successfully and email sent." });
+  } catch (err) {
+    console.error("Error changing password:", err.message);
+    res.status(500).json({ error: "An error occurred while changing password." });
+  }
+});
 
 
 module.exports = router;

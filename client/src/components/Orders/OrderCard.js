@@ -10,7 +10,17 @@ export default function OrderCard({ order }) {
         <p><strong>Payment:</strong> {order.payment_method}</p>
         <p><strong>Paid Amount:</strong> €{!isNaN(order.paid_amount) ? Number(order.paid_amount).toFixed(2) : "0.00"}</p>
         <p><strong>Shipping to:</strong> {order.street}, {order.city}, {order.state}, {order.zip_code}, {order.country}</p>
-        <small>Placed on: {new Date(order.created_at).toLocaleString()}</small>
+        <small>
+          Placed on: {new Date(order.created_at).toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          })}
+        </small>
+
       </div>
     </div>
   );
