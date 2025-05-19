@@ -27,8 +27,11 @@ export default function MessagesPage() {
   const [tempUserId, setTempUserId] = useState(null);
   const socket = useRef(null);
   const sentMessageIds = useRef(new Set());
+  const skipNextSocketMessage = useRef(false);
   const { user_id: urlUserId } = useParams(); 
   const navigate = useNavigate(); 
+  const [selectedUserId, setSelectedUserId] = useState(null);
+
 
   useEffect(() => {
     if (!userId) return;
@@ -57,6 +60,11 @@ export default function MessagesPage() {
   
       socket.current.on("new_message", async ({ conversation_id, message }) => {
 
+        if (skipNextSocketMessage.current) {
+          skipNextSocketMessage.current = false; 
+          return;
+        }
+      
         if (sentMessageIds.current.has(message.message_id)) {
           sentMessageIds.current.delete(message.message_id); 
           return;
@@ -137,108 +145,136 @@ export default function MessagesPage() {
   
   const previousUrlUserId = useRef(null);
 
-useEffect(() => {
-  if (!urlUserId || conversations.length === 0) return;
-
-  const userIdNumber = parseInt(urlUserId);
-
-  // Previne dublu apel
-  if (previousUrlUserId.current === userIdNumber) return;
-
-  const targetConv = conversations.find(c => c.user_id === userIdNumber);
-  if (targetConv) {
-    console.log("useEffect: selecting conversation from URL:", userIdNumber);
-    previousUrlUserId.current = userIdNumber;
-    handleSelectConversation(targetConv, true);
-  }
-}, [urlUserId, conversations]);
-
-const handleSelectConversation = async (userOrConversation, skipNavigate = false) => {
-  console.log("handleSelectConversation CALLED for:", userOrConversation);
-
-  setSearchResults([]);
-
-  if (tempUserId && userOrConversation.user_id !== tempUserId) {
-    console.log("Removing temp user from conversations:", tempUserId);
-    setConversations((prev) =>
-      prev.filter((conv) => conv.user_id !== tempUserId || conv.conversation_id)
-    );
-    setTempUserId(null);
-  }
-
-  if (userOrConversation.conversation_id) {
-    console.log("Existing conversation selected:", userOrConversation.conversation_id);
-    setActiveConversation(userOrConversation);
-
-    try {
-      const res = await fetch(
-        `http://localhost:4000/messages/${userOrConversation.conversation_id}?user_id=${userId}`
-      );
-      const data = await res.json();
-
-      if (Array.isArray(data)) {
-        console.log("Messages loaded:", data.length);
-        setMessages(data);
-
-        await fetch("http://localhost:4000/messages/mark-read", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_id: userId,
-            conversation_id: userOrConversation.conversation_id,
-          }),
-        });
-
-        refreshUnread();
-      } else {
-        console.warn("No messages array returned");
-        setMessages([]);
-      }
-    } catch (err) {
-      console.error("Error loading messages:", err);
-      setMessages([]);
+  useEffect(() => {
+    if (!urlUserId || isNaN(parseInt(urlUserId))) return;
+  
+    const userIdNumber = parseInt(urlUserId);
+  
+    if (previousUrlUserId.current === userIdNumber) return;
+  
+    const existingConv = conversations.find(c => c.user_id === userIdNumber);
+  
+    if (existingConv) {
+      previousUrlUserId.current = userIdNumber;
+      handleSelectConversation(existingConv, true);
+    } else {
+      // Fetch user details if not in conversations
+      fetch(`http://localhost:4000/users/${userIdNumber}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.user_id) {
+            previousUrlUserId.current = userIdNumber;
+            handleSelectConversation({
+              user_id: data.user_id,
+              first_name: data.first_name,
+              last_name: data.last_name,
+              profile_picture: data.profile_picture || null,
+              conversation_id: null
+            }, true);
+          } else {
+            console.warn("User not found for messaging.");
+          }
+        })
+        .catch(err => console.error("Failed to fetch user info for conversation:", err));
     }
+  }, [urlUserId, conversations]);
+  
 
-    if (!skipNavigate) {
-      console.log("Navigating to user:", userOrConversation.user_id);
-      previousUrlUserId.current = userOrConversation.user_id; 
-      navigate(`/messages/${userOrConversation.user_id}`);
-    }
-
-  } else {
-    console.log("New conversation (no conversation_id), for user:", userOrConversation.user_id);
-    const tempUser = {
-      ...userOrConversation,
-      conversation_id: null,
-      isNew: true,
-    };
-
-    setActiveConversation(tempUser);
-    setMessages([]);
-    setTempUserId(tempUser.user_id);
-
-    setConversations((prev) => {
-      const alreadyExists = prev.some(
-        (c) =>
-          (!c.conversation_id && c.user_id === tempUser.user_id) ||
-          c.user_id === tempUser.user_id
-      );
-
-      if (!alreadyExists) {
-        console.log("Adding temp user to conversations list");
-        return [tempUser, ...prev];
-      }
-
+  const handleSelectConversation = async (userOrConversation, skipNavigate = false) => {
+    console.log("handleSelectConversation CALLED for:", userOrConversation);
+  
+    setSelectedUserId(userOrConversation.user_id); // selectează utilizatorul
+    setSearchResults((prev) => {
+      // curățare doar dacă este o altă căutare în derulare
+      if (prev.length > 0) return [];
       return prev;
     });
-
-    if (!skipNavigate) {
-      console.log("Navigating to temp user:", userOrConversation.user_id);
-      previousUrlUserId.current = userOrConversation.user_id;
-      navigate(`/messages/${userOrConversation.user_id}`);
+  
+    if (tempUserId && userOrConversation.user_id !== tempUserId) {
+      console.log("Removing temp user from conversations:", tempUserId);
+      setConversations((prev) =>
+        prev.filter((conv) => conv.user_id !== tempUserId || conv.conversation_id)
+      );
+      setTempUserId(null);
     }
-  }
-};
+  
+    // EXISTING CONVERSATION
+    if (userOrConversation.conversation_id) {
+      console.log("Existing conversation selected:", userOrConversation.conversation_id);
+      setActiveConversation(userOrConversation);
+  
+      try {
+        const res = await fetch(
+          `http://localhost:4000/messages/${userOrConversation.conversation_id}?user_id=${userId}`
+        );
+        const data = await res.json();
+  
+        if (Array.isArray(data)) {
+          setMessages(data);
+  
+          await fetch("http://localhost:4000/messages/mark-read", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user_id: userId,
+              conversation_id: userOrConversation.conversation_id,
+            }),
+          });
+  
+          refreshUnread();
+        } else {
+          console.warn("No messages array returned");
+          setMessages([]);
+        }
+      } catch (err) {
+        console.error("Error loading messages:", err);
+        setMessages([]);
+      }
+  
+      if (!skipNavigate) {
+        previousUrlUserId.current = userOrConversation.user_id;
+        navigate(`/messages/${userOrConversation.user_id}`);
+      }
+    } else {
+      // NEW TEMPORARY CONVERSATION
+      console.log("New conversation (no conversation_id), for user:", userOrConversation.user_id);
+  
+      const tempUser = {
+        ...userOrConversation,
+        conversation_id: null,
+        isNew: true,
+      };
+  
+      setActiveConversation(tempUser);
+      setMessages([]);
+      setTempUserId(tempUser.user_id);
+  
+      // Update conversations list
+      setConversations((prev) => {
+        const exists = prev.some((c) => c.user_id === tempUser.user_id);
+        if (!exists) return [tempUser, ...prev];
+        return prev.map((c) =>
+          c.user_id === tempUser.user_id ? { ...c, ...tempUser } : c
+        );
+      });
+  
+      // Update searchResults list
+      setSearchResults((prev) => {
+        const exists = prev.some((c) => c.user_id === tempUser.user_id);
+        if (!exists) return [tempUser, ...prev];
+        return prev.map((c) =>
+          c.user_id === tempUser.user_id ? { ...c, ...tempUser } : c
+        );
+      });
+  
+      if (!skipNavigate) {
+        previousUrlUserId.current = userOrConversation.user_id;
+        navigate(`/messages/${userOrConversation.user_id}`);
+      }
+    }
+  };
+  
+  
 
   const handleSendMessage = async (content) => {
     if (!activeConversation || !content.trim()) return;
@@ -314,6 +350,9 @@ const handleSelectConversation = async (userOrConversation, skipNavigate = false
       }
   
       sentMessageIds.current.add(newMessage.message_id);
+      setMessages((prev) => [...prev, newMessage]);
+      skipNextSocketMessage.current = true; 
+
 
   
       setConversations((prev) => {
@@ -365,8 +404,9 @@ const handleSelectConversation = async (userOrConversation, skipNavigate = false
         if (activeConversation?.conversation_id === conversationToDelete) {
           setActiveConversation(null);
           setMessages([]);
+          navigate("/messages");
         }
-  
+        
         setToast("Conversation deleted successfully");
         setTimeout(() => setToast(null), 3000);
       }
@@ -395,31 +435,42 @@ const handleSelectConversation = async (userOrConversation, skipNavigate = false
         <ConversationList
           conversations={searchResults.length > 0 ? searchResults : conversations}
           onSelectConversation={handleSelectConversation}
-          activeId={activeConversation?.conversation_id}
+          selectedUserId={selectedUserId} 
           unreadCounts={perConversation}
           onDeleteConversation={confirmDelete}
         />
 
+
         </div>
 
         <div className={styles.rightPanel}>
-          <div className={styles.threadContainer}>
-            {activeConversation ? (
-              Array.isArray(messages) && messages.length > 0 ? (
-                <MessageThread
-                  messages={messages}
-                  userId={userId}
-                  setMessages={setMessages}
-                />
-              ) : (
-                <p className={styles.startText}>Start the conversation 💬</p>
-              )
-            ) : (
-              <p className={styles.emptyText}>
-                Select or search for someone to start chatting.
-              </p>
-            )}
-          </div>
+        <div className={styles.threadContainer}>
+        {activeConversation ? (
+          <>
+            <div className={styles.threadHeader}>
+              <strong>
+                Chatting with:{" "}
+                {activeConversation.first_name} {activeConversation.last_name}
+              </strong>
+            </div>
+
+      {Array.isArray(messages) && messages.length > 0 ? (
+        <MessageThread
+          messages={messages}
+          userId={userId}
+          setMessages={setMessages}
+        />
+      ) : (
+        <p className={styles.startText}>Start the conversation 💬</p>
+      )}
+    </>
+  ) : (
+    <p className={styles.emptyText}>
+      Select or search for someone to start chatting.
+    </p>
+  )}
+</div>
+
 
           {activeConversation && (
             <div className={styles.inputWrapper}>
