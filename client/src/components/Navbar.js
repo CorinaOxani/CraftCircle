@@ -24,7 +24,6 @@ export default function Navbar() {
   const previews = useUnreadPreview(userId);
   const location = useLocation();
   const socket = useSocket(); 
-  const { count: appreciationCount, refreshAppreciations } = useAppreciationNotifications(userId);
   const [showAppreciationNotif, setShowAppreciationNotif] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
   const lastNotifiedIdRef = useRef(null);
@@ -33,6 +32,12 @@ export default function Navbar() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const userIdRef = useRef(null);
+  const {
+    count: appreciationCount,
+    lastNotif,
+    refreshAppreciations,
+  } = useAppreciationNotifications(userId, socket);
+  
 
 
 const handleLogout = () => {
@@ -119,6 +124,33 @@ const handleLogout = () => {
     }
   }, [socket, userId]);
 
+
+  useEffect(() => {
+    console.log("Notificare apreciere primită:", lastNotif);
+    if (!lastNotif || lastNotif.sender_id === Number(userIdRef.current)) return;
+  
+    notificationSoundRef.current.play().catch((e) => {
+      console.warn("Sunet blocat de browser până la interacțiune.", e);
+    });
+  
+    setShowAppreciationNotif(true);
+    setLiveNotifData({
+      senderName: `${lastNotif.sender_first_name || ""} ${lastNotif.sender_last_name || ""}`.trim() || "Someone",
+      message: lastNotif.type === "like" ? "liked your post" : "started following you",
+      userId: lastNotif.sender_id,
+      senderProfilePic: lastNotif.sender_avatar || null,
+    });
+  
+    const timeout = setTimeout(() => {
+      setShowAppreciationNotif(false);
+      setLiveNotifData(null);
+    }, 5000);
+  
+    return () => clearTimeout(timeout);
+  }, [lastNotif]);
+  
+  
+
   return (
     <>
       <nav className={styles.navbar}>
@@ -149,18 +181,34 @@ const handleLogout = () => {
               </button>
 
               {showNotif && liveNotifData && (
-                <div className={styles.messageNotifContainer}>
-                  <MessageNotificationBox
-                    senderName={liveNotifData.senderName}
-                    message={liveNotifData.message}
-                    senderProfilePic={liveNotifData.senderProfilePic}
-                    onClick={() => {
-                      navigate(`/messages/${liveNotifData.userId}`);
-                      setShowNotif(false);
-                    }}
-                  />
-                </div>
-              )}
+  <div className={styles.messageNotifContainer}>
+    <MessageNotificationBox
+      senderName={liveNotifData.senderName}
+      message={liveNotifData.message}
+      senderProfilePic={liveNotifData.senderProfilePic}
+      onClick={() => {
+        navigate(`/messages/${liveNotifData.userId}`);
+        setShowNotif(false);
+      }}
+    />
+  </div>
+)}
+
+{showAppreciationNotif && liveNotifData && (
+  <div className={styles.messageNotifContainer}>
+    <MessageNotificationBox
+      senderName={liveNotifData.senderName}
+      message={liveNotifData.message}
+      senderProfilePic={liveNotifData.senderProfilePic}
+      onClick={() => {
+        navigate(`/profile/${liveNotifData.userId}`);
+        setShowAppreciationNotif(false);
+      }}
+    />
+  </div>
+)}
+
+              
             </div>
 
             <span className={styles.separator}></span>
