@@ -2,6 +2,7 @@ import React from "react";
 import { FaTrash } from "react-icons/fa";
 import styles from "../../CSSfyles/Messages.module.css";
 import defaultProfile from "../../images/default-profile.png";
+import { useNavigate } from "react-router-dom";
 
 export default function ConversationList({
   conversations = [],
@@ -9,7 +10,10 @@ export default function ConversationList({
   selectedUserId,
   unreadCounts = {},
   onDeleteConversation
-}) {
+})
+ {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.conversationList}>
       {conversations.length === 0 ? (
@@ -32,6 +36,12 @@ export default function ConversationList({
                 src={conv.profile_picture || defaultProfile}
                 alt="Profile"
                 className={styles.convProfilePic}
+                onClick={(e) => {
+                  e.stopPropagation(); // previne declansarea selectării conversației
+                  navigate(`/profile/${conv.user_id}`);
+                }}
+                style={{ cursor: "pointer" }}
+
               />
               <div className={styles.convInfo}>
                 <strong>
