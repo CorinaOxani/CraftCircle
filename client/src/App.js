@@ -18,6 +18,7 @@ import FollowingPage from "./components/Profile/FollowingPage";
 import MessagesPage from "./components/Messages/MessagesPage";
 import AppreciationPage from "./components/Appreciation/AppreciationPage";
 import OrdersPage from "./components/Orders/OrdersPage";
+import DiscoverPage from "./components/Discover/DiscoverPage.js"
 
 
 import AdminProfile from "./Admin/Pages/AdminProfile";
@@ -65,6 +66,7 @@ function App() {
               <Route path="/messages/:user_id" element={<MessagesPage />} />
               <Route path="/appreciation" element={<AppreciationPage />} />
               <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/discover" element={<DiscoverPage />} />
 
               <Route path="/admin_profile/:adminId" element={<AdminProfile />} />
               <Route path="/admin/manage-categories" element={<ManageCategoriesPage />} />

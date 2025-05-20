@@ -179,6 +179,8 @@ const handleLogout = () => {
   
         <div className={styles.navContainer}>
           <div className={styles.navLinks}>
+          <button onClick={() => navigate(`/discover`)}>Discover</button>
+          <span className={styles.separator}></span>
             <button onClick={() => navigate(`/profile/${userId}`)}>Home</button>
             <span className={styles.separator}></span>
             <button onClick={() => navigate("/appreciation")}>
