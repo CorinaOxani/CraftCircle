@@ -14,7 +14,7 @@ export default function OrdersPage() {
       try {
         const res = await fetch(`http://localhost:4000/orders/user/${userId}`);
         const data = await res.json();
-        setOrders(data);
+        setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch orders:", err);
       } finally {

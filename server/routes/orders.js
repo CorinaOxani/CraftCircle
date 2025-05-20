@@ -1,7 +1,7 @@
 const express = require("express");
-const pool = require("../config/database"); 
+const pool = require("../config/database");
 const router = express.Router();
-const transporter = require("../config/emailTransporter"); 
+const transporter = require("../config/emailTransporter");
 
 // Salvează comanda și trimite email de confirmare
 router.post("/", async (req, res) => {
@@ -22,6 +22,19 @@ router.post("/", async (req, res) => {
   } = req.body;
 
   try {
+    const buyerId = parseInt(buyer_id);
+    const sellerId = parseInt(seller_id);
+    const itemId = parseInt(item_id);
+    const paidAmount = parseFloat(paid_amount);
+    const totalDue = parseFloat(total_due);
+
+    if (
+      isNaN(buyerId) || isNaN(sellerId) || isNaN(itemId) ||
+      isNaN(paidAmount) || isNaN(totalDue)
+    ) {
+      return res.status(400).json({ error: "Missing or invalid numeric values." });
+    }
+
     const result = await pool.query(
       `INSERT INTO orders (
         buyer_id, seller_id, item_id, status,
@@ -33,8 +46,8 @@ router.post("/", async (req, res) => {
         $8, $9, $10, $11, $12, $13
       ) RETURNING *`,
       [
-        buyer_id, seller_id, item_id, status,
-        payment_method, paid_amount, total_due,
+        buyerId, sellerId, itemId, status,
+        payment_method, paidAmount, totalDue,
         country, city, state, zip_code, street, address_details
       ]
     );
@@ -42,7 +55,7 @@ router.post("/", async (req, res) => {
     // După ce comanda a fost adăugată, trimitem email
     const userResult = await pool.query(
       "SELECT email, first_name FROM accounts WHERE user_id = $1",
-      [buyer_id]
+      [buyerId] // <- corectat aici
     );
 
     if (userResult.rows.length > 0) {
@@ -70,11 +83,16 @@ router.post("/", async (req, res) => {
 });
 
 router.get('/user/:user_id', async (req, res) => {
-  const { user_id } = req.params;
+  const userId = parseInt(req.params.user_id);
+
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: "Invalid user ID in URL." });
+  }
+
   try {
     const result = await pool.query(
       `SELECT * FROM orders WHERE buyer_id = $1 ORDER BY created_at DESC`,
-      [user_id]
+      [userId]
     );
     res.json(result.rows);
   } catch (err) {
@@ -82,5 +100,6 @@ router.get('/user/:user_id', async (req, res) => {
     res.status(500).send("Error fetching user orders");
   }
 });
+
 
 module.exports = router;
