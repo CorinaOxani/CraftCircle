@@ -66,7 +66,6 @@ export default function CardPaymentForm({ amount, address, onClose, onOrderPlace
     if (result.error) {
       alert(result.error.message);
     } else if (result.paymentIntent.status === "succeeded") {
-        alert("Payment successful!");
       
         await createOrdersInDatabase({
           groupedCart: JSON.parse(localStorage.getItem("groupedCart")),
