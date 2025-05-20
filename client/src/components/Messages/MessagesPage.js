@@ -27,7 +27,6 @@ export default function MessagesPage() {
   const [tempUserId, setTempUserId] = useState(null);
   const socket = useRef(null);
   const sentMessageIds = useRef(new Set());
-  const skipNextSocketMessage = useRef(false);
   const { user_id: urlUserId } = useParams(); 
   const navigate = useNavigate(); 
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -36,112 +35,122 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!userId) return;
   
-  
-    // socket.io
-    socket.current = io("http://localhost:4000"); 
+    socket.current = io("http://localhost:4000");
     socket.current.emit("join", userId);
-    
   
-
+    socket.current.on("new_message", async ({ conversation_id, message }) => {
+      if (sentMessageIds.current.has(message.message_id)) {
+        sentMessageIds.current.delete(message.message_id);
+        return;
+      }
+  
+      const isCurrent = activeConversation?.conversation_id === conversation_id;
+  
+      if (isCurrent) {
+        setMessages((prev) => {
+          const exists = prev.some((m) => m.message_id === message.message_id);
+          return exists ? prev : [...prev, message];
+        });
+  
+        if (message.receiver_id === userId) {
+          try {
+            await fetch("http://localhost:4000/messages/mark-read", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ user_id: userId, conversation_id }),
+            });
+            refreshUnread();
+          } catch (err) {
+            console.error("Failed to mark as read:", err);
+          }
+        }
+      }
+  
+      const otherUserId = message.sender_id === userId ? message.receiver_id : message.sender_id;
+  
+      setConversations((prev) => {
+        const exists = prev.some((c) => c.conversation_id === conversation_id);
+  
+        if (exists) {
+          const updated = prev.map((c) =>
+            c.conversation_id === conversation_id
+              ? {
+                  ...c,
+                  last_message_preview: message.content,
+                  last_message_time: message.created_at,
+                }
+              : c
+          );
+          return updated.sort((a, b) => new Date(b.last_message_time) - new Date(a.last_message_time));
+        }
+  
+        const tempConv = {
+          conversation_id,
+          user_id: otherUserId,
+          first_name: "Unknown",
+          last_name: "",
+          profile_picture: null,
+          last_message_preview: message.content,
+          last_message_time: message.created_at,
+        };
+  
+        return [tempConv, ...prev];
+      });
+  
+      // Fetch real user info separat, după ce am adăugat conversația temporară
+      try {
+        const res = await fetch(`http://localhost:4000/users/${otherUserId}`);
+        const userData = await res.json();
+  
+        setConversations((curr) =>
+          curr.map((c) =>
+            c.user_id === userData.user_id
+              ? {
+                  ...c,
+                  first_name: userData.first_name,
+                  last_name: userData.last_name,
+                  profile_picture: userData.profile_picture || null,
+                }
+              : c
+          )
+        );
+      } catch (err) {
+        console.warn("Failed to fetch user info for new conv:", err);
+      }
+    });
+  
+    socket.current.on("message_seen", ({ message_id }) => {
+      setMessages((prev) =>
+        prev.map((msg) => (msg.message_id === message_id ? { ...msg, is_read: true } : msg))
+      );
+    });
+  
+    return () => {
+      socket.current.disconnect();
+    };
+  }, [userId, activeConversation?.conversation_id]);
+  
+  
+  useEffect(() => {
+    if (!userId) return;
+  
     fetch(`http://localhost:4000/messages/conversations/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
           setConversations(data);
         } else {
-          console.warn("Conversations is not an array:", data);
+          console.warn("Unexpected conversation data:", data);
           setConversations([]);
         }
       })
       .catch((err) => {
-        console.error("Error loading conversations:", err);
+        console.error("Error fetching conversations:", err);
         setConversations([]);
       });
-  
-      socket.current.on("new_message", async ({ conversation_id, message }) => {
-
-        if (skipNextSocketMessage.current) {
-          skipNextSocketMessage.current = false; 
-          return;
-        }
-      
-        if (sentMessageIds.current.has(message.message_id)) {
-          sentMessageIds.current.delete(message.message_id); 
-          return;
-        }
-      
-        const isCurrentConversation = activeConversation?.conversation_id === conversation_id;
-      
-        setMessages((prev) => {
-          const alreadyExists = prev.some((m) => m.message_id === message.message_id);
-          if (isCurrentConversation && !alreadyExists) {
-            return [...prev, message];
-          }
-          return prev;
-        });
-
-        if (isCurrentConversation && message.receiver_id === userId) {
-          try {
-            await fetch("http://localhost:4000/messages/mark-read", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                user_id: userId,
-                conversation_id,
-              }),
-            });
-            refreshUnread(); 
-          } catch (err) {
-            console.error("Failed to mark as read:", err);
-          }
-        }
-
-        setConversations((prev) => {
-          const exists = prev.some((c) => c.conversation_id === conversation_id);
-      
-          const updatedList = exists
-            ? prev.map((c) =>
-                c.conversation_id === conversation_id
-                  ? {
-                      ...c,
-                      last_message_preview: message.content,
-                      last_message_time: message.created_at,
-                    }
-                  : c
-              )
-            : [
-                {
-                  conversation_id,
-                  user_id: message.sender_id === userId ? message.receiver_id : message.sender_id,
-                  first_name: "Unknown",
-                  last_name: "",
-                  profile_picture: null,
-                  last_message_preview: message.content,
-                  last_message_time: message.created_at,
-                },
-                ...prev,
-              ];
-      
-          return updatedList.sort(
-            (a, b) => new Date(b.last_message_time) - new Date(a.last_message_time)
-          );
-        });
-      });
-
-      socket.current.on("message_seen", ({ message_id }) => {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.message_id === message_id ? { ...msg, is_read: true } : msg
-          )
-        );
-      });
+  }, [userId]);
       
           
-  
-    return () => {
-      socket.current?.disconnect();
-    };
-  }, [userId, activeConversation]);
   
   const previousUrlUserId = useRef(null);
 
@@ -275,13 +284,14 @@ export default function MessagesPage() {
   };
   
   
-
   const handleSendMessage = async (content) => {
     if (!activeConversation || !content.trim()) return;
   
     try {
       let conversationId = activeConversation.conversation_id;
-
+      let isNewConversation = false;
+  
+      // Creează conversație dacă nu există
       if (!conversationId) {
         const createRes = await fetch("http://localhost:4000/messages/conversations", {
           method: "POST",
@@ -294,12 +304,14 @@ export default function MessagesPage() {
   
         const created = await createRes.json();
         if (!createRes.ok || !created.conversation_id) {
-          console.error(" Failed to create conversation", created);
+          console.error("Failed to create conversation", created);
           return;
         }
   
         conversationId = created.conversation_id;
+        isNewConversation = true;
   
+        // Actualizează conversația activă
         setActiveConversation((prev) => ({
           ...prev,
           conversation_id: conversationId,
@@ -308,11 +320,9 @@ export default function MessagesPage() {
   
         setTempUserId(null);
   
+        // Adaugă conversația în lista din stânga
         setConversations((prev) => {
-          const filtered = prev.filter(
-            (c) => !(c.user_id === activeConversation.user_id)
-          );
-  
+          const filtered = prev.filter((c) => c.user_id !== activeConversation.user_id);
           return [
             {
               conversation_id: conversationId,
@@ -321,16 +331,19 @@ export default function MessagesPage() {
               last_name: activeConversation.last_name,
               profile_picture: activeConversation.profile_picture || null,
               last_message_preview: content,
+              last_message_time: new Date().toISOString(),
             },
             ...filtered,
           ];
         });
   
+        // Curăță căutarea
         setSearchResults([]);
         setClearSearch(true);
         setTimeout(() => setClearSearch(false), 200);
       }
   
+      // Trimite mesajul
       const res = await fetch("http://localhost:4000/messages/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -343,38 +356,23 @@ export default function MessagesPage() {
       });
   
       const newMessage = await res.json();
-  
       if (!res.ok || !newMessage.message_id) {
-        console.warn(" Message send failed:", newMessage);
+        console.warn("Message send failed:", newMessage);
         return;
       }
   
       sentMessageIds.current.add(newMessage.message_id);
-      setMessages((prev) => [...prev, newMessage]);
-      skipNextSocketMessage.current = true; 
-
-
   
-      setConversations((prev) => {
-        const updated = prev.map((conv) =>
-          conv.conversation_id === conversationId
-            ? {
-                ...conv,
-                last_message_preview: content,
-                last_message_time: new Date().toISOString(),
-              }
-            : conv
-        );
+      //  Dacă e conversație nouă, adaugă mesajul local (socket-ul vine prea târziu)
+      if (isNewConversation) {
+        setMessages([newMessage]);
+      }
   
-        const updatedConv = updated.find((c) => c.conversation_id === conversationId);
-        const rest = updated.filter((c) => c.conversation_id !== conversationId);
-  
-        return [updatedConv, ...rest];
-      });
     } catch (err) {
-      console.error(" Error sending message:", err);
+      console.error("Error sending message:", err);
     }
   };
+  
   
   
   const confirmDelete = (conversationId) => {
