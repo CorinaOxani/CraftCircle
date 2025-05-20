@@ -204,5 +204,26 @@ router.post("/change-password", async (req, res) => {
   }
 });
 
+router.post("/update-profile", async (req, res) => {
+  const { user_id, country, city, bio } = req.body;
+
+  if (!user_id || !country || !city) {
+    return res.status(400).json({ error: "Missing required fields." });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE accounts SET country = $1, city = $2, bio = $3 WHERE user_id = $4`,
+      [country.trim(), city.trim(), bio?.trim() || "", user_id]
+    );
+
+    return res.json({ message: "Profile updated successfully." });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+
 
 module.exports = router;

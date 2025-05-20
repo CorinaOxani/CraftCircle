@@ -11,6 +11,7 @@ import useUnreadPreview from "../components/hooks/useUnreadPreview";
 import useAppreciationNotifications from "../components/hooks/useAppreciationNotifications";
 import UserPasswordModal from "./UserPasswordModal";
 import ConfirmationModal from "./ConfirmationModal";
+import EditProfileModal from "./EditProfileModal";
 import MessageNotificationBox from "./MessageNotificationBox";
 
 
@@ -31,13 +32,28 @@ export default function Navbar() {
   const [liveNotifData, setLiveNotifData] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const userIdRef = useRef(null);
   const {
     count: appreciationCount,
     lastNotif,
     refreshAppreciations,
   } = useAppreciationNotifications(userId, socket);
-  
+  const [userProfile, setUserProfile] = useState(null);
+
+useEffect(() => {
+  if (!userId) return;
+  fetch(`http://localhost:4000/users/${userId}`)
+    .then(res => res.json())
+    .then(data => {
+      setUserProfile(data);
+      localStorage.setItem("user_country", data.country || "");
+      localStorage.setItem("user_city", data.city || "");
+      localStorage.setItem("user_bio", data.bio || "");
+    })
+    .catch(err => console.error("Error loading user profile:", err));
+}, [userId]);
+
 
 
 const handleLogout = () => {
@@ -238,7 +254,8 @@ const handleLogout = () => {
             {showDropdown && (
               <div className={styles.dropdownMenu}>
                 <button onClick={() => setShowPasswordModal(true)}>Change Password</button>
-                <button onClick={() => setShowLogoutModal(true)}>Logout</button>
+                <button onClick={() => setShowEditProfileModal(true)}>Edit Profile</button>
+                <button onClick={() => setShowLogoutModal(true)}>Logout</button>              
               </div>
             )}
           </div>
@@ -248,6 +265,18 @@ const handleLogout = () => {
       {showPasswordModal && (
         <UserPasswordModal onClose={() => setShowPasswordModal(false)} />
       )}
+
+      {showEditProfileModal && userProfile && (
+        <EditProfileModal
+          currentCountry={userProfile.country || ""}
+          currentCity={userProfile.city || ""}
+          currentBio={userProfile.bio || ""}
+          onClose={() => setShowEditProfileModal(false)}
+          onSave={() => window.location.reload()}
+        />
+      )}
+
+
   
       {showLogoutModal && (
         <ConfirmationModal
