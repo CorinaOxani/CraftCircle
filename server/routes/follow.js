@@ -1,16 +1,18 @@
 const express = require("express");
-const router = express.Router();
 const pool = require("../config/database");
+const { addAppreciationNotification } = require("./appreciationNotification");
 
+module.exports = (io) => {
+  const router = express.Router();
 
-router.get("/check", async (req, res) => {
+  // Verificare follow
+  router.get("/check", async (req, res) => {
     const { follower_id, following_id } = req.query;
     try {
       const result = await pool.query(
         `SELECT 1 FROM follows WHERE follower_id = $1 AND following_id = $2`,
         [follower_id, following_id]
       );
-  
       res.json({ isFollowing: result.rowCount > 0 });
     } catch (err) {
       console.error("Follow check error:", err);
@@ -18,8 +20,8 @@ router.get("/check", async (req, res) => {
     }
   });
 
-// follow
-router.post("/", async (req, res) => {
+  // FOLLOW
+  router.post("/", async (req, res) => {
     const { follower_id, following_id } = req.body;
 
     console.log("Received follow request:", follower_id, "->", following_id);
@@ -30,30 +32,39 @@ router.post("/", async (req, res) => {
          ON CONFLICT DO NOTHING`,
         [follower_id, following_id]
       );
+
+      // Trimitere notificare de tip "follow"
+      await addAppreciationNotification({
+        user_id: following_id,
+        sender_id: follower_id,
+        type: "follow",
+        io,
+      });
+
       res.sendStatus(200);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Eroare la urmărire" });
+      console.error("Follow error:", err);
+      res.status(500).json({ error: "Follow failed" });
     }
   });
-  
 
-// unfollow
-router.delete("/", async (req, res) => {
-  const { follower_id, following_id } = req.body;
-  try {
-    await pool.query(
-      "DELETE FROM follows WHERE follower_id = $1 AND following_id = $2",
-      [follower_id, following_id]
-    );
-    res.sendStatus(200);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Eroare la oprirea urmăririi" });
-  }
-});
+  // UNFOLLOW
+  router.delete("/", async (req, res) => {
+    const { follower_id, following_id } = req.body;
+    try {
+      await pool.query(
+        "DELETE FROM follows WHERE follower_id = $1 AND following_id = $2",
+        [follower_id, following_id]
+      );
+      res.sendStatus(200);
+    } catch (err) {
+      console.error("Unfollow error:", err);
+      res.status(500).json({ error: "Unfollow failed" });
+    }
+  });
 
-router.get("/followers/:userId", async (req, res) => {
+  // Get Followers
+  router.get("/followers/:userId", async (req, res) => {
     const { userId } = req.params;
     try {
       const result = await pool.query(
@@ -63,7 +74,6 @@ router.get("/followers/:userId", async (req, res) => {
          WHERE f.following_id = $1`,
         [userId]
       );
-  
       res.json(result.rows);
     } catch (err) {
       console.error("Error fetching followers:", err);
@@ -71,6 +81,7 @@ router.get("/followers/:userId", async (req, res) => {
     }
   });
 
+  // Get Following
   router.get("/following/:userId", async (req, res) => {
     const { userId } = req.params;
     try {
@@ -81,13 +92,12 @@ router.get("/followers/:userId", async (req, res) => {
          WHERE f.follower_id = $1`,
         [userId]
       );
-  
       res.json(result.rows);
     } catch (err) {
       console.error("Error fetching following:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
-  
 
-module.exports = router;
+  return router;
+};

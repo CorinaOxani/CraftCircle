@@ -5,52 +5,46 @@ const pool = require("../config/database");
 
 async function addAppreciationNotification({ user_id, sender_id, type, post_id = null, io = null }) {
   try {
+    const now = new Date();
+
+    let THRESHOLD_MINUTES = 0;
+    if (type === "follow" || type === "like") {
+      THRESHOLD_MINUTES = 60; // anti-spam pentru ambele
+    }
+
     const existingNotif = await pool.query(
       `SELECT id, created_at FROM appreciation_notifications
-       WHERE user_id = $1 AND sender_id = $2 AND type = $3 AND post_id = $4
+       WHERE user_id = $1 AND sender_id = $2 AND type = $3 AND post_id IS NOT DISTINCT FROM $4
        ORDER BY created_at DESC
        LIMIT 1`,
       [user_id, sender_id, type, post_id]
     );
 
-    let notificationId;
-    const now = new Date();
+    let skipEmit = false;
+    let notificationId = null;
 
     if (existingNotif.rows.length > 0) {
-      const existing = existingNotif.rows[0];
-      const existingDate = new Date(existing.created_at);
-      const diffInMinutes = (now - existingDate) / (1000 * 60);
+      const { id, created_at } = existingNotif.rows[0];
+      const existingDate = new Date(created_at);
+      const diffMinutes = (now - existingDate) / (1000 * 60);
 
-      if (diffInMinutes < 60) {
-        notificationId = existing.id;
-        await pool.query(
-          `UPDATE appreciation_notifications
-           SET created_at = NOW(), seen = false
-           WHERE id = $1`,
-          [notificationId]
-        );
-        console.log("Updated recent appreciation notification:", notificationId);
-      } else {
-        await pool.query(`DELETE FROM appreciation_notifications WHERE id = $1`, [existing.id]);
-        const insertResult = await pool.query(
-          `INSERT INTO appreciation_notifications (user_id, sender_id, type, post_id)
-           VALUES ($1, $2, $3, $4)
-           RETURNING id`,
-          [user_id, sender_id, type, post_id]
-        );
-        notificationId = insertResult.rows[0].id;
-        console.log("Deleted old and inserted new appreciation notification:", notificationId);
+      if (diffMinutes < THRESHOLD_MINUTES) {
+        console.log(`Skipped ${type} notification: already exists recently`);
+        return; 
       }
-    } else {
-      const insertResult = await pool.query(
-        `INSERT INTO appreciation_notifications (user_id, sender_id, type, post_id)
-         VALUES ($1, $2, $3, $4)
-         RETURNING id`,
-        [user_id, sender_id, type, post_id]
-      );
-      notificationId = insertResult.rows[0].id;
-      console.log("Inserted new appreciation notification:", notificationId);
+
+      await pool.query(`DELETE FROM appreciation_notifications WHERE id = $1`, [id]);
     }
+
+    const insertResult = await pool.query(
+      `INSERT INTO appreciation_notifications (user_id, sender_id, type, post_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id`,
+      [user_id, sender_id, type, post_id]
+    );
+    notificationId = insertResult.rows[0].id;
+
+    console.log(`Inserted ${type} notification:`, notificationId);
 
     if (io) {
       const userResult = await pool.query(
@@ -68,11 +62,13 @@ async function addAppreciationNotification({ user_id, sender_id, type, post_id =
         sender_avatar: userResult.rows[0].profile_picture,
       });
     }
+
   } catch (err) {
     console.error("Error handling appreciation notification:", err);
     throw err;
   }
 }
+
 
 router.get("/unseen-count", async (req, res) => {
   const userId = parseInt(req.query.user_id, 10);

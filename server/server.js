@@ -12,7 +12,6 @@ const uploadRoutes = require("./routes/uploads");
 const shopRoutes = require("./routes/shop");
 const cartRoutes = require("./routes/cart");
 const favoritesRouter = require("./routes/favorites");
-const followRoutes = require("./routes/follow");
 const messagesRoutes = require("./routes/messages");
 const likesRouter = require("./routes/likes");
 const { router: appreciationRouter } = require("./routes/appreciationNotification");
@@ -57,6 +56,8 @@ app.use((req, res, next) => {
   req.io = io;
   next();
 });
+
+const followRoutes = require("./routes/follow")(io); //io definition had to be first
 
 // Rutele aplicației
 app.use("/auth", authRoutes);
