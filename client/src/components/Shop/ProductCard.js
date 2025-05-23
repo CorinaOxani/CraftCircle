@@ -309,7 +309,7 @@ export default function ProductCard({
           </>
         ) : (
           <>
-            <h3>{product.title}</h3>
+            <div className={styles.productTitleScroll}>{product.title}</div>
             <p className={styles.productDescription}>{product.description}</p>
 
             <div className={styles.flexSpacer} /> 

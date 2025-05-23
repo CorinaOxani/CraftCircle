@@ -25,6 +25,7 @@ const moderateOrdersRoutes = require("./routes/admin/moderateOrders");
 const orderRoutes = require("./routes/orders");
 const stripeRoutes = require("./routes/stripe");
 const discoverPostsRoute = require("./routes/discoverPosts");
+const discoverProductsRoute = require("./routes/discoverProducts");
 
 
 const app = express();
@@ -83,6 +84,7 @@ app.use("/admin/statistics", adminStatistics);
 app.use("/orders", orderRoutes);
 app.use("/stripe", stripeRoutes);
 app.use("/discover", discoverPostsRoute);
+app.use("/discover", discoverProductsRoute);
 
 app.use("/", userRoutes);
 

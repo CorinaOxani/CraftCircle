@@ -4,9 +4,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
+  min-height: auto;
+  overflow: visible;
   background: linear-gradient(to bottom right, #fffaf7, #fceae4);
-  overflow-x: hidden;
   z-index: 1;
 }
 .shopContainer::before,
@@ -476,4 +476,30 @@
   text-align: center;
   grid-column: 1 / -1;
   justify-self: center;
+}
+
+.productTitleScroll {
+  max-height: 28px;
+  overflow-y: auto;
+  font-weight: bold;
+  color: #59341b;
+  font-size: 18px;
+  font-family: 'Lateef', sans-serif;
+  line-height: 1.3;
+  padding-right: 4px;
+  margin: 0 auto;
+}
+
+/* Scrollbar frumos pentru titlu */
+.productTitleScroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.productTitleScroll::-webkit-scrollbar-thumb {
+  background-color: #c29f91;
+  border-radius: 4px;
+}
+
+.productTitleScroll::-webkit-scrollbar-track {
+  background: transparent;
 }

@@ -4,6 +4,8 @@ import LikeButton from "../Posts/LikeButton";
 import { useUser } from "../UserContext";
 import defaultProfile from "../../images/default-profile.png";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
 
 export default function PostCard({ post }) {
   const { userId } = useUser();
@@ -12,6 +14,8 @@ export default function PostCard({ post }) {
   const cardRef = useRef(null);
   const viewTimeout = useRef(null);
   const hasSentView = useRef(false);
+  const navigate = useNavigate();
+
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? mediaList.length - 1 : prev - 1));
@@ -53,7 +57,7 @@ export default function PostCard({ post }) {
 
   return (
     <div ref={cardRef} className={styles.statCard} style={{ margin: "0 auto", position: "relative" }}>
-      <div className={styles.postUserInfo}>
+      <div className={styles.postUserInfo} onClick={() => navigate(`/profile/${post.user_id}`)} style={{ cursor: "pointer" }}>
         <img
           src={post.profile_picture || defaultProfile}
           alt="profile"
@@ -63,6 +67,7 @@ export default function PostCard({ post }) {
           {post.first_name} {post.last_name}
         </span>
       </div>
+
 
       {currentMedia && (
         <div className={styles.carouselContainer}>

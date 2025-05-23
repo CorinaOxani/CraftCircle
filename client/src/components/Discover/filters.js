@@ -6,8 +6,10 @@ export const postFilters = [
   ];
   
   export const productFilters = [
-    { id: "priceLowHigh", label: "Price: Low to High" },
-    { id: "priceHighLow", label: "Price: High to Low" },
-    { id: "inStock", label: "In Stock Only" },
+    { id: "recent", label: "Most Recent" },
+    { id: "followed", label: "Followed Sellers Only" },
+    { id: "price_asc", label: "Price: Low to High" },
+    { id: "price_desc", label: "Price: High to Low" }
   ];
+  
   
