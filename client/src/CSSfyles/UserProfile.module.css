@@ -56,11 +56,13 @@ body {
   font-size: 2rem;
   color: #4e342e;
   margin: 15px 0 5px;
+  text-align: center;
 }
 
 .userInfo p {
   font-size: 1.2rem;
-  color: #7a5c54;
+  color: #61453f;
+  text-align: center;
 }
 
 .profileImageContainer {

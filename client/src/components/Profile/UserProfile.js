@@ -133,6 +133,12 @@ export default function UserProfile() {
 
     setPreviewFiles((prevPreviews) => [...prevPreviews, ...newPreviews]);
   };
+ //stergere poza incarcata in formular 
+  const handleRemovePreview = (indexToRemove) => {
+    setPreviewFiles(prev => prev.filter((_, i) => i !== indexToRemove));
+    setPostFiles(prev => prev.filter((_, i) => i !== indexToRemove));
+  };
+  
 
   // Trimitere postare
   const handleSubmitPost = async (event) => {
@@ -270,7 +276,7 @@ export default function UserProfile() {
           handlePostFilesChange={handlePostFilesChange}
           handleSubmitPost={handleSubmitPost}
           previewFiles={previewFiles}
-          handleRemovePreview={() => {}}
+          handleRemovePreview={handleRemovePreview}
           isPosting={isPosting}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
