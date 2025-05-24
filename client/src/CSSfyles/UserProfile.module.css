@@ -370,6 +370,28 @@ body {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+.errorInput {
+  border: 2px solid #d65050 !important;
+  background-color: #ffe6e6;
+}
+
+.errorBorder {
+  border: 2px solid #d99a9a;
+  background-color: #fef1f1;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Georgia', serif;
+  color: #993333;
+  box-shadow: 0 1px 5px rgba(153, 51, 51, 0.1);
+  font-size: 15px;
+}
+
+
+
 .uploadingMessage {
   color: #59341b;
   font-size: 16px;

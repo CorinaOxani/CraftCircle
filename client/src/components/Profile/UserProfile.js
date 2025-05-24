@@ -30,7 +30,7 @@ export default function UserProfile() {
   const [isFollowingChanged, setIsFollowingChanged] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categorySearch, setCategorySearch] = useState("");
-
+  const [fileError, setFileError] = useState(false);
 
 
 
@@ -47,20 +47,23 @@ export default function UserProfile() {
       .catch((error) => console.error("Error fetching posts:", error));
   }, [userId]);
 
-  // Fetch user profile
+  const fetchUserProfile = useCallback(() => {
+    fetch(`http://localhost:4000/users/${userId}`)
+      .then((res) => res.json())
+      .then(setUser)
+      .catch(() => navigate("/login"));
+  }, [userId, navigate]);
+  
   useEffect(() => {
     if (!userId) {
       navigate("/login");
       return;
     }
-
-    fetch(`http://localhost:4000/users/${userId}`)
-      .then((res) => res.json())
-      .then(setUser)
-      .catch(() => navigate("/login"));
-
+  
+    fetchUserProfile(); 
     fetchUserPosts();
-  }, [userId, navigate, fetchUserPosts]);
+  }, [userId, navigate, fetchUserPosts, fetchUserProfile]);
+  
 
   // Gestionare imagine profil
   const handleImageChange = (event) => {
@@ -124,6 +127,7 @@ export default function UserProfile() {
   // Upload de fișiere pentru postare
   const handlePostFilesChange = (event) => {
     const newFiles = Array.from(event.target.files);
+    if (newFiles.length > 0) setFileError(false);
     setPostFiles((prevFiles) => [...prevFiles, ...newFiles]);
 
     const newPreviews = newFiles.map((file) => ({
@@ -166,7 +170,8 @@ export default function UserProfile() {
         setPreviewFiles([]);
         setSelectedCategory(null);
         setCategorySearch("");
-        fetchUserPosts();    
+        fetchUserPosts();
+        fetchUserProfile();    
       } else {
         console.error("Error uploading post.");
       }
@@ -282,7 +287,10 @@ export default function UserProfile() {
           setSelectedCategory={setSelectedCategory}
           categorySearch={categorySearch}
           setCategorySearch={setCategorySearch}
+          fileError={fileError}
+          setFileError={setFileError}
       />
+      
       
       
       )}

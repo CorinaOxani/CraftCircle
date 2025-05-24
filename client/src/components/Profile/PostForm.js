@@ -12,9 +12,12 @@ export default function PostForm({
   selectedCategory,
   setSelectedCategory,
   categorySearch,
-  setCategorySearch
+  setCategorySearch,
+  fileError,
+  setFileError,
 }) {
   const [categories, setCategories] = useState([]);
+  const [categoryError, setCategoryError] = useState(false);
 
   useEffect(() => {
     fetch("http://localhost:4000/admin/categories/getCategories")
@@ -27,6 +30,36 @@ export default function PostForm({
     cat.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
     (cat.description || "").toLowerCase().includes(categorySearch.toLowerCase())
   );
+
+  const handleLocalSubmit = (e) => {
+    e.preventDefault();
+  
+    let hasError = false;
+  
+    const isCategoryValid =
+      selectedCategory && categorySearch.trim() === selectedCategory.name;
+  
+    if (!isCategoryValid) {
+      setCategoryError(true);
+      hasError = true;
+    } else {
+      setCategoryError(false);
+    }
+  
+    if (previewFiles.length === 0) {
+      setFileError(true);
+      hasError = true;
+    } else {
+      setFileError(false);
+    }
+  
+    if (hasError) return;
+  
+    handleSubmitPost(e);
+  };
+  
+  
+  
 
   return (
     <div className={styles.postFormContainer}>
@@ -41,28 +74,31 @@ export default function PostForm({
       <input
         type="text"
         placeholder="Search category..."
-        className={styles.categoryInput}
+        className={`${styles.categoryInput} ${categoryError ? styles.errorInput : ''}`}
         value={categorySearch}
-        onChange={(e) => setCategorySearch(e.target.value)}
+        onChange={(e) => {
+          setCategorySearch(e.target.value);
+          setCategoryError(false);
+        }}        
       />
       {categorySearch && (
-  <div className={styles.categoryGrid}>
-    {filteredCategories.map((cat) => (
-      <div
-        key={cat.category_id}
-        className={styles.categoryBox}
-        onClick={() => {
-          setSelectedCategory(cat);
-          setCategorySearch(cat.name);
-        }}
-      >
-        <span className={styles.categoryName}>{cat.name}</span>
-        <div className={styles.categoryTooltip}>
-          {cat.description}
-        </div>
+      <div className={styles.categoryGrid}>
+        {filteredCategories.map((cat) => (
+          <div
+            key={cat.category_id}
+            className={styles.categoryBox}
+            onClick={() => {
+              setSelectedCategory(cat);
+              setCategorySearch(cat.name);
+            }}
+          >
+            <span className={styles.categoryName}>{cat.name}</span>
+            <div className={styles.categoryTooltip}>
+              {cat.description}
+            </div>
+          </div>
+        ))}
       </div>
-    ))}
-  </div>
 )}
 
 
@@ -77,6 +113,12 @@ export default function PostForm({
             )}
           </div>
         ))}
+        {fileError && (
+          <div className={styles.errorBorder}>
+            <span>Please upload at least one photo or video.</span>
+          </div>
+        )}
+
       </div>
 
       <label className={styles.postOption}>
@@ -85,7 +127,7 @@ export default function PostForm({
         <input type="file" multiple onChange={handlePostFilesChange} accept="image/*,video/*" hidden />
       </label>
 
-      <button className={styles.postButton} onClick={handleSubmitPost} disabled={isPosting}>
+        <button className={styles.postButton} onClick={handleLocalSubmit} disabled={isPosting}>
         {isPosting ? <span className={styles.loader}></span> : "Post"}
       </button>
       {isPosting && <p className={styles.uploadingMessage}>Uploading post, please wait...</p>}
