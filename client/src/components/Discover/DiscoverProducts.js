@@ -182,7 +182,7 @@ export default function DiscoverProducts() {
         </div>
 
 
-            <div className={styles.postContent}>
+            <div className={styles.productContent}>
               <div className={styles.productTitleScroll}>{product.title}</div>
               <p className={styles.productPrice}>€{product.price}</p>
               <p style={{ fontWeight: 'bold', color: product.stock === 'yes' ? 'green' : 'red' }}>

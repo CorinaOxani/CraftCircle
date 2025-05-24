@@ -55,11 +55,11 @@ export default function ModeratePostsPage() {
   }, []);
 
   const filtered = posts.filter((post) =>
-    post.username.toLowerCase().includes(filters.name.toLowerCase()) &&
-    post.content.toLowerCase().includes(filters.content.toLowerCase()) &&
+    (post.username || "").toLowerCase().includes(filters.name.toLowerCase()) &&
+    (post.content || "").toLowerCase().includes(filters.content.toLowerCase()) &&
     post.user_id.toString().includes(filters.userId)
   );
-
+  
   const handleDeletePost = async (postId) => {
     try {
       const res = await fetch(`http://localhost:4000/admin/moderatePosts/delete-post/${postId}`, {
