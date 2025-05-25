@@ -9,7 +9,7 @@ import MessageThread from "./MessageThread";
 import MessageInput from "./MessageInput";
 import  useUnreadMessages  from "../hooks/useUnreadMessages";
 import ConfirmationModal from "../ConfirmationModal";
-import ToastMessage from "../ToastMessage";
+import { useToast } from "../../utils/ToastContext";
 import { io } from "socket.io-client";
 
 
@@ -20,16 +20,16 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [clearSearch, setClearSearch] = useState(false);
-  const { unreadCount, perConversation, refreshUnread } = useUnreadMessages(userId);
+  const { perConversation, refreshUnread } = useUnreadMessages(userId);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState(null);
-  const [toast, setToast] = useState(null);
   const [tempUserId, setTempUserId] = useState(null);
   const socket = useRef(null);
   const sentMessageIds = useRef(new Set());
   const { user_id: urlUserId } = useParams(); 
   const navigate = useNavigate(); 
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const { showToast } = useToast();
 
 
   useEffect(() => {
@@ -128,7 +128,7 @@ export default function MessagesPage() {
     return () => {
       socket.current.disconnect();
     };
-  }, [userId, activeConversation?.conversation_id]);
+  }, [userId, activeConversation?.conversation_id, refreshUnread]);
   
   
   useEffect(() => {
@@ -405,12 +405,10 @@ export default function MessagesPage() {
           navigate("/messages");
         }
         
-        setToast("Conversation deleted successfully");
-        setTimeout(() => setToast(null), 3000);
+        showToast("Conversation deleted successfully");
       }
     } catch (err) {
-      setToast("Failed to delete conversation");
-      setTimeout(() => setToast(null), 3000);
+      showToast("Failed to delete conversation");
     }
   
     setShowConfirmModal(false);
@@ -482,8 +480,6 @@ export default function MessagesPage() {
               onCancel={() => setShowConfirmModal(false)}
             />
           )}
-
-          {toast && <ToastMessage message={toast} />}
 
         </div>
  

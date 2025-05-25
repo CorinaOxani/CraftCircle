@@ -58,6 +58,7 @@ export default function DiscoverPosts() {
         onSelect={setSelectedFilter}
       />
 
+      {/* 🔄 Grupăm inputurile într-un rând */}
       <div className={styles.searchRow}>
         <input
           type="text"

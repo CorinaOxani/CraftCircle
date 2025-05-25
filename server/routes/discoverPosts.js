@@ -183,7 +183,7 @@ if (!search && !categoryName) {
 });
 
 
-// Categorii
+// 📚 Categorii
 router.get("/categories", async (req, res) => {
   try {
     const result = await pool.query(

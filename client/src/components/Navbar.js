@@ -7,7 +7,6 @@ import { useCart } from "../components/CartContex";
 import { useFavorites } from "../components/FavoritesContex";
 import { useUser, useSocket } from "../components/UserContext";
 import useUnreadMessages from "../components/hooks/useUnreadMessages";
-import useUnreadPreview from "../components/hooks/useUnreadPreview";
 import useAppreciationNotifications from "../components/hooks/useAppreciationNotifications";
 import UserPasswordModal from "./UserPasswordModal";
 import ConfirmationModal from "./ConfirmationModal";
@@ -22,7 +21,6 @@ export default function Navbar() {
   const { favoritesCount, fetchFavoritesCount, setFavoritesCount } = useFavorites();  
   const { logout, userId } = useUser();
   const { unreadCount } = useUnreadMessages(userId);
-  const previews = useUnreadPreview(userId);
   const location = useLocation();
   const socket = useSocket(); 
   const [showAppreciationNotif, setShowAppreciationNotif] = useState(false);
@@ -54,15 +52,6 @@ useEffect(() => {
     .catch(err => console.error("Error loading user profile:", err));
 }, [userId]);
 
-
-
-const handleLogout = () => {
-  localStorage.removeItem("user_id");
-  logout();
-  setFavoritesCount(0);
-  setCartCount(0);
-  navigate("/login");
-};
 
   // Actualizare la schimbare de utilizator
   useEffect(() => {

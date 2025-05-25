@@ -122,7 +122,7 @@ export default function PostForm({
       </div>
 
       <label className={styles.postOption}>
-        <img src="https://img.icons8.com/fluency/48/000000/image.png" alt="Photo Icon" />
+        <img src="https://img.icons8.com/fluency/48/000000/image.png" alt="Icon" />
         <span>Foto/Video</span>
         <input type="file" multiple onChange={handlePostFilesChange} accept="image/*,video/*" hidden />
       </label>

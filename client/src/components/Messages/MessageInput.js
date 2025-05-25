@@ -6,20 +6,28 @@ export default function MessageInput({ onSend }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const trimmed = content.trim();
-    if (trimmed.length === 0) return;
-    onSend(trimmed);
-    setContent(""); // reset
+    if (content.trim().length === 0) return;
+    onSend(content);
+    setContent(""); 
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // prevenim newline
+      handleSubmit(e);
+    }
+    // altfel, dacă e Shift+Enter → nu facem nimic, se lasă newline
   };
 
   return (
     <form onSubmit={handleSubmit} className={styles.messageInputContainer}>
-      <input
-        type="text"
+      <textarea
         value={content}
         onChange={(e) => setContent(e.target.value || "")}
+        onKeyDown={handleKeyDown}
         className={styles.messageInput}
         placeholder="Type a message..."
+        rows={1}
       />
       <button type="submit" className={styles.sendButton}>
         Send

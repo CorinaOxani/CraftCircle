@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import styles from "../../CSSfyles/CartPage.module.css";
 import { useUser } from "../UserContext";
-import ToastMessage from "../ToastMessage";
 import { useCart } from "../CartContex";
 import StripePaymentModal from "./StripePaymentModal"; 
 import createOrdersInDatabase from "../../utils/createOrdersInDatabase";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../utils/ToastContext";
 
 
 export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOrderPlaced })
@@ -13,11 +13,12 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
     const { userId } = useUser();
     const [paymentMethod, setPaymentMethod] = useState("card");
     const [submitting, setSubmitting] = useState(false);
-    const [toast, setToast] = useState("");
+    const [toast] = useState("");
     const { fetchCartCount } = useCart(); 
     const [missingFields, setMissingFields] = useState([]);
     const navigate = useNavigate();
     const [showStripeModal, setShowStripeModal] = useState(false);
+    const { showToast } = useToast();
     const [address, setAddress] = useState({
         country: "",
         city: "",
@@ -27,6 +28,25 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
         details: "",
     });
 
+    useEffect(() => {
+      const fetchUserInfo = async () => {
+        try {
+          const res = await fetch(`http://localhost:4000/users/${userId}`);
+          const data = await res.json();
+          setAddress((prev) => ({
+            ...prev,
+            country: data.country || "",
+            city: data.city || "",
+          }));
+        } catch (err) {
+          console.error("Failed to fetch user data:", err);
+        }
+      };
+    
+      fetchUserInfo();
+    }, [userId]);
+    
+    
     const handleInputChange = (field, value) => {
         setAddress((prev) => ({ ...prev, [field]: value }));
     };
@@ -64,6 +84,49 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
       
         return total;
       };
+
+      const handleClick = async () => {
+        const requiredFields = ["country", "city", "street", "zip_code"];
+        const missing = requiredFields.filter((field) => !address[field].trim());
+        setMissingFields(missing);
+      
+        if (missing.length > 0) {
+          const readable = missing.map((f) => f.charAt(0).toUpperCase() + f.slice(1)).join(", ");
+          showToast(`Please fill in: ${readable}`);
+          return;
+        }
+      
+        let countryISO = "";
+        try {
+          const res = await fetch(`https://restcountries.com/v3.1/name/${address.country}`);
+          const data = await res.json();
+          countryISO = data?.[0]?.cca2?.toLowerCase();
+        } catch (err) {
+          console.error("Failed to get ISO country code", err);
+        }
+      
+        if (!countryISO) {
+          showToast("Invalid country name.");
+          setMissingFields((prev) => [...new Set([...prev, "country"])]);
+          return;
+        }
+      
+        const isZipValid = await validateZipCode(countryISO, address.zip_code);
+        if (!isZipValid) {
+          setMissingFields((prev) => [...new Set([...prev, "zip_code"])]);
+          showToast("Invalid ZIP Code for selected country.");
+          return;
+        }
+      
+        setMissingFields([]);
+      
+        if (paymentMethod === "cash") {
+          handleSubmit();
+        } else {
+          setShowStripeModal(true);
+        }
+      };
+      
       
 
       const handleSubmit = async () => {
@@ -73,8 +136,7 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
       
         if (missing.length > 0) {
           const readable = missing.map((f) => f.charAt(0).toUpperCase() + f.slice(1)).join(", ");
-          setToast(`Please fill in: ${readable}`);
-          setTimeout(() => setToast(""), 3000);
+          showToast(`Please fill in: ${readable}`);
           return;
         }
 
@@ -88,31 +150,17 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
         }
       
         if (!countryISO) {
-          setToast("Invalid country name.");
+          showToast("Invalid country name.");
           setMissingFields((prev) => [...new Set([...prev, "country"])]);
-          setTimeout(() => setToast(""), 3000);
           return;
         }
       
 
-        const romanianRegex = /^[0-9]{6}$/;
-        let isZipValid = false;
-      
-        if (countryISO === "ro") {
-          isZipValid = romanianRegex.test(address.zip_code);
-        } else {
-          try {
-            const zipRes = await fetch(`https://api.zippopotam.us/${countryISO}/${address.zip_code}`);
-            isZipValid = zipRes.ok;
-          } catch (err) {
-            console.error("ZIP validation API failed", err);
-          }
-        }
-      
+        const isZipValid = await validateZipCode(countryISO, address.zip_code);
+
         if (!isZipValid) {
           setMissingFields((prev) => [...new Set([...prev, "zip_code"])]);
-          setToast("Invalid ZIP Code for selected country.");
-          setTimeout(() => setToast(""), 3000);
+          showToast("Invalid ZIP Code for selected country.");
           return;
         }
 
@@ -136,19 +184,11 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
               navigate,
             });
       
-            setToast("Order placed successfully!");
-            setTimeout(() => {
-              setToast("");
-              onClose();
-            }, 3000);
+            showToast("Order placed successfully!");
           }
         } catch (err) {
           console.error("Order failed:", err);
-          setToast("Order submission failed!");
-          setTimeout(() => {
-            setToast("");
-            onClose();
-          }, 3000);
+          showToast("Order submission failed!");
         } finally {
           setSubmitting(false);
         }
@@ -178,20 +218,28 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
         </label>
 
         <div className={styles.addressGrid}>
-          <input
-            type="text"
-            placeholder="Country"
-            value={address.country}
-            onChange={(e) => handleInputChange("country", e.target.value)}
-            className={missingFields.includes("country") ? styles.inputError : ""}
-          />
-          <input
-            type="text"
-            placeholder="City"
-            value={address.city}
-            onChange={(e) => handleInputChange("city", e.target.value)}
-            className={missingFields.includes("city") ? styles.inputError : ""}
-          />
+        <input
+          type="text"
+          placeholder="Country"
+          value={address.country}
+          readOnly
+          onFocus={() => {
+            showToast("To change delivery country, please update your profile.");
+          }}
+          className={missingFields.includes("country") ? styles.inputError : ""}
+        />
+
+        <input
+          type="text"
+          placeholder="City"
+          value={address.city}
+          readOnly
+          onFocus={() => {
+            showToast("To change delivery city, please update your profile.");
+          }}
+          className={missingFields.includes("city") ? styles.inputError : ""}
+        />
+
           <input
             type="text"
             placeholder="State / Province"
@@ -227,7 +275,7 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
           </button>
           <button
             className={styles.modalButton}
-            onClick={paymentMethod === "card" ? () => setShowStripeModal(true) : handleSubmit}
+            onClick={handleClick}
             disabled={submitting}
             >
             {submitting
@@ -252,7 +300,6 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
 
         </div>
       </div>
-      {toast && <ToastMessage message={toast} />}
     </div>
   );
 }

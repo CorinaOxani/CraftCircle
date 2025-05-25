@@ -3,18 +3,17 @@ import AdminNavbar from "../components/AdminNavbar";
 import styles from "../../CSSfyles/ModeratePosts.module.css";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import ImageCarousel from "../components/ImageCarousel";
-import ToastMessage from "../../components/ToastMessage";
+import { useToast } from "../../utils/ToastContext";
 import { FiFlag } from "react-icons/fi";
 
 export default function ModerateProductsPage() {
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({ name: "", userId: "", description: "" });
   const [pendingDeleteProduct, setPendingDeleteProduct] = useState(null);
-  const [pendingDeleteUser, setPendingDeleteUser] = useState(null);
   const [reporters, setReporters] = useState([]);
   const [reportDetailsOpen, setReportDetailsOpen] = useState(null);
   const reporterBoxRef = useRef(null);
-  const [toastMessage, setToastMessage] = useState("");
+  const { showToast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
 
 
@@ -77,8 +76,7 @@ export default function ModerateProductsPage() {
             setProducts(Array.isArray(newData) ? newData : []);
             
             // Setează toast o singură dată
-            setToastMessage(data.message || "Product deleted successfully.");
-            setTimeout(() => setToastMessage(""), 4000);
+            showToast(data.message || "Product deleted successfully.");
         } else {
           console.error("❌ Failed to delete product:", data);
             alert("Failed to delete product.");
@@ -114,8 +112,6 @@ export default function ModerateProductsPage() {
     <>
       <div className={styles.adminManagePostsContainer}>
         <AdminNavbar />
-        {toastMessage && <ToastMessage message={toastMessage} />}
-
         {/* Loader Overlay */}
         {isDeleting && (
           <div className={styles.loaderOverlay}>

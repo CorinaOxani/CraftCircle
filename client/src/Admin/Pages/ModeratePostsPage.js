@@ -3,7 +3,7 @@ import AdminNavbar from "../components/AdminNavbar";
 import styles from "../../CSSfyles/ModeratePosts.module.css";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import ImageCarousel from "../components/ImageCarousel";
-import ToastMessage from "../../components/ToastMessage";
+import { useToast } from "../../utils/ToastContext";
 import { FaHeart } from "react-icons/fa";
 import { FiFlag } from "react-icons/fi";
 
@@ -17,7 +17,7 @@ export default function ModeratePostsPage() {
   const [reporters, setReporters] = useState([]);
   const [reportDetailsOpen, setReportDetailsOpen] = useState(null);
   const reporterBoxRef = useRef(null);
-  const [toastMessage, setToastMessage] = useState("");
+  const { showToast } = useToast();
 
 
   useEffect(() => {
@@ -73,8 +73,7 @@ export default function ModeratePostsPage() {
         const newData = await updated.json();
         setPosts(Array.isArray(newData) ? newData : []);
   
-        setToastMessage(data.message || "Post deleted and email sent.");
-        setTimeout(() => setToastMessage(""), 4000);
+        showToast(data.message || "Post deleted and email sent.");
       } else {
         alert("Failed to delete post.");
       }
@@ -120,7 +119,6 @@ export default function ModeratePostsPage() {
     <>
       <div className={styles.adminManagePostsContainer}>
         <AdminNavbar />
-        {toastMessage && <ToastMessage message={toastMessage} />}
         <div className={styles.container}>
           <h2 className={styles.sectionTitle}>Moderate Posts</h2>
 

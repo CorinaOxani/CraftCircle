@@ -9,6 +9,8 @@ import ProfilePictureEdit from "./ProfilePictureEdit";
 import PostForm from "./PostForm";
 import AdminNavbar from "../../Admin/components/AdminNavbar";
 import { useUser } from "../UserContext";
+import { useToast } from "../../utils/ToastContext";
+
 
 export default function UserProfile() {
   const navigate = useNavigate();
@@ -31,8 +33,7 @@ export default function UserProfile() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categorySearch, setCategorySearch] = useState("");
   const [fileError, setFileError] = useState(false);
-
-
+  const { showToast } = useToast();
 
   // Fetch user posts
   const fetchUserPosts = useCallback(() => {
@@ -116,11 +117,14 @@ export default function UserProfile() {
 
       if (response.ok) {
         setPosts((prevPosts) => prevPosts.filter((post) => post.post_id !== postId));
+        showToast("Post deleted successfully!");
       } else {
         console.error("Failed to delete post, status:", response.status);
+        showToast("Failed to delete post.");
       }
     } catch (error) {
       console.error("Error deleting post:", error);
+      showToast("An error occurred while deleting the post.");
     }
   };
 

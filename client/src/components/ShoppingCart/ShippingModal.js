@@ -92,9 +92,27 @@ export default function ShippingModal({ groupedCart, onClose, onOrderPlaced }) {
             });
 
             const data = await res.json();
-            distance = data.distances[0][1];
-            const multiplier = distance > 1000 ? 0.4 : 0.3;
-            price = distance * multiplier;
+            console.log("Matrix API response:", data);
+            distance = data?.distances?.[0]?.[1];
+            if (!distance || distance === 0) {
+              console.warn("No valid distance from ORS, using Haversine.");
+              const toRadians = (deg) => (deg * Math.PI) / 180;
+              const R = 6371;
+              const dLat = toRadians(userCoords.lat - sellerCoords.lat);
+              const dLng = toRadians(userCoords.lng - sellerCoords.lng);
+              const a =
+                Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRadians(sellerCoords.lat)) *
+                  Math.cos(toRadians(userCoords.lat)) *
+                  Math.sin(dLng / 2) ** 2;
+              const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+              distance = R * c;
+            }
+            console.log("distance",distance);
+            const basePrice = 15;
+            const factor = 5;
+            price = basePrice + (distance / 500) * factor;
+            if (price > 50) price = 50;
 
             const remaining = (FREE_SHIPPING_THRESHOLD - totalOrderValue).toFixed(2);
             note = `Add €${remaining} more for free shipping`;
@@ -167,19 +185,19 @@ export default function ShippingModal({ groupedCart, onClose, onOrderPlaced }) {
         </div>
       </div>
       {showPayment && (
-  <PaymentModal
-    groupedCart={groupedCart}
-    shippingCosts={shippingCosts}  
-    onClose={() => {
-      setShowPayment(false);
-      onClose(); 
-    }}
-    onOrderPlaced={() => {
-      setShowPayment(false); // ascunde payment modal
-      onClose();             // ascunde shipping modal
-    }}
-  />
-)}
+      <PaymentModal
+        groupedCart={groupedCart}
+        shippingCosts={shippingCosts}  
+        onClose={() => {
+          setShowPayment(false);
+          onClose(); 
+        }}
+        onOrderPlaced={() => {
+          setShowPayment(false);
+          onClose();             
+        }}
+      />
+      )}
 
     </div>
   );

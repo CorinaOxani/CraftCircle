@@ -3,7 +3,7 @@ import styles from "../../CSSfyles/Messages.module.css";
 import defaultProfile from "../../images/default-profile.png";
 import MessageOptionsMenu from "./MessageOptionsMenu";
 import ConfirmationModal from "../ConfirmationModal";
-import ToastMessage from "../ToastMessage";
+import { useToast } from "../../utils/ToastContext";
 
 export default function MessageThread({ messages, userId, setMessages }) {
   const bottomRef = useRef(null);
@@ -11,7 +11,7 @@ export default function MessageThread({ messages, userId, setMessages }) {
   const menuRefs = useRef({});
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmData, setConfirmData] = useState({ messageId: null, type: null });
-  const [toastMessage, setToastMessage] = useState("");
+  const { showToast } = useToast();
 
 
   useEffect(() => {
@@ -67,10 +67,9 @@ export default function MessageThread({ messages, userId, setMessages }) {
       const data = await res.json();
       if (data.success) {
         setMessages((prev) => prev.filter((msg) => msg.message_id !== messageId));
-        setToastMessage(
+        showToast(
           type === "forAll" ? "Message deleted for everyone." : "Message deleted."
         );
-        setTimeout(() => setToastMessage(""), 3000);
       }
     } catch (err) {
       console.error("Error deleting message:", err);
@@ -212,8 +211,6 @@ export default function MessageThread({ messages, userId, setMessages }) {
         }}
       />
     )}
-
-    {toastMessage && <ToastMessage message={toastMessage} />}
 
     </div>
   );

@@ -9,11 +9,12 @@ import ProductForm from "./ProductForm";
 import ProductCard from "./ProductCard";
 import { useUser } from "../UserContext";
 import AdminNavbar from "../../Admin/components/AdminNavbar";
+import { useToast } from "../../utils/ToastContext";
+
 
 
 
 export default function ShopPage() {
-    const params = useParams();
     const navigate = useNavigate();
     const { userId: loggedInUserId, isAdmin } = useUser();
     const { userId: paramUserId } = useParams();
@@ -26,8 +27,8 @@ export default function ShopPage() {
     const searchParams = new URLSearchParams(location.search);
     const highlightId = searchParams.get("highlight");
     const [isFollowingChanged, setIsFollowingChanged] = useState(false);
-
-
+    const { showToast } = useToast();
+    
 
     const isOwnShop = parseInt(userId) === parseInt(loggedInUserId);
 
@@ -158,11 +159,14 @@ export default function ShopPage() {
         });
         if (res.ok) {
             setProducts((prev) => prev.filter((p) => p.item_id !== productId));
+            showToast("Post deleted successfully!");
         } else {
             console.error("Delete failed");
+            showToast("Failed to delete post.");
         }
         } catch (err) {
         console.error("Error deleting product:", err);
+        showToast("An error occurred while deleting the post.");
         }
     };
     
@@ -202,58 +206,57 @@ export default function ShopPage() {
 
     return (
         <div className={styles.shopContainer}>
-         {isAdmin ? <AdminNavbar /> : <Navbar />}
-        <ProfilePictureDisplay user={user} />
-        <div className={styles.shopHeader}>
-            <ProfileHeader user={user} />
-            {!isOwnShop && (
-            <p className={styles.shopDescription}>
-                Welcome to {user.first_name}'s shop!
-            </p>
-            )}
-        </div>
-        <ProfileStats
-            user={user}
-            setUser={setUser}
-            navigate={navigate}
-            isOwner={isOwnShop}
-            isFollowingChanged={isFollowingChanged}
-            setIsFollowingChanged={setIsFollowingChanged}
-            />
+            {isAdmin ? <AdminNavbar /> : <Navbar />}
+            <ProfilePictureDisplay user={user} />
+            <div className={styles.shopHeader}>
+                <ProfileHeader user={user} />
+                {!isOwnShop && (
+                <p className={styles.shopDescription}>
+                    Welcome to {user.first_name}'s shop!
+                </p>
+                )}
+            </div>
+            <ProfileStats
+                user={user}
+                setUser={setUser}
+                navigate={navigate}
+                isOwner={isOwnShop}
+                isFollowingChanged={isFollowingChanged}
+                setIsFollowingChanged={setIsFollowingChanged}
+                />
 
-        {isOwnShop && (
-            <ProductForm
-                userId={userId}
-                onSubmitProduct={handleAddProduct}
-                isPosting={isPostingProduct} 
-            />
-            )}
+            {isOwnShop && (
+                <ProductForm
+                    userId={userId}
+                    onSubmitProduct={handleAddProduct}
+                    isPosting={isPostingProduct} 
+                />
+                )}
 
-        <div className={styles.productsGrid}>
-            {products.map((product) => (
-            <ProductCard
-            key={product.item_id}
-            product={product}
-            isOwner={isOwnShop}
-            isEditing={editingProductId === product.item_id}
-            setIsEditing={setEditingProductId}
-            onNext={handleNext}
-            onPrev={handlePrev}
-            onDeleteProduct={handleDeleteProduct}
-            onEditProduct={handleEditProduct}
-            onReportProduct={() => handleReportProduct(product.item_id, product.user_id)} 
-            id={`product-${product.item_id}`}
-            />  
-            ))}
-        </div>
-        {products.length === 0 && (
-            <p className={styles.emptyStateMessage}>
-                {isOwnShop
-                ? "You haven't added any products yet. Start uploading your creations!"
-                : "This user hasn't listed any products yet."}
-            </p>
-            )}
-
+            <div className={styles.productsGrid}>
+                {products.map((product) => (
+                <ProductCard
+                key={product.item_id}
+                product={product}
+                isOwner={isOwnShop}
+                isEditing={editingProductId === product.item_id}
+                setIsEditing={setEditingProductId}
+                onNext={handleNext}
+                onPrev={handlePrev}
+                onDeleteProduct={handleDeleteProduct}
+                onEditProduct={handleEditProduct}
+                onReportProduct={() => handleReportProduct(product.item_id, product.user_id)} 
+                id={`product-${product.item_id}`}
+                />  
+                ))}
+            </div>
+            {products.length === 0 && (
+                <p className={styles.emptyStateMessage}>
+                    {isOwnShop
+                    ? "You haven't added any products yet. Start uploading your creations!"
+                    : "This user hasn't listed any products yet."}
+                </p>
+                )}
         </div>
     );
 }
