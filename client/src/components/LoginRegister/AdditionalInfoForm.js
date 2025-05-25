@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import styles from "../CSSfyles/SignUpForm.module.css";
-import profileImage from "../images/LogInRegister/bobina.png";
-import headerImage from "../images/LogInRegister/foarfeca.png";
-import logo from "../images/LOGO.png";
-import { useUser } from "./UserContext";
+import styles from "../../CSSfyles/SignUpForm.module.css";
+import profileImage from "../../images/LogInRegister/bobina.png";
+import headerImage from "../../images/LogInRegister/foarfeca.png";
+import logo from "../../images/LOGO.png";
+import { useUser } from "../UserContext";
 
 
 export default function AdditionalInfoForm() {

@@ -1,11 +1,16 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
-import styles from "../CSSfyles/SignUpForm.module.css";
-import profileImage from "../images/LogInRegister/bobina.png";
-import headerImage from "../images/LogInRegister/foarfeca.png";
-import logo from "../images/LOGO.png";
-import { useUser } from "./UserContext";
+import styles from "../../CSSfyles/SignUpForm.module.css";
+import profileImage from "../../images/LogInRegister/bobina.png";
+import headerImage from "../../images/LogInRegister/foarfeca.png";
+import logo from "../../images/LOGO.png";
+import { useUser } from "../UserContext";
+import ResetPasswordModal from "./ResetPasswordModal"; 
+import VerifyCodeModal from './VerifyCodeModal';
+import NewPasswordModal from "./NewPasswordModal";
+import { useToast } from "../../utils/ToastContext"; 
+
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +21,12 @@ export default function Login() {
   });
   const [errorMessage, setErrorMessage] = useState(""); 
   const { login } = useUser();
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [emailToReset, setEmailToReset] = useState(null);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [showNewPasswordModal, setShowNewPasswordModal] = useState(false);
+  const { showToast } = useToast();
+
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -23,9 +34,9 @@ export default function Login() {
     const isNewUser = params.get("isNewUser") === "true";
   
     if (userId) {
-      console.log("🟢 Social login detected");
-      console.log("👤 userId:", userId);
-      console.log("🆕 isNewUser:", isNewUser);
+      console.log("Social login detected");
+      console.log("userId:", userId);
+      console.log("isNewUser:", isNewUser);
   
       localStorage.setItem("user_id", userId);
       localStorage.setItem("is_admin", "false");
@@ -191,7 +202,7 @@ export default function Login() {
             Problems with authentication or forgot your password ? Click below to reset you password.
             </p>
             <button type="button" className={styles.signupButton}
-            onClick={() => (window.location.href = "/resetPassword")}>
+              onClick={() => setShowResetModal(true)}>
               Reset Password
             </button>
           </div>
@@ -208,6 +219,42 @@ export default function Login() {
           </form>
         </div>
       </div>
+      {showResetModal && (
+        <ResetPasswordModal
+        onClose={() => setShowResetModal(false)}
+        onEmailConfirmed={(email) => {
+          setEmailToReset(email);
+          setShowResetModal(false);
+          setShowVerifyModal(true);
+        }}
+      />
+    )}
+
+    {showVerifyModal && (
+      <VerifyCodeModal
+        email={emailToReset}
+        onCodeVerified={() => {
+          setShowVerifyModal(false);
+          setShowNewPasswordModal(true);
+          }}
+          onBack={() => {
+            setShowVerifyModal(false);
+            setShowResetModal(true);
+          }}
+      />
+    )}
+
+    {showNewPasswordModal && (
+      <NewPasswordModal
+      email={emailToReset}
+      onSuccess={() => {
+        setShowNewPasswordModal(false);
+        showToast("Password changed successfully!");
+      }}
+    />
+    
+    )}
+
     </div>
   );
 }

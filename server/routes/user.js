@@ -224,6 +224,107 @@ router.post("/update-profile", async (req, res) => {
   }
 });
 
+router.post("/send-reset-code", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await pool.query(
+      "SELECT first_name FROM accounts WHERE email = $1",
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Email not found" });
+    }
+
+    const firstName = result.rows[0].first_name;
+    const code = Math.floor(100000 + Math.random() * 900000); // 6 cifre
+
+    // Opțional: salvează codul într-o tabelă temporară pentru validare
+    await pool.query(`
+      INSERT INTO password_reset_codes (email, code, expires_at)
+      VALUES ($1, $2, NOW() + INTERVAL '15 minutes')
+      ON CONFLICT (email) DO UPDATE SET code = $2, expires_at = NOW() + INTERVAL '15 minutes'
+    `, [email, code]);
+
+    // Trimite emailul
+    await transporter.sendMail({
+      from: "oxanicorina0@gmail.com",
+      to: email,
+      subject: "CraftCircle - Your Password Reset Code",
+      html: `<p>Hi ${firstName},</p>
+             <p>Your password reset code is: <strong>${code}</strong>.</p>
+             <p>This code is valid for 15 minutes.</p>`
+    });
+
+    res.json({ message: "Reset code sent successfully." });
+  } catch (err) {
+    console.error("Error sending reset code:", err);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+router.post("/verify-reset-code", async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM password_reset_codes WHERE email = $1 AND expires_at > NOW() ORDER BY expires_at DESC LIMIT 1",
+      [email]
+    );
+
+    if (result.rows.length === 0 || result.rows[0].code !== code) {
+      return res.status(400).json({ error: "Invalid or expired code." });
+    }
+
+    res.json({ message: "Code verified." });
+  } catch (err) {
+    console.error("Error verifying code:", err);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+
+router.post("/reset-password", async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ error: "Missing email or password." });
+  }
+
+  try {
+    // 1. Verifică dacă emailul există
+    const userRes = await pool.query("SELECT user_id, first_name FROM accounts WHERE email = $1", [email]);
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ error: "Email not found. Please Sign up." });
+    }
+
+    const userId = userRes.rows[0].user_id;
+    const firstName = userRes.rows[0].first_name;
+
+    // 2. Hash-uiește parola nouă
+    const hashed = await bcrypt.hash(newPassword, saltRounds);
+
+    // 3. Update parola în baza de date
+    await pool.query("UPDATE accounts SET password = $1 WHERE user_id = $2", [hashed, userId]);
+
+    // 4. Trimite email de confirmare
+    await transporter.sendMail({
+      from: "oxanicorina0@gmail.com",
+      to: email,
+      subject: "Your CraftCircle password has been changed",
+      html: `<p>Hi ${firstName},</p>
+             <p>Your CraftCircle password has been updated successfully.</p>
+             <p>If you didn’t do this, contact support immediately.</p>
+             <br/><p>CraftCircle Team</p>`
+    });
+
+    res.json({ message: "Password reset successfully." });
+  } catch (err) {
+    console.error("Error resetting password:", err.message);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
 
 
 module.exports = router;
