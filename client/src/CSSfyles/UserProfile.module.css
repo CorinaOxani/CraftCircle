@@ -780,3 +780,27 @@ body {
   grid-column: 1 / -1;
   justify-self: center;
 }
+
+.commentButton {
+  background-color: #c5a798;
+  color: #59341b;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.commentButton:hover {
+  background-color: #f0b99d;
+}
+
+.commentIcon {
+  font-size: 16px;
+}

@@ -26,6 +26,7 @@ const orderRoutes = require("./routes/orders");
 const stripeRoutes = require("./routes/stripe");
 const discoverPostsRoute = require("./routes/discoverPosts");
 const discoverProductsRoute = require("./routes/discoverProducts");
+const commentsRoutes = require("./routes/comments");
 
 
 const app = express();
@@ -85,6 +86,7 @@ app.use("/orders", orderRoutes);
 app.use("/stripe", stripeRoutes);
 app.use("/discover", discoverPostsRoute);
 app.use("/discover", discoverProductsRoute);
+app.use("/comments", commentsRoutes);
 
 app.use("/", userRoutes);
 
