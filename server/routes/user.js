@@ -326,5 +326,20 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
+router.delete("/:userId", async (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: "Invalid user ID" });
+  }
+
+  try {
+    await pool.query("DELETE FROM accounts WHERE user_id = $1", [userId]);
+    res.json({ message: "User deleted successfully." });
+  } catch (err) {
+    console.error("Error deleting user:", err.message);
+    res.status(500).json({ error: "Could not delete user. Check related foreign key constraints." });
+  }
+});
+
 
 module.exports = router;

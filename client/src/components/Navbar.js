@@ -12,6 +12,9 @@ import UserPasswordModal from "./UserPasswordModal";
 import ConfirmationModal from "./ConfirmationModal";
 import EditProfileModal from "./EditProfileModal";
 import MessageNotificationBox from "./MessageNotificationBox";
+import DeleteAccountModal from "./DeleteAccountModal";
+import ContactModal from "./ContactModal";
+
 
 
 export default function Navbar() {
@@ -31,6 +34,9 @@ export default function Navbar() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+
   const userIdRef = useRef(null);
   const {
     count: appreciationCount,
@@ -188,32 +194,32 @@ useEffect(() => {
               </button>
 
               {showNotif && liveNotifData && (
-  <div className={styles.messageNotifContainer}>
-    <MessageNotificationBox
-      senderName={liveNotifData.senderName}
-      message={liveNotifData.message}
-      senderProfilePic={liveNotifData.senderProfilePic}
-      onClick={() => {
-        navigate(`/messages/${liveNotifData.userId}`);
-        setShowNotif(false);
-      }}
-    />
-  </div>
-)}
+                <div className={styles.messageNotifContainer}>
+                  <MessageNotificationBox
+                    senderName={liveNotifData.senderName}
+                    message={liveNotifData.message}
+                    senderProfilePic={liveNotifData.senderProfilePic}
+                    onClick={() => {
+                      navigate(`/messages/${liveNotifData.userId}`);
+                      setShowNotif(false);
+                    }}
+                  />
+                </div>
+              )}
 
-{showAppreciationNotif && liveNotifData && (
-  <div className={styles.messageNotifContainer}>
-    <MessageNotificationBox
-      senderName={liveNotifData.senderName}
-      message={liveNotifData.message}
-      senderProfilePic={liveNotifData.senderProfilePic}
-      onClick={() => {
-        navigate(`/profile/${liveNotifData.userId}`);
-        setShowAppreciationNotif(false);
-      }}
-    />
-  </div>
-)}
+              {showAppreciationNotif && liveNotifData && (
+                <div className={styles.messageNotifContainer}>
+                  <MessageNotificationBox
+                    senderName={liveNotifData.senderName}
+                    message={liveNotifData.message}
+                    senderProfilePic={liveNotifData.senderProfilePic}
+                    onClick={() => {
+                      navigate(`/profile/${liveNotifData.userId}`);
+                      setShowAppreciationNotif(false);
+                    }}
+                  />
+                </div>
+              )}
 
               
             </div>
@@ -246,8 +252,10 @@ useEffect(() => {
               <div className={styles.dropdownMenu}>
                 <button onClick={() => setShowPasswordModal(true)}>Change Password</button>
                 <button onClick={() => setShowEditProfileModal(true)}>Edit Profile</button>
+                <button onClick={() => setShowContactModal(true)}>Contact</button>
+                <button onClick={() => setShowDeleteModal(true)}>Delete Account</button>
                 <button onClick={() => setShowLogoutModal(true)}>Logout</button>              
-              </div>
+            </div>
             )}
           </div>
         </div>
@@ -282,6 +290,35 @@ useEffect(() => {
           onCancel={() => setShowLogoutModal(false)}
         />
       )}
+
+      {showContactModal && (
+        <ContactModal onClose={() => setShowContactModal(false)} />
+      )}
+
+      {showDeleteModal && (
+        <DeleteAccountModal
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={async () => {
+            try {
+              const userId = localStorage.getItem("user_id");
+              const res = await fetch(`http://localhost:4000/users/${userId}`, {
+                method: "DELETE",
+              });
+
+              if (res.ok) {
+                localStorage.clear();
+                logout();
+                navigate("/register");
+              } else {
+                console.error("Failed to delete account.");
+              }
+            } catch (err) {
+              console.error("Error deleting account:", err);
+            }
+          }}
+        />
+      )}
+
     </>
   );
 }
