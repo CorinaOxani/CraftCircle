@@ -147,7 +147,14 @@ useEffect(() => {
     setShowAppreciationNotif(true);
     setLiveNotifData({
       senderName: `${lastNotif.sender_first_name || ""} ${lastNotif.sender_last_name || ""}`.trim() || "Someone",
-      message: lastNotif.type === "like" ? "liked your post" : "started following you",
+      message: 
+  lastNotif.type === "like"
+    ? "liked your post"
+    : lastNotif.type === "follow"
+    ? "started following you"
+    : lastNotif.type === "comment"
+    ? "commented on your post"
+    : "interacted with you",
       userId: lastNotif.sender_id,
       senderProfilePic: lastNotif.sender_avatar || null,
     });

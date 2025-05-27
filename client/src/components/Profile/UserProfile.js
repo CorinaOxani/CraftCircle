@@ -34,6 +34,7 @@ export default function UserProfile() {
   const [categorySearch, setCategorySearch] = useState("");
   const [fileError, setFileError] = useState(false);
   const { showToast } = useToast();
+  const [highlightedPostId, setHighlightedPostId] = useState(null);
 
   // Fetch user posts
   const fetchUserPosts = useCallback(() => {
@@ -64,6 +65,34 @@ export default function UserProfile() {
     fetchUserProfile(); 
     fetchUserPosts();
   }, [userId, navigate, fetchUserPosts, fetchUserProfile]);
+  
+
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const highlightId = query.get("highlight");
+  
+    if (highlightId) {
+      const numericId = parseInt(highlightId);
+      setHighlightedPostId(numericId);
+    }
+  }, []);
+  
+  useEffect(() => {
+    if (highlightedPostId !== null) {
+      const el = document.getElementById(`post-${highlightedPostId}`);
+      if (el) {
+        // wait one frame for rendering to complete
+        requestAnimationFrame(() => {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.classList.add(styles.highlightedCard);
+          setTimeout(() => {
+            el.classList.remove(styles.highlightedCard);
+            setHighlightedPostId(null); // reset state after animation
+          }, 3000);
+        });
+      }
+    }
+  }, [highlightedPostId, posts]);
   
 
   // Gestionare imagine profil
@@ -311,6 +340,7 @@ export default function UserProfile() {
         setEditedContent={setEditedContent}
         isOwner={isOwner}
         handleReportPost={handleReportPost}
+        highlightedPostId={highlightedPostId}
       />
     </div>
   );

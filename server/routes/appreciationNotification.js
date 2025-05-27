@@ -9,8 +9,11 @@ async function addAppreciationNotification({ user_id, sender_id, type, post_id =
 
     let THRESHOLD_MINUTES = 0;
     if (type === "follow" || type === "like") {
-      THRESHOLD_MINUTES = 60; // anti-spam pentru ambele
+      THRESHOLD_MINUTES = 60;
+    }else if (type === "comment"){
+      THRESHOLD_MINUTES = 0;
     }
+    
 
     const existingNotif = await pool.query(
       `SELECT id, created_at FROM appreciation_notifications
@@ -116,23 +119,25 @@ router.get("/list", async (req, res) => {
   try {
     const result = await pool.query(
         `SELECT 
-        an.*, 
-        u.first_name, 
-        u.last_name, 
-        u.profile_picture,
-        post_img.file_url AS post_image_url
-        FROM appreciation_notifications an
-        JOIN accounts u ON an.sender_id = u.user_id
-        LEFT JOIN LATERAL (
-        SELECT pm.file_url
-        FROM post_media pm
-        WHERE pm.post_id = an.post_id AND pm.file_type = 'image'
-        ORDER BY pm.media_id ASC
-        LIMIT 1
-        ) AS post_img ON true
-        WHERE an.user_id = $1
-        ORDER BY an.created_at DESC
-        LIMIT 30
+            an.*, 
+            p.user_id AS post_owner_id,  -- ← corect acum
+            u.first_name, 
+            u.last_name, 
+            u.profile_picture,
+            post_img.file_url AS post_image_url
+          FROM appreciation_notifications an
+          JOIN accounts u ON an.sender_id = u.user_id
+          LEFT JOIN posts p ON p.post_id = an.post_id
+          LEFT JOIN LATERAL (
+            SELECT pm.file_url
+            FROM post_media pm
+            WHERE pm.post_id = an.post_id AND pm.file_type = 'image'
+            ORDER BY pm.media_id ASC
+            LIMIT 1
+          ) AS post_img ON true
+          WHERE an.user_id = $1
+          ORDER BY an.created_at DESC
+          LIMIT 30
     `,
       [userId]
     );

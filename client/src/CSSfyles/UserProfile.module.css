@@ -804,3 +804,19 @@ body {
 .commentIcon {
   font-size: 16px;
 }
+
+.highlightedCard {
+  animation: highlightFade 3s ease-out;
+  border: 1px solid #8c6449;
+  box-shadow: 0 0 10px rgba(218, 201, 172, 0.7);
+  border-radius: 12px;
+}
+
+@keyframes highlightFade {
+  from {
+    background-color: #f5e6df;
+  }
+  to {
+    background-color: transparent;
+  }
+}

@@ -19,7 +19,8 @@ export default function UserPosts({
   editedContent, 
   setEditedContent,
   isOwner,
-  handleReportPost
+  handleReportPost,
+  highlightedPostId,
 }) 
 
 {
@@ -44,7 +45,13 @@ export default function UserPosts({
     <>
       <div className={styles.postsGrid}>
         {posts.map((post) => (
-          <div key={post.post_id} className={styles.post} style={{ position: "relative" }}>
+          <div
+          key={post.post_id}
+          id={`post-${post.post_id}`}
+          className={`${styles.post} ${highlightedPostId === post.post_id ? styles.highlightedCard : ""}`}
+          style={{ position: "relative" }}
+          >
+                 
             <div className={styles.carouselContainer}>
               {!isAdmin && (
                 <PostMenuButton 

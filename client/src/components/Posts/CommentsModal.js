@@ -2,12 +2,16 @@ import React, { useEffect, useState, useRef } from "react";
 import styles from "../../CSSfyles/CommentsModal.module.css";
 import { useUser } from "../UserContext";
 import defaultProfile from "../../images/default-profile.png";
+import { useNavigate } from "react-router-dom";
+
 
 export default function CommentsModal({ postId, onClose }) {
     const { userId } = useUser();
     const [comments, setComments] = useState([]);
     const [text, setText] = useState("");
     const bottomRef = useRef(null);
+    const navigate = useNavigate();
+
   
     useEffect(() => {
       fetch(`http://localhost:4000/comments/${postId}`)
@@ -69,10 +73,30 @@ export default function CommentsModal({ postId, onClose }) {
                 comments.map((c) => (
                 <div key={c.id} className={`${styles.commentBubble} ${c.user_id === userId ? styles.own : styles.other}`}>
                     {c.user_id !== userId && (
-                    <img src={c.profile_picture || defaultProfile} className={styles.avatar} alt="avatar" />
+                      <img
+                        src={c.profile_picture || defaultProfile}
+                        className={styles.avatar}
+                        alt="avatar"
+                        onClick={() => {
+                          onClose();
+                          navigate(`/profile/${c.user_id}`);
+                        }}
+                        style={{ cursor: "pointer" }}
+                    />
+                    
                     )}
                     <div className={styles.commentText}>
-                    <div className={styles.username}>{c.username}</div>
+                    <div
+                      className={styles.username}
+                      onClick={() => {
+                        onClose();
+                        navigate(`/profile/${c.user_id}`);
+                      }}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {c.username}
+                    </div>
+
                     <div dangerouslySetInnerHTML={{ __html: c.text.replace(/\n/g, "<br/>") }} />
                     <div className={styles.timestamp}>{formatDate(c.created_at)}</div>
                     </div>
