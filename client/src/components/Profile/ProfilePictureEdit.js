@@ -1,7 +1,10 @@
 import React from "react";
 import { FaPen, FaSave, FaTimes } from "react-icons/fa";
+import { HiOutlineFlag } from "react-icons/hi"; 
 import styles from "../../CSSfyles/UserProfile.module.css";
 import defaultProfile from "../../images/default-profile.png";
+import { useState } from "react";
+import ReportUserModal from "./ReportUserModal";
 
 export default function ProfilePictureEdit({
   user,
@@ -13,6 +16,8 @@ export default function ProfilePictureEdit({
   setIsEditingImage,
   isOwnProfile
 }) {
+  const [showReportModal, setShowReportModal] = useState(false);
+
   return (
     <div className={styles.profileImageContainer}>
       
@@ -22,6 +27,15 @@ export default function ProfilePictureEdit({
         className={styles.profileImage}
       />
 
+      {!isOwnProfile && (
+        <div
+          className={styles.reportFlag}
+          onClick={() => setShowReportModal(true)}
+          title="Report user"
+        >
+          <HiOutlineFlag size={20} />
+        </div>
+      )}
       
       {!isEditingImage && isOwnProfile && (
         <label className={styles.editIcon} onClick={() => setIsEditingImage(true)}>
@@ -52,6 +66,13 @@ export default function ProfilePictureEdit({
           </div>
         </div>
       )}
+      {showReportModal && (
+        <ReportUserModal
+          reportedUserId={user.user_id}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
     </div>
+    
   );
 }

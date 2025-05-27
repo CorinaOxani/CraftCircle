@@ -341,5 +341,23 @@ router.delete("/:userId", async (req, res) => {
   }
 });
 
+router.post("/report", async (req, res) => {
+  const { reporter_id, reported_id, reason } = req.body;
+  if (!reporter_id || !reported_id || !reason) {
+    return res.status(400).json({ message: "Incomplete report data." });
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO user_reports (reporter_id, reported_id, reason) VALUES ($1, $2, $3)`,
+      [reporter_id, reported_id, reason]
+    );
+    res.status(200).json({ message: "Report submitted successfully." });
+  } catch (err) {
+    console.error("Error submitting report:", err);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 
 module.exports = router;
