@@ -25,18 +25,19 @@ export default function ReportUserModal({ reportedUserId, onClose }) {
         }),
       });
 
-      if (res.ok) {
-        showToast("User reported successfully!");
-        onClose();
-      } else {
-        showToast("Failed to report user.");
-      }
-    } catch (err) {
+        if (res.status === 409) {
+          showToast("You’ve already reported this user today.");
+        } else if (res.ok) {
+          showToast("User reported successfully!");
+          onClose();
+        } else {
+          showToast("Failed to report user.");
+        }
+      } catch (err) {
       console.error("Report error:", err);
       showToast("An error occurred.");
     }
   };
-
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modal} >

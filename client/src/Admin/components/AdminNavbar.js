@@ -35,6 +35,8 @@ export default function AdminNavbar() {
             <span className={styles.separator}></span>
             <button onClick={() => navigate(`/admin/manage-categories`)}>Categories</button>
             <span className={styles.separator}></span>
+            <button onClick={() => navigate(`/admin/moderate-users`)}>Moderate Users</button>
+            <span className={styles.separator}></span>
             <button onClick={() => navigate(`/admin/moderate-posts`)}>Moderate Posts</button>
             <span className={styles.separator}></span>
             <button onClick={() => navigate(`/admin/moderate-products`)}>Moderate Products</button>

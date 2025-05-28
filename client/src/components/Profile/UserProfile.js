@@ -296,6 +296,7 @@ export default function UserProfile() {
         handleRevertImage={handleRevertImage}
         setIsEditingImage={setIsEditingImage}
         isOwnProfile={parseInt(userId) === parseInt(loggedInUserId)}
+        isAdmin={isAdmin}
       />
       <ProfileHeader user={user} />
       <ProfileStats

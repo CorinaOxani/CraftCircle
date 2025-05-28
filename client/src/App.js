@@ -28,6 +28,7 @@ import ModeratePostsPage from "./Admin/Pages/ModeratePostsPage";
 import ModerateProductsPage from "./Admin/Pages/ModerateProductsPage";
 import AdminStatisticsPage from "./Admin/Pages/AdminStatisticsPage.js";
 import AdminOrdersPage from "./Admin/Pages/AdminOrdersPage.js";
+import ModerateUsersPage from "./Admin/Pages/ModerateUsersPage.js";
 
 
 import { useEffect } from "react";
@@ -77,6 +78,7 @@ function App() {
                 <Route path="/admin/statistics" element={<AdminStatisticsPage />} />
                 <Route path="/admin/users/:userId" element={<UserProfile adminMode={true} />} />
                 <Route path="/admin/orders" element={<AdminOrdersPage/>} />
+                <Route path="/admin/moderate-users" element={<ModerateUsersPage/>} />
 
               </Routes>
               

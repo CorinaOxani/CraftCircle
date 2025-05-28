@@ -14,7 +14,8 @@ export default function ProfilePictureEdit({
   handleSaveImage,
   handleRevertImage,
   setIsEditingImage,
-  isOwnProfile
+  isOwnProfile,
+  isAdmin
 }) {
   const [showReportModal, setShowReportModal] = useState(false);
 
@@ -27,7 +28,7 @@ export default function ProfilePictureEdit({
         className={styles.profileImage}
       />
 
-      {!isOwnProfile && (
+      {!isOwnProfile && !isAdmin && (
         <div
           className={styles.reportFlag}
           onClick={() => setShowReportModal(true)}

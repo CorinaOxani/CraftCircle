@@ -106,6 +106,7 @@ export default function AdminProfile() {
             <>
               <h3 className={styles.sectionTitle}>Admin Actions</h3>
               <div className={styles.statsGrid}>
+                <StatCard title="Deleted Users" value={stats.deleted_users} />
                 <StatCard title="Deleted Posts" value={stats.deleted_posts} />
                 <StatCard title="Deleted Products" value={stats.deleted_products} />
               </div>
