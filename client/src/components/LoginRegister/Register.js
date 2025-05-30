@@ -23,16 +23,15 @@ export default function Register() {
     const inputs = document.querySelectorAll(`.${styles.input}`);
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("user_id");
-    const isNewUser = params.get("isNewUser") === "true"; // Convertim în boolean
-
+    const isNewUser = params.get("isNewUser") === "true"; 
     if (userId) {
       localStorage.setItem("user_id", userId);
 
       if (isNewUser) {
-        localStorage.setItem("isNewUser", "true"); // Setează flag-ul în localStorage
+        localStorage.setItem("isNewUser", "true"); 
         navigate("/additional-info");
       } else {
-        localStorage.removeItem("isNewUser"); // Elimină flag-ul dacă nu este nou
+        localStorage.removeItem("isNewUser"); 
         navigate(`/profile/${userId}`);
       }
     }
@@ -73,9 +72,21 @@ export default function Register() {
       [id]: value,
     }));
   };
+  const isPasswordStrong = (password) => {
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])(?=.{8,})/;
+    return regex.test(password);
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isPasswordStrong(formData.password)) {
+      setErrorMessage("Password must be 8+ characters, with uppercase, number, and symbol.");
+      hideMessageAfterDelay(setErrorMessage);
+      return;
+    }
+    
   
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage("Passwords do not match.");
@@ -279,10 +290,10 @@ export default function Register() {
             </div>
 
             {errorMessage && (
-              <p className={styles.loginText}>{errorMessage}</p>
+              <p className={styles.loginPageText}>{errorMessage}</p>
             )}
             {successMessage && (
-              <p className={styles.loginText}>{successMessage}</p>
+              <p className={styles.loginPageText}>{successMessage}</p>
             )}
 
             <div className={styles.centeredButton}>
@@ -293,7 +304,7 @@ export default function Register() {
           
 
           <div className={styles.loginSection}>
-            <p className={styles.loginText}>
+            <p className={styles.loginPageText}>
               If you already are a part of our community
             </p>
             <button type="button" className={styles.loginButton}

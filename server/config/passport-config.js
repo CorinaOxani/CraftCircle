@@ -67,7 +67,7 @@ passport.use(
       clientID: "587989000683295",
       clientSecret: "7360a0fdd26518cdfe5e382632e9fdde",
       callbackURL: "http://localhost:4000/auth/facebook/callback",
-      profileFields: ["id", "emails", "name", "picture.type(large)"], // Preia email-ul și numele utilizatorului
+      profileFields: ["id", "emails", "name", "picture.type(large)"], 
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -76,17 +76,16 @@ passport.use(
         let isNewUser = false;
         let user;
 
-        // Verifică dacă utilizatorul există deja în baza de date
         const existingUser = await pool.query(
           `SELECT * FROM accounts WHERE email = $1`,
           [email]
         );
 
         if (existingUser.rows.length > 0) {
-          // Utilizatorul există deja
+          // Utilizatorul exista deja
           user = existingUser.rows[0];
         } else {
-          // Creează un utilizator nou
+          // Creeaza un utilizator nou
           const newUser = await pool.query(
             `INSERT INTO accounts (first_name, last_name, email, profile_picture, password, created_at)
              VALUES ($1, $2, $3, $4, $5, NOW())

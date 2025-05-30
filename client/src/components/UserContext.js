@@ -23,15 +23,15 @@ export function UserProvider({ children }) {
       const newSocket = io("http://localhost:4000");
 
       newSocket.on("connect", () => {
-        console.log("Frontend socket connected:", newSocket.id);
-        console.log("Emitting JOIN after connect:", userId);
+        /*console.log("Frontend socket connected:", newSocket.id);
+        console.log("Emitting JOIN after connect:", userId);*/
         newSocket.emit("join", userId);
       });
 
       setSocket(newSocket);
 
       return () => {
-        console.log("🔌 Disconnecting socket...");
+        /*console.log("Disconnecting socket...");*/
         newSocket.disconnect();
       };
     }

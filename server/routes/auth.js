@@ -16,13 +16,12 @@ router.get(
   passport.authenticate("google", { failureRedirect: "http://localhost:3000/login" }),
   (req, res) => {
     if (!req.user) {
-      console.log("❌ No user returned from Google.");
+      console.log(" No user returned from Google.");
       return res.redirect("http://localhost:3000/login");
     }
 
-    console.log("✅ Google login callback reached.");
-    console.log("👤 User:", req.user);
-    console.log("🆕 isNewUser:", req.user.isNewUser);
+    console.log("User:", req.user);
+    console.log("isNewUser:", req.user.isNewUser);
 
     const redirectUrl = `http://localhost:3000/login?user_id=${req.user.user_id}&isNewUser=${req.user.isNewUser}`;
     res.redirect(redirectUrl);
@@ -40,13 +39,13 @@ router.get(
   passport.authenticate("facebook", { failureRedirect: "http://localhost:3000/login" }),
   (req, res) => {
     if (!req.user) {
-      console.log("❌ No user returned from Facebook.");
+      console.log("No user returned from Facebook.");
       return res.redirect("http://localhost:3000/login");
     }
 
-    console.log("✅ Facebook login callback reached.");
-    console.log("👤 User:", req.user);
-    console.log("🆕 isNewUser:", req.user.isNewUser);
+    console.log(" Facebook login callback reached.");
+    console.log(" User:", req.user);
+    console.log(" isNewUser:", req.user.isNewUser);
 
     const redirectUrl = `http://localhost:3000/login?user_id=${req.user.user_id}&isNewUser=${req.user.isNewUser}`;
     res.redirect(redirectUrl);
