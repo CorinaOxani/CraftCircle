@@ -240,7 +240,6 @@ router.post("/send-reset-code", async (req, res) => {
     const firstName = result.rows[0].first_name;
     const code = Math.floor(100000 + Math.random() * 900000); // 6 cifre
 
-    // Opțional: salvează codul într-o tabelă temporară pentru validare
     await pool.query(`
       INSERT INTO password_reset_codes (email, code, expires_at)
       VALUES ($1, $2, NOW() + INTERVAL '15 minutes')
@@ -293,7 +292,6 @@ router.post("/reset-password", async (req, res) => {
   }
 
   try {
-    // 1. Verifică dacă emailul există
     const userRes = await pool.query("SELECT user_id, first_name FROM accounts WHERE email = $1", [email]);
     if (userRes.rows.length === 0) {
       return res.status(404).json({ error: "Email not found. Please Sign up." });
@@ -302,13 +300,13 @@ router.post("/reset-password", async (req, res) => {
     const userId = userRes.rows[0].user_id;
     const firstName = userRes.rows[0].first_name;
 
-    // 2. Hash-uiește parola nouă
+
     const hashed = await bcrypt.hash(newPassword, saltRounds);
 
-    // 3. Update parola în baza de date
+
     await pool.query("UPDATE accounts SET password = $1 WHERE user_id = $2", [hashed, userId]);
 
-    // 4. Trimite email de confirmare
+
     await transporter.sendMail({
       from: "oxanicorina0@gmail.com",
       to: email,

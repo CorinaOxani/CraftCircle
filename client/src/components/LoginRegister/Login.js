@@ -141,7 +141,7 @@ export default function Login() {
                   <i className="fab fa-facebook-f"></i>
                 </button>
               </div>
-          </div>
+            </div>
           <form className={styles.form} onSubmit={handleSubmit}>
 
             <div className={styles.inputGroup}>
