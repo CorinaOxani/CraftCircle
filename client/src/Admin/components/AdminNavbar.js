@@ -4,7 +4,7 @@ import styles from "../../CSSfyles/Navbar.module.css";
 import logo from "../../images/LOGO.png";
 import { useUser } from "../../components/UserContext";
 import { FaBars } from "react-icons/fa";
-import PasswordModal from "./PasswordModal";
+import PasswordModal from "../../components/PasswordModal";
 import ConfirmationModal from "../../components/ConfirmationModal";
 
 export default function AdminNavbar() {

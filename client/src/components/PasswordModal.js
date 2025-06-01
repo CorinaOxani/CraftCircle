@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import styles from "../../CSSfyles/PasswordModal.module.css"; 
+import styles from "../CSSfyles/PasswordModal.module.css";
+import { useUser} from "./UserContext"
 import { FaCheck, FaTimes, FaEye, FaEyeSlash } from "react-icons/fa";
 
-export default function PasswordModal({ onClose }) {
+export default function PasswordModal({ onClose}) {
+  const { userId, isAdmin } = useUser();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,11 +30,15 @@ export default function PasswordModal({ onClose }) {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/admin/change-password", {
+      const endpoint = isAdmin
+        ? "http://localhost:4000/admin/change-password"
+        : "http://localhost:4000/users/change-password";
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          admin_id: localStorage.getItem("user_id"),
+          [isAdmin ? "admin_id" : "user_id"]: userId,
           oldPassword,
           newPassword,
         }),
@@ -41,7 +47,9 @@ export default function PasswordModal({ onClose }) {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage("Password updated successfully. Please check your email for confirmation.");
+        setMessage(isAdmin
+          ? "Password updated successfully. Please check your email for confirmation."
+          : "Password updated successfully.");
         setTimeout(() => {
           onClose();
           setOldPassword("");
@@ -63,10 +71,12 @@ export default function PasswordModal({ onClose }) {
   const isPasswordWeak = newPassword.length > 0 && !isPasswordStrong(newPassword);
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={(e) => {
+      if (e.target === e.currentTarget) onClose();
+    }}>
       <div className={styles.passwordModal} onClick={(e) => e.stopPropagation()}>
         <h2>Change Password</h2>
-        
+
         <div className={styles.inputWrapper}>
           <input
             type={showOldPassword ? "text" : "password"}
@@ -88,7 +98,6 @@ export default function PasswordModal({ onClose }) {
             placeholder="New Password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            title="Must be at least 8 characters, include a capital letter, a number, and a special character."
           />
           <span
             className={styles.eyeIcon}
@@ -101,17 +110,12 @@ export default function PasswordModal({ onClose }) {
         <div className={styles.inputWrapper}>
           <input
             type={showConfirmPassword ? "text" : "password"}
-            placeholder="Confirm New Password"
+            placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          {isPasswordMatch && <FaCheck className={styles.validIcon} title="Passwords match." />}
-          {isPasswordMismatch && (
-            <FaTimes
-              className={styles.invalidIcon}
-              title="Passwords do not match."
-            />
-          )}
+          {isPasswordMatch && <FaCheck className={styles.validIcon} />}
+          {isPasswordMismatch && <FaTimes className={styles.invalidIcon} />}
           <span
             className={styles.eyeIcon}
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}

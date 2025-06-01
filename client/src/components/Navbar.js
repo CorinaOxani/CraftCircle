@@ -8,7 +8,7 @@ import { useFavorites } from "../components/FavoritesContex";
 import { useUser, useSocket } from "../components/UserContext";
 import useUnreadMessages from "../components/hooks/useUnreadMessages";
 import useAppreciationNotifications from "../components/hooks/useAppreciationNotifications";
-import UserPasswordModal from "./UserPasswordModal";
+import PasswordModal from "./PasswordModal";
 import ConfirmationModal from "./ConfirmationModal";
 import EditProfileModal from "./EditProfileModal";
 import MessageNotificationBox from "./MessageNotificationBox";
@@ -269,7 +269,7 @@ useEffect(() => {
       </nav>
   
       {showPasswordModal && (
-        <UserPasswordModal onClose={() => setShowPasswordModal(false)} />
+        <PasswordModal onClose={() => setShowPasswordModal(false)} />
       )}
 
       {showEditProfileModal && userProfile && (
