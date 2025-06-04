@@ -1,9 +1,11 @@
 import React from "react";
 import styles from "../../CSSfyles/CartPage.module.css";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../CartContex";
 
-export default function CartProductList({ groupedCart, onQuantityChange }) {
+export default function CartProductList( ) {
   const navigate = useNavigate();
+  const { cartItems, fetchCartCount, fetchCartItems } = useCart();
   const handleQuantityChange = async (cartId, newQuantity) => {
     if (newQuantity < 1) return;
 
@@ -15,7 +17,8 @@ export default function CartProductList({ groupedCart, onQuantityChange }) {
       });
 
       if (res.ok) {
-        onQuantityChange(); // re-fetch cart
+        fetchCartItems(); 
+        fetchCartCount();
       }
     } catch (err) {
       console.error("Error updating quantity:", err);
@@ -29,7 +32,8 @@ export default function CartProductList({ groupedCart, onQuantityChange }) {
       });
 
       if (res.ok) {
-        onQuantityChange(); // re-fetch cart
+        fetchCartItems(); 
+        fetchCartCount();
       }
     } catch (err) {
       console.error("Error deleting cart item:", err);
@@ -38,7 +42,7 @@ export default function CartProductList({ groupedCart, onQuantityChange }) {
 
   return (
     <div className={styles.productsSection}>
-      {Object.entries(groupedCart).map(([sellerId, group]) => (
+      {Object.entries(cartItems).map(([sellerId, group]) => (
         <div key={sellerId} className={styles.sellerGroup}>
           <h3 className={styles.sellerTitle}>Seller: {group.sellerName}</h3>
           {group.items.map((item) => (

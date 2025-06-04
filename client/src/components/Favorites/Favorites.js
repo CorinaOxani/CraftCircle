@@ -3,36 +3,14 @@ import styles from "../../CSSfyles/CartPage.module.css";
 import Navbar from "../Navbar";
 import FavoritesProductList from "./FavoriteProductList";
 import { useUser } from "../UserContext";
+import { useFavorites } from "../FavoritesContex";
 
 export default function Favorites() {
-  const [groupedFavorites, setGroupedFavorites] = useState({});
+const { favoriteItems, fetchFavoritesItems } = useFavorites();
   const { userId } = useUser();
 
-  const fetchFavoritesData = () => {
-    if (!userId) return;
-
-    fetch(`http://localhost:4000/favorites/user-favorites/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const grouped = {};
-        data.forEach((item) => {
-          if (!grouped[item.seller_id]) {
-            grouped[item.seller_id] = {
-              sellerName: item.seller_name,
-              items: [],
-            };
-          }
-          grouped[item.seller_id].items.push(item);
-        });
-        setGroupedFavorites(grouped);
-      })
-      .catch((err) => {
-        console.error("Error loading favorites:", err);
-      });
-  };
-
   useEffect(() => {
-    fetchFavoritesData();
+    fetchFavoritesItems();
   }, [userId]);
 
   return (
@@ -40,16 +18,13 @@ export default function Favorites() {
       <Navbar />
       <h2 className={styles.title}>Favorites</h2>
   
-      {Object.keys(groupedFavorites).length === 0 ? (
+      {Object.keys(favoriteItems).length === 0 ? (
         <div className={styles.emptyWrapper}>
           <p className={styles.emptyCartMessage}>You haven't added any favorites yet.</p>
         </div>
       ) : (
         <div className={styles.cartContent}>
-          <FavoritesProductList
-            groupedFavorites={groupedFavorites}
-            onFavoritesChange={fetchFavoritesData}
-          />
+          <FavoritesProductList/>
         </div>
       )}
     </div>

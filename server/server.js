@@ -94,7 +94,7 @@ app.use("/", userRoutes);
 
 // Socket.IO
 io.on("connection", (socket) => {
-  console.log("🔌 Client connected:", socket.id);
+  console.log("Client connected:", socket.id);
 
   socket.on("join", (userId) => {
     console.log(`Received join request for user: ${userId}`);

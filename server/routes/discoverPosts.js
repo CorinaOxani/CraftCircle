@@ -11,7 +11,7 @@ router.get("/posts", async (req, res) => {
   if (!userId) return res.status(400).json({ error: "Missing user_id" });
 
   try {
-    // 🔍 Salvăm în istoricul de căutare
+    // Salvăm în istoricul de căutare
     if (search.length >= 3) {
       const lastSearch = await pool.query(
         `SELECT search_text FROM post_search_history 
@@ -41,14 +41,14 @@ if (!search && !categoryName) {
   } else {
     const suggestionParts = [];
 
-    // 1. FOLLOW
+    // FOLLOW
     const followOffset = values.length + 1;
     let logic = `p.user_id IN (
       SELECT following_id FROM follows WHERE follower_id = $${followOffset}
     )`;
     values.push(userId);
 
-    // 2. Categorii proprii
+    // Categorii proprii
     const catRes = await pool.query(`
       SELECT DISTINCT category_id FROM posts
       WHERE user_id = $1 AND category_id IS NOT NULL
@@ -63,7 +63,7 @@ if (!search && !categoryName) {
 
     suggestionParts.push(`(${logic})`);
 
-    // 3. Istoric de căutare — adăugat **în plus**, nu doar ca fallback
+    // Istoric de căutare 
     const history = await pool.query(
         `SELECT search_text FROM post_search_history 
         WHERE user_id = $1 
@@ -84,12 +84,9 @@ if (!search && !categoryName) {
       values.push(...keywords);
       suggestionParts.push(`(${keywordConditions.join(" OR ")})`);
     }
-
-    // Adaugă totul într-un singur WHERE cu OR între surse
     whereParts.push(`(${suggestionParts.join(" OR ")})`);
   }
 }
-
 
     // Căutare globală
     if (search) {
@@ -183,7 +180,7 @@ if (!search && !categoryName) {
 });
 
 
-// 📚 Categorii
+// Categorii
 router.get("/categories", async (req, res) => {
   try {
     const result = await pool.query(

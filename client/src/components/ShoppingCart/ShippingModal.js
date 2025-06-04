@@ -2,17 +2,19 @@ import React, { useEffect, useState } from "react";
 import styles from "../../CSSfyles/CartPage.module.css";
 import { useUser } from "../UserContext";
 import PaymentModal from "./PaymentModal";
+import { useCart } from "../CartContex";
 
 
 const API_KEY = "5b3ce3597851110001cf6248455ceaf86e9044b88c1d98a5601a91f3";
 const FREE_SHIPPING_THRESHOLD = 100;
 
-export default function ShippingModal({ groupedCart, onClose, onOrderPlaced }) {
+export default function ShippingModal({ onClose, onOrderPlaced }) {
   const { userId } = useUser();
   const [userLocation, setUserLocation] = useState(null);
   const [shippingCosts, setShippingCosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPayment, setShowPayment] = useState(false);
+  const { cartItems } = useCart();
 
 
   useEffect(() => {
@@ -48,8 +50,8 @@ export default function ShippingModal({ groupedCart, onClose, onOrderPlaced }) {
         const userCoords = await fetchCoords(`${userLocation.city}, ${userLocation.country}`);
         const results = [];
 
-        for (const sellerId in groupedCart) {
-          const seller = groupedCart[sellerId].items[0];
+        for (const sellerId in cartItems) {
+          const seller = cartItems[sellerId].items[0];
           const sellerCity = seller.seller_city;
           const sellerCountry = seller.seller_country;
 
@@ -61,7 +63,7 @@ export default function ShippingModal({ groupedCart, onClose, onOrderPlaced }) {
           const sellerPlace = `${sellerCity}, ${sellerCountry}`;
           const sellerCoords = await fetchCoords(sellerPlace);
 
-          const totalOrderValue = groupedCart[sellerId].items.reduce(
+          const totalOrderValue = cartItems[sellerId].items.reduce(
             (sum, item) => sum + item.price * item.quantity,
             0
           );
@@ -119,7 +121,7 @@ export default function ShippingModal({ groupedCart, onClose, onOrderPlaced }) {
           }
 
           results.push({
-            seller: groupedCart[sellerId].sellerName,
+            seller: cartItems[sellerId].sellerName,
             from: sellerPlace,
             to: `${userLocation.city}, ${userLocation.country}`,
             distance: sameCountry ? null : distance?.toFixed(2),
@@ -137,7 +139,7 @@ export default function ShippingModal({ groupedCart, onClose, onOrderPlaced }) {
     };
 
     calculateCosts();
-  }, [groupedCart, userLocation]);
+  }, [cartItems, userLocation]);
 
   return (
     <div
@@ -186,7 +188,6 @@ export default function ShippingModal({ groupedCart, onClose, onOrderPlaced }) {
       </div>
       {showPayment && (
       <PaymentModal
-        groupedCart={groupedCart}
         shippingCosts={shippingCosts}  
         onClose={() => {
           setShowPayment(false);

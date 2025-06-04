@@ -3,9 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styles from "../CSSfyles/Navbar.module.css";
 import logo from "../images/LOGO.png"; 
 import { FaBars, FaShoppingCart, FaHeart } from "react-icons/fa"; 
-import { useCart } from "../components/CartContex";
-import { useFavorites } from "../components/FavoritesContex";
-import { useUser, useSocket } from "../components/UserContext";
 import useUnreadMessages from "../components/hooks/useUnreadMessages";
 import useAppreciationNotifications from "../components/hooks/useAppreciationNotifications";
 import PasswordModal from "./PasswordModal";
@@ -14,8 +11,9 @@ import EditProfileModal from "./EditProfileModal";
 import MessageNotificationBox from "./MessageNotificationBox";
 import DeleteAccountModal from "./DeleteAccountModal";
 import ContactModal from "./ContactModal";
-
-
+import { useCart } from "../components/CartContex";
+import { useFavorites } from "../components/FavoritesContex";
+import { useUser, useSocket } from "../components/UserContext";
 
 export default function Navbar() {
   const navigate = useNavigate();

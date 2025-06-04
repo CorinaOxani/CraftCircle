@@ -56,7 +56,7 @@ export default function ModerateProductsPage() {
   );
 
   const handleDeleteProduct = async (productId) => {
-    console.log(`🗑️ Deleting product with ID: ${productId}...`);
+    console.log(`Deleting product with ID: ${productId}...`);
     try {
         setIsDeleting(true);
 
@@ -65,24 +65,24 @@ export default function ModerateProductsPage() {
         });
         
         const data = await res.json();
-        console.log("🗑️ Delete response:", data);
+        console.log("Delete response:", data);
     
         if (res.ok) {
             // Actualizează lista de produse
-            console.log("✅ Product deleted successfully, refreshing list...");
+            console.log("Product deleted successfully, refreshing list...");
             const updated = await fetch("http://localhost:4000/admin/moderateProducts/all");
             const newData = await updated.json();
-            console.log("🔄 Updated products list:", newData);
+            console.log("Updated products list:", newData);
             setProducts(Array.isArray(newData) ? newData : []);
             
             // Setează toast o singură dată
             showToast(data.message || "Product deleted successfully.");
         } else {
-          console.error("❌ Failed to delete product:", data);
+          console.error("Failed to delete product:", data);
             alert("Failed to delete product.");
         }
     } catch (err) {
-      console.error("❌ Error deleting product:", err);
+      console.error("Error deleting product:", err);
         console.error("Error deleting product:", err);
     } finally {
         setIsDeleting(false);

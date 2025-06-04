@@ -8,13 +8,13 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../../utils/ToastContext";
 
 
-export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOrderPlaced })
+export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced })
     {
     const { userId } = useUser();
     const [paymentMethod, setPaymentMethod] = useState("card");
     const [submitting, setSubmitting] = useState(false);
     const [toast] = useState("");
-    const { fetchCartCount } = useCart(); 
+    const { fetchCartCount, cartItems } = useCart(); 
     const [missingFields, setMissingFields] = useState([]);
     const navigate = useNavigate();
     const [showStripeModal, setShowStripeModal] = useState(false);
@@ -71,10 +71,10 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
       const calculateTotalAmount = () => {
         let total = 0;
       
-        for (const sellerId in groupedCart) {
-          const items = groupedCart[sellerId].items;
+        for (const sellerId in cartItems) {
+          const items = cartItems[sellerId].items;
           const shippingInfo = shippingCosts.find(
-            (sc) => sc.seller === groupedCart[sellerId].sellerName
+            (sc) => sc.seller === cartItems[sellerId].sellerName
           );
           const shippingCost = parseFloat(shippingInfo?.price || 0);
       
@@ -169,12 +169,12 @@ export default function PaymentModal({ groupedCart, shippingCosts, onClose, onOr
       
         try {
 
-          localStorage.setItem("groupedCart", JSON.stringify(groupedCart));
+          localStorage.setItem("cartItems", JSON.stringify(cartItems));
           localStorage.setItem("shippingCosts", JSON.stringify(shippingCosts));
       
           if (paymentMethod === "cash") {
             await createOrdersInDatabase({
-              groupedCart,
+              cartItems,
               shippingCosts,
               address,
               userId,

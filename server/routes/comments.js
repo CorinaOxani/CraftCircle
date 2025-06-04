@@ -48,7 +48,7 @@ module.exports = (io) => {
       );
       const postOwnerId = postOwner.rows[0]?.user_id;
 
-      // 3. Trimite notificare doar dacă nu comentează pe propria postare
+      //Trimite notificare doar dacă nu comentează pe propria postare
       if (postOwnerId && postOwnerId !== user_id) {
         await addAppreciationNotification({
           user_id: postOwnerId,

@@ -6,7 +6,8 @@ import { toast } from "react-toastify";
 import { useCart } from "../CartContex";
 import { useFavorites } from "../FavoritesContex";
 
-export default function FavoritesProductList({ groupedFavorites, onFavoritesChange }) {
+export default function FavoritesProductList(){
+  const { favoriteItems, fetchFavoritesItems } = useFavorites();
   const user_id = localStorage.getItem("user_id");
   const { fetchCartCount } = useCart();
   const { fetchFavoritesCount } = useFavorites();
@@ -19,7 +20,7 @@ export default function FavoritesProductList({ groupedFavorites, onFavoritesChan
       });
 
       if (res.ok) {
-        onFavoritesChange(); // re-fetch favorites
+        fetchFavoritesItems(); 
         fetchFavoritesCount();
       }
     } catch (err) {
@@ -53,7 +54,7 @@ export default function FavoritesProductList({ groupedFavorites, onFavoritesChan
 
   return (
     <div className={styles.productsSection}>
-      {Object.entries(groupedFavorites).map(([sellerId, group]) => (
+      {Object.entries(favoriteItems).map(([sellerId, group]) => (
         <div key={sellerId} className={styles.sellerGroup}>
           <h3 className={styles.sellerTitle}>Seller: {group.sellerName}</h3>
           {group.items.map((item) => (

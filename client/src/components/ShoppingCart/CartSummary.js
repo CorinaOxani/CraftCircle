@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import styles from "../../CSSfyles/CartPage.module.css";
 import ShippingModal from "./ShippingModal"; 
+import { useCart } from "../CartContex";
 
-export default function CartSummary({ groupedCart, onOrderPlaced }) {
+export default function CartSummary({ onOrderPlaced }) {
+  
   const [showModal, setShowModal] = useState(false);
+    const { cartItems } = useCart();
 
-  const total = Object.values(groupedCart).reduce(
+  const total = Object.values(cartItems).reduce(
     (sum, group) =>
       sum + group.items.reduce((sub, item) => sub + item.price * item.quantity, 0),
     0
@@ -22,7 +25,6 @@ export default function CartSummary({ groupedCart, onOrderPlaced }) {
 
       {showModal && (
         <ShippingModal
-          groupedCart={groupedCart}
           onClose={() => setShowModal(false)}
           onOrderPlaced={onOrderPlaced}  
         />
