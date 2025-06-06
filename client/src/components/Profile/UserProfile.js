@@ -5,11 +5,11 @@ import styles from "../../CSSfyles/UserProfile.module.css";
 import UserPosts from "../Posts/UserPosts";
 import ProfileHeader from "./ProfileHeader";
 import ProfileStats from "./ProfileStats";
-import ProfilePictureEdit from "./ProfilePictureEdit";
 import PostForm from "./PostForm";
 import AdminNavbar from "../../Admin/components/AdminNavbar";
 import { useUser } from "../UserContext";
 import { useToast } from "../../utils/ToastContext";
+import SmartProfilePicture from "./SmartProfilePicture";
 
 
 export default function UserProfile() {
@@ -23,9 +23,6 @@ export default function UserProfile() {
   const [postContent, setPostContent] = useState("");
   const [postFiles, setPostFiles] = useState([]);
   const [previewFiles, setPreviewFiles] = useState([]);
-  const [isEditingImage, setIsEditingImage] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null);
   const [editingPostId, setEditingPostId] = useState(null);
   const [editedContent, setEditedContent] = useState("");
   const [isPosting, setIsPosting] = useState(false);
@@ -94,48 +91,6 @@ export default function UserProfile() {
     }
   }, [highlightedPostId, posts]);
   
-
-  // Gestionare imagine profil
-  const handleImageChange = (event) => {
-    if (event.target.files.length > 0) {
-      const file = event.target.files[0];
-      setSelectedImage(file);
-      setPreviewImage(URL.createObjectURL(file));
-    }
-  };
-
-  const handleSaveImage = async () => {
-    if (!selectedImage) return;
-
-    const formData = new FormData();
-    formData.append("file", selectedImage);
-    formData.append("user_id", userId);
-
-    try {
-      const response = await fetch("http://localhost:4000/uploads/upload-profile", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setUser((prev) => ({ ...prev, profile_picture: data.imageUrl }));
-        setIsEditingImage(false);
-        setSelectedImage(null);
-        setPreviewImage(null);
-      } else {
-        console.error("Error updating profile picture:", data.error);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  const handleRevertImage = () => {
-    setSelectedImage(null);
-    setPreviewImage(null);
-    setIsEditingImage(false);
-  };
 
   // Ștergerea unei postări
   const handleDeletePost = async (postId) => {
@@ -287,17 +242,7 @@ export default function UserProfile() {
   return (
     <div className={styles.profileContainer}>
       {isAdmin ? <AdminNavbar /> : <Navbar />}
-      <ProfilePictureEdit
-        user={user}
-        previewImage={previewImage}
-        isEditingImage={isEditingImage}
-        handleImageChange={handleImageChange}
-        handleSaveImage={handleSaveImage}
-        handleRevertImage={handleRevertImage}
-        setIsEditingImage={setIsEditingImage}
-        isOwnProfile={parseInt(userId) === parseInt(loggedInUserId)}
-        isAdmin={isAdmin}
-      />
+      <SmartProfilePicture user={user} />
       <ProfileHeader user={user} />
       <ProfileStats
         user={user}

@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 import ProfileHeader from "./ProfileHeader";
 import ProfileStats from "./ProfileStats";
-import ProfilePictureDisplay from "./ProfilePictureDisplay";
 import styles from "../../CSSfyles/FollowersPage.module.css";
 import { useUser } from "../UserContext";
 import defaultProfile from "../../images/default-profile.png";
 import AdminNavbar from "../../Admin/components/AdminNavbar";
+import SmartProfilePicture from "./SmartProfilePicture";
 
 export default function FollowingPage() {
   const { userId: loggedInUserId, isAdmin } = useUser();
@@ -79,7 +79,7 @@ export default function FollowingPage() {
   return (
     <div className={styles.shopContainer}>
       {isAdmin ? <AdminNavbar /> : <Navbar />}
-      <ProfilePictureDisplay user={user} />
+      <SmartProfilePicture user={user} />
 
       <div className={styles.shopHeader}>
         <ProfileHeader user={user} />

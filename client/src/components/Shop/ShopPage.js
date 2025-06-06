@@ -3,14 +3,13 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../Navbar";
 import styles from "../../CSSfyles/ShopPage.module.css";
 import ProfileHeader from "../Profile/ProfileHeader";
-import ProfilePictureDisplay from "../Profile/ProfilePictureDisplay";
 import ProfileStats from "../Profile/ProfileStats";
 import ProductForm from "./ProductForm";
 import ProductCard from "./ProductCard";
 import { useUser } from "../UserContext";
 import AdminNavbar from "../../Admin/components/AdminNavbar";
 import { useToast } from "../../utils/ToastContext";
-
+import SmartProfilePicture from "../Profile/SmartProfilePicture";
 
 
 
@@ -207,7 +206,7 @@ export default function ShopPage() {
     return (
         <div className={styles.shopContainer}>
             {isAdmin ? <AdminNavbar /> : <Navbar />}
-            <ProfilePictureDisplay user={user} />
+            <SmartProfilePicture user={user} />
             <div className={styles.shopHeader}>
                 <ProfileHeader user={user} />
                 {!isOwnShop && (
