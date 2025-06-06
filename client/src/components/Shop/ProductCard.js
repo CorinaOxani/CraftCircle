@@ -6,7 +6,8 @@ import ProductMenuButton from "./ProductMenuButton";
 import { useCart } from "../CartContex";
 import { useFavorites } from "../FavoritesContex";
 import { useUser } from "../UserContext";
-
+import ConfirmationModal from "../ConfirmationModal";
+import { useToast } from "../../utils/ToastContext";
 
 
 export default function ProductCard({
@@ -31,6 +32,9 @@ export default function ProductCard({
   const [stock, setStock] = useState(product.stock || "yes");
   const { fetchCartCount } = useCart();
   const { fetchFavoritesCount } = useFavorites(); 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [reportState, setReportState] = useState({ productId: null, reportedUserId: null });
+  const { showToast } = useToast();
 
   const fileInputRef = useRef(null);
 
@@ -202,19 +206,53 @@ export default function ProductCard({
     }
   };
 
+  const handleReportProduct = (productId, reportedUserId) => {
+  setReportState({ productId, reportedUserId });
+  setShowConfirmModal(true);
+};
+
+const confirmReport = async () => {
+  const user_id = localStorage.getItem("user_id");
+  if (!user_id) {
+    showToast("You need to be logged in to report.");
+    setShowConfirmModal(false);
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:4000/shop/report-product/${reportState.productId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id, reported_user_id: reportState.reportedUserId }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.message === "Report submitted") {
+      showToast("Product reported successfully.");
+    } else {
+      showToast("ℹYou have already reported this product.");
+    }
+  } catch (err) {
+    console.error("Error reporting product:", err);
+    showToast("Failed to report the product.");
+  } finally {
+    setShowConfirmModal(false);
+  }
+};
+
+
+
   return (
     <div className={styles.productCard} id={id}>
-      {isOwner && (
-        <ProductMenuButton
-          productId={product.item_id}
-          isOwner={isOwner}
-          onDelete={onDeleteProduct}
-          onEdit={() => setIsEditing(product.item_id)}
-          onReport={onReportProduct}
-          reportedUserId={product.user_id}
-        />
-      )}
-
+      <ProductMenuButton
+        productId={product.item_id}
+        isOwner={isOwner}
+        onDelete={onDeleteProduct}
+        onEdit={() => setIsEditing(product.item_id)}
+        onReport={handleReportProduct}
+        reportedUserId={product.user_id}
+      />
       <div className={styles.carouselContainer}>
         {totalSlides > 1 && (
           <button className={styles.arrowLeft} onClick={handlePrev}>
@@ -339,6 +377,13 @@ export default function ProductCard({
           </>
         )}
       </div>
+      {showConfirmModal && (
+        <ConfirmationModal
+          title="Are you sure you want to report this product?"
+          onConfirm={confirmReport}
+          onCancel={() => setShowConfirmModal(false)}
+        />
+      )}
     </div>
   );
 }

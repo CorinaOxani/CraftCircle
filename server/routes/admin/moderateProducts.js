@@ -134,4 +134,23 @@ router.delete("/delete-product/:itemId", async (req, res) => {
     }
 });
 
+router.get("/reports/:itemId", async (req, res) => {
+  const { itemId } = req.params;
+
+  try {
+    const result = await pool.query(`
+      SELECT a.user_id, a.first_name, a.last_name, a.profile_picture
+      FROM product_reports pr
+      JOIN accounts a ON pr.user_id = a.user_id
+      WHERE pr.item_id = $1
+    `, [itemId]);
+
+    res.json(result.rows || []);
+  } catch (err) {
+    console.error("Error fetching product reporters:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 module.exports = router;
