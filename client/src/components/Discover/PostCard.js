@@ -3,11 +3,11 @@ import styles from "../../CSSfyles/DiscoverPage.module.css";
 import LikeButton from "../Posts/LikeButton";
 import { useUser } from "../UserContext";
 import defaultProfile from "../../images/default-profile.png";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaRegCommentDots } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, onOpenComments }) {
   const { userId } = useUser();
   const mediaList = post.media_urls || [];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,8 +56,13 @@ export default function PostCard({ post }) {
   }, [userId, post.post_id]);
 
   return (
+  <>
     <div ref={cardRef} className={styles.statCard} style={{ margin: "0 auto", position: "relative" }}>
-      <div className={styles.postUserInfo} onClick={() => navigate(`/profile/${post.user_id}`)} style={{ cursor: "pointer" }}>
+      <div
+        className={styles.postUserInfo}
+        onClick={() => navigate(`/profile/${post.user_id}`)}
+        style={{ cursor: "pointer" }}
+      >
         <img
           src={post.profile_picture || defaultProfile}
           alt="profile"
@@ -67,7 +72,6 @@ export default function PostCard({ post }) {
           {post.first_name} {post.last_name}
         </span>
       </div>
-
 
       {currentMedia && (
         <div className={styles.carouselContainer}>
@@ -96,6 +100,18 @@ export default function PostCard({ post }) {
       <div className={styles.likeBar}>
         <LikeButton postId={post.post_id} userId={userId} isOwner={false} />
       </div>
+
+      <button
+        onClick={() => onOpenComments(post.post_id)}
+        className={styles.commentButton}
+      >
+        <FaRegCommentDots className={styles.commentIcon} />
+        See or Add Comments
+      </button>
+
     </div>
-  );
+
+  </>
+);
+
 }

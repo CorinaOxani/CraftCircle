@@ -4,6 +4,7 @@ import styles from "../../CSSfyles/DiscoverPage.module.css";
 import { useUser } from "../UserContext";
 import FiltersBar from "./FiltersBar";
 import { postFilters } from "./filters";
+import CommentsModal from "../Posts/CommentsModal";
 
 export default function DiscoverPosts() {
   const [posts, setPosts] = useState([]);
@@ -12,6 +13,7 @@ export default function DiscoverPosts() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [categories, setCategories] = useState([]);
   const { userId } = useUser();
+  const [openCommentsPostId, setOpenCommentsPostId] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:4000/discover/categories")
@@ -58,7 +60,6 @@ export default function DiscoverPosts() {
         onSelect={setSelectedFilter}
       />
 
-      {/* 🔄 Grupăm inputurile într-un rând */}
       <div className={styles.searchRow}>
         <input
           type="text"
@@ -99,9 +100,19 @@ export default function DiscoverPosts() {
 
       <div className={styles.statsGrid}>
         {posts.map((post) => (
-          <PostCard key={post.post_id} post={post} />
+          <PostCard
+            key={post.post_id}
+            post={post}
+            onOpenComments={() => setOpenCommentsPostId(post.post_id)}
+          />
         ))}
       </div>
+      {openCommentsPostId && (
+        <CommentsModal
+          postId={openCommentsPostId}
+          onClose={() => setOpenCommentsPostId(null)}
+        />
+      )}
     </>
   );
 }

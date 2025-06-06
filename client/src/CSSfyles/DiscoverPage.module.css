@@ -127,7 +127,7 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
     width: 550px; 
-    height: 450px;
+    height: 480px;
   }
   
   .statCard:hover {
@@ -452,4 +452,29 @@
     gap: 8px;
     border-top: 2px solid #e8d8cc;
   }
-  
+ 
+  .commentButton {
+  background-color: #a0a593;   
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.commentButton:hover {
+  background-color: #93a761;
+}
+
+.commentIcon {
+  font-size: 16px;
+}
