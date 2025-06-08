@@ -6,6 +6,7 @@ import ImageCarousel from "../components/ImageCarousel";
 import { useToast } from "../../utils/ToastContext";
 import { FaHeart } from "react-icons/fa";
 import { FiFlag } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -18,6 +19,8 @@ export default function ModeratePostsPage() {
   const [reportDetailsOpen, setReportDetailsOpen] = useState(null);
   const reporterBoxRef = useRef(null);
   const { showToast } = useToast();
+  const navigate = useNavigate();
+
 
 
   useEffect(() => {
@@ -147,7 +150,11 @@ export default function ModeratePostsPage() {
           </div>
           <div className={styles.statsGrid}>
             {filtered.map((post) => (
-              <div key={post.post_id} className={styles.statCard}>
+             <div
+                key={post.post_id}
+                className={styles.statCard}
+                onClick={() => navigate(`/profile/${post.user_id}?highlight=${post.post_id}`)}
+              >
                 <div className={styles.cardHeader}>
                   <h4>@{post.username} (ID: {post.user_id})</h4>
                   <div className={styles.postStats}>
@@ -156,7 +163,10 @@ export default function ModeratePostsPage() {
                     </span>
                     <span
                       style={{ marginLeft: "12px", cursor: "pointer", color: "#3e3e3e" }}
-                      onClick={() => fetchReporters(post.post_id)}
+                     onClick={(e) => {
+                        e.stopPropagation();
+                        fetchReporters(post.post_id);
+                      }}
                     >
                       <FiFlag /> {post.report_count || 0}
                     </span>
@@ -183,7 +193,16 @@ export default function ModeratePostsPage() {
                 </div>
 
                 <div className={styles.cardFooter}>
-                  <button onClick={() => setPendingDeletePost(post)} className={styles.deleteButton}>Delete Post</button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPendingDeletePost(post);
+                    }}
+                    className={styles.deleteButton}
+                  >
+                    Delete Post
+                  </button>
+
                 </div>
               </div>
             ))}

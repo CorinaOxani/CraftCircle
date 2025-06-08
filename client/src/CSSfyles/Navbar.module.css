@@ -194,10 +194,6 @@
     border-bottom: none;
   }
   
-  .messageNotif:hover {
-    background-color: #f3e5de;
-    cursor: pointer;
-  }
   
   .notifAvatar {
     width: 45px;

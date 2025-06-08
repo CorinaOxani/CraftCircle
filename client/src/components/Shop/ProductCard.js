@@ -245,14 +245,17 @@ const confirmReport = async () => {
 
   return (
     <div className={styles.productCard} id={id}>
-      <ProductMenuButton
-        productId={product.item_id}
-        isOwner={isOwner}
-        onDelete={onDeleteProduct}
-        onEdit={() => setIsEditing(product.item_id)}
-        onReport={handleReportProduct}
-        reportedUserId={product.user_id}
-      />
+      {!isAdmin && (
+        <ProductMenuButton
+          productId={product.item_id}
+          isOwner={isOwner}
+          onDelete={onDeleteProduct}
+          onEdit={() => setIsEditing(product.item_id)}
+          onReport={handleReportProduct}
+          reportedUserId={product.user_id}
+        />
+      )}
+
       <div className={styles.carouselContainer}>
         {totalSlides > 1 && (
           <button className={styles.arrowLeft} onClick={handlePrev}>

@@ -204,10 +204,6 @@ useEffect(() => {
                     senderName={liveNotifData.senderName}
                     message={liveNotifData.message}
                     senderProfilePic={liveNotifData.senderProfilePic}
-                    onClick={() => {
-                      navigate(`/messages/${liveNotifData.userId}`);
-                      setShowNotif(false);
-                    }}
                   />
                 </div>
               )}

@@ -5,6 +5,7 @@ import ConfirmationModal from "../../components/ConfirmationModal";
 import ImageCarousel from "../components/ImageCarousel";
 import { useToast } from "../../utils/ToastContext";
 import { FiFlag } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 export default function ModerateProductsPage() {
   const [products, setProducts] = useState([]);
@@ -15,7 +16,7 @@ export default function ModerateProductsPage() {
   const reporterBoxRef = useRef(null);
   const { showToast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -160,13 +161,22 @@ export default function ModerateProductsPage() {
 
           <div className={styles.statsGrid}>
             {filtered.map((product) => (
-              <div className={styles.statCardProducts} key={product.item_id}>
+              <div
+                className={styles.statCardProducts}
+                key={product.item_id}
+                onClick={() => navigate(`/shop/${product.user_id}?highlight=${product.item_id}`)}
+                style={{ cursor: "pointer" }}
+              >
+
                 <div className={styles.cardHeaderProducts}>
                   <h4>@{product.username} (ID: {product.user_id})</h4>
                   <div className={styles.postStats}>
                     <span 
                       style={{ marginLeft: '12px', cursor: 'pointer', color: "#3e3e3e" }}
-                      onClick={() => fetchReporters(product.item_id)}
+                     onClick={(e) => {
+                        e.stopPropagation();
+                        fetchReporters(product.item_id);
+                      }}
                     >
                       <FiFlag /> {product.report_count || 0}
                     </span>
@@ -194,7 +204,10 @@ export default function ModerateProductsPage() {
 
                 <div className={styles.cardFooter}>
                   <button
-                    onClick={() => setPendingDeleteProduct(product)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPendingDeleteProduct(product);
+                    }}
                     className={styles.deleteButton}
                   >
                     Delete Product
