@@ -15,7 +15,7 @@ export default function ProductForm({onSubmitProduct, isPosting }) {
   const [titleError, setTitleError] = useState(false);
   const [categoryError, setCategoryError] = useState(false);
   const [fileError, setFileError] = useState(false);
-
+  const [priceError, setPriceError] = useState(false);
 
 useEffect(() => {
   fetch("http://localhost:4000/admin/categories/getCategories")
@@ -77,6 +77,14 @@ const filteredCategories = categories.filter(cat =>
     } else {
       setFileError(false);
     }
+
+    if (!price.trim()) {
+      setPriceError(true);
+      hasError = true;
+    } else {
+      setPriceError(false);
+    }
+
   
     if (hasError) return;
   
@@ -117,10 +125,14 @@ const filteredCategories = categories.filter(cat =>
           <input
             type="number"
             min="0"
+            step="0.01" 
             placeholder="Price"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className={productStyles.formInput}
+            onChange={(e) => {
+              setPrice(e.target.value);
+              setPriceError(false);
+            }}
+            className={`${productStyles.formInput} ${priceError ? styles.errorInput : ''}`}
           />
         </div>
       </div>
