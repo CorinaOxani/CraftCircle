@@ -294,7 +294,7 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced })
                 amount={calculateTotalAmount()} 
                 address={address}
                 onClose={() => setShowStripeModal(false)}
-    onOrderPlaced={onOrderPlaced}
+                onOrderPlaced={onOrderPlaced}
             />
             )}
 

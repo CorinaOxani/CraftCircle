@@ -1,5 +1,5 @@
 export default async function createOrdersInDatabase({
-    groupedCart,
+    cartItems,
     shippingCosts,
     address,
     userId,
@@ -10,9 +10,9 @@ export default async function createOrdersInDatabase({
   }) {
     const allRequests = [];
   
-    for (const sellerId in groupedCart) {
-      const items = groupedCart[sellerId].items;
-      const shippingInfo = shippingCosts.find(sc => sc.seller === groupedCart[sellerId].sellerName);
+    for (const sellerId in cartItems) {
+      const items = cartItems[sellerId].items;
+      const shippingInfo = shippingCosts.find(sc => sc.seller === cartItems[sellerId].sellerName);
       const shippingCost = parseFloat(shippingInfo?.price || 0);
   
       for (const item of items) {

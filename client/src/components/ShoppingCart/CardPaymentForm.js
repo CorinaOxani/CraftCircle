@@ -12,7 +12,7 @@ export default function CardPaymentForm({ amount, address, onClose, onOrderPlace
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const { userId } = useUser();
-  const { fetchCartCount } = useCart();
+  const { fetchCartCount, cartItems } = useCart();
   const navigate = useNavigate();
 
   const handlePayment = async () => {
@@ -68,7 +68,7 @@ export default function CardPaymentForm({ amount, address, onClose, onOrderPlace
     } else if (result.paymentIntent.status === "succeeded") {
       
         await createOrdersInDatabase({
-          groupedCart: JSON.parse(localStorage.getItem("groupedCart")),
+          cartItems: JSON.parse(localStorage.getItem("cartItems")),
           shippingCosts: JSON.parse(localStorage.getItem("shippingCosts")),
           address,
           userId,
@@ -78,7 +78,7 @@ export default function CardPaymentForm({ amount, address, onClose, onOrderPlace
           navigate,
         });
       
-        localStorage.removeItem("groupedCart");
+        localStorage.removeItem("cartItems");
         localStorage.removeItem("shippingCosts");
       
         if (typeof window !== "undefined") {
