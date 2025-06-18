@@ -14,8 +14,8 @@ import SmartProfilePicture from "./SmartProfilePicture";
 
 export default function UserProfile() {
   const navigate = useNavigate();
-  const { userId: urlUserId } = useParams(); 
-  const { userId: loggedInUserId, isAdmin} = useUser();
+  const { userId: urlUserId } = useParams();
+  const { userId: loggedInUserId, isAdmin } = useUser();
   const userId = urlUserId || loggedInUserId;
   const isOwner = parseInt(userId) === parseInt(loggedInUserId);
   const [user, setUser] = useState(null);
@@ -33,7 +33,7 @@ export default function UserProfile() {
   const { showToast } = useToast();
   const [highlightedPostId, setHighlightedPostId] = useState(null);
 
-  // Fetch user posts
+  // Fetch user posts, executat doar cand se schimba userul
   const fetchUserPosts = useCallback(() => {
     if (!userId) return;
     fetch(`http://localhost:4000/uploads/user-posts/${userId}`)
@@ -46,39 +46,42 @@ export default function UserProfile() {
       .catch((error) => console.error("Error fetching posts:", error));
   }, [userId]);
 
+  // Fetch user profile, executat doar cand se schimba userul
   const fetchUserProfile = useCallback(() => {
     fetch(`http://localhost:4000/users/${userId}`)
       .then((res) => res.json())
-      .then(setUser)
+      .then(setUser)//eset setat user
       .catch(() => navigate("/login"));
-  }, [userId, navigate]);
-  
+  }, [userId, navigate]); //am folosit navigate in interior deci trebuie pusa ca dependinta
+
+  //se executa la montarea componentei sau la schimbarea userului
   useEffect(() => {
     if (!userId) {
       navigate("/login");
       return;
     }
-  
-    fetchUserProfile(); 
+
+    fetchUserProfile();
     fetchUserPosts();
   }, [userId, navigate, fetchUserPosts, fetchUserProfile]);
-  
+
 
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    const highlightId = query.get("highlight");
-  
+    const query = new URLSearchParams(window.location.search); //window.location.search = "?highlight=52"
+    //URLSearchParams sparge in cheie=val -> highlight=52
+    const highlightId = query.get("highlight"); //cauta cheia din "" si returneaza val
+
     if (highlightId) {
       const numericId = parseInt(highlightId);
       setHighlightedPostId(numericId);
     }
   }, []);
-  
+
   useEffect(() => {
     if (highlightedPostId !== null) {
-      const el = document.getElementById(`post-${highlightedPostId}`);
+      const el = document.getElementById(`post-${highlightedPostId}`); //se cauta un elem cu id='post-xx' gasind divul corespunzator din UserPosts.js
       if (el) {
-        // wait one frame for rendering to complete
+        //utilizat pt a ne asigura ca este randata postarea
         requestAnimationFrame(() => {
           el.scrollIntoView({ behavior: "smooth", block: "center" });
           el.classList.add(styles.highlightedCard);
@@ -90,7 +93,7 @@ export default function UserProfile() {
       }
     }
   }, [highlightedPostId, posts]);
-  
+
 
   // Ștergerea unei postări
   const handleDeletePost = async (postId) => {
@@ -100,7 +103,7 @@ export default function UserProfile() {
       });
 
       if (response.ok) {
-        setPosts((prevPosts) => prevPosts.filter((post) => post.post_id !== postId));
+        setPosts((prevPosts) => prevPosts.filter((post) => post.post_id !== postId)); // parcurge toate array ul curent de postari si lasa tot inafara de cel sters
         showToast("Post deleted successfully!");
       } else {
         console.error("Failed to delete post, status:", response.status);
@@ -114,79 +117,81 @@ export default function UserProfile() {
 
   // Upload de fișiere pentru postare
   const handlePostFilesChange = (event) => {
-    const newFiles = Array.from(event.target.files);
-    if (newFiles.length > 0) setFileError(false);
-    setPostFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    const newFiles = Array.from(event.target.files); //event.target.files este un array de tip files
+    if (newFiles.length > 0) setFileError(false); //daca s-a incarcat cel putin un fisier nu se mai afiseaza eroarea
+    setPostFiles((prevFiles) => [...prevFiles, ...newFiles]); //adaugam fisierele noi
 
     const newPreviews = newFiles.map((file) => ({
-      url: URL.createObjectURL(file),
+      url: URL.createObjectURL(file),// creaza un URL temporar 
       type: file.type.startsWith("image") ? "image" : "video",
     }));
 
-    setPreviewFiles((prevPreviews) => [...prevPreviews, ...newPreviews]);
+    setPreviewFiles((prevPreviews) => [...prevPreviews, ...newPreviews]);//concateneaza ce am mai adaugat
   };
- //stergere poza incarcata in formular 
+
+  //stergere poza incarcata in formular 
   const handleRemovePreview = (indexToRemove) => {
-    setPreviewFiles(prev => prev.filter((_, i) => i !== indexToRemove));
+    setPreviewFiles(prev => prev.filter((_, i) => i !== indexToRemove)); //se elimina elementul de pe pozitia indexToRemove
     setPostFiles(prev => prev.filter((_, i) => i !== indexToRemove));
   };
-  
+
 
   // Trimitere postare
-  const handleSubmitPost = async (event) => {
-    event.preventDefault();
-    if (!postContent && postFiles.length === 0) return;
-  
-    const formData = new FormData();
+  const handleSubmitPost = async () => {
+
+    if (!postContent && postFiles.length === 0) return; // nu se intampla nimic daca nu exista continut
+
+    const formData = new FormData(); // FormData permite trimiterea dateleor catre backend
     formData.append("user_id", userId);
     formData.append("content", postContent);
-    postFiles.forEach((file) => formData.append("files", file));
-  
+    postFiles.forEach((file) => formData.append("files", file)); //fiecare fisier din postFiles este adaugat individual
+
     if (selectedCategory) {
       formData.append("category_id", selectedCategory.category_id);
     }
     try {
-      setIsPosting(true); 
+      setIsPosting(true); //pt loading
       const response = await fetch("http://localhost:4000/uploads/upload-post", {
         method: "POST",
         body: formData,
       });
-  
+
       if (response.ok) {
+        //resetarea formului
         setPostContent("");
         setPostFiles([]);
         setPreviewFiles([]);
         setSelectedCategory(null);
         setCategorySearch("");
         fetchUserPosts();
-        fetchUserProfile();    
+        fetchUserProfile();
       } else {
         console.error("Error uploading post.");
       }
     } catch (error) {
       console.error("Error:", error);
     } finally {
-      setIsPosting(false); 
+      setIsPosting(false); //se scoate loadingul
     }
   };
-  
-  
+
+
   const handleEditPost = (postId, currentContent) => {
     setEditingPostId(postId);
     setEditedContent(currentContent);
   };
 
   const handleReportPost = async (postId) => {
-    const user_id = localStorage.getItem("user_id");
+    const user_id = localStorage.getItem("user_id"); //trebuie inlcuit cu cel din useState
     try {
       const res = await fetch(`http://localhost:4000/posts/${postId}/report`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id })
       });
-  
+
       const data = await res.json();
-      alert(data.message === "Already reported"
+      alert(data.message === "Already reported" //trebuie schimbat cu un toast
         ? "You've already reported this post."
         : "Thanks! We'll review the post.");
     } catch (err) {
@@ -194,7 +199,7 @@ export default function UserProfile() {
       alert("Error reporting post.");
     }
   };
-  
+
   const handleSaveEditPost = async (postId) => {
     try {
       const response = await fetch(`http://localhost:4000/posts/${postId}`, {
@@ -205,10 +210,11 @@ export default function UserProfile() {
 
       if (response.ok) {
         setPosts((prevPosts) =>
-          prevPosts.map((post) =>
-            post.post_id === postId ? { ...post, content: editedContent } : post
+          prevPosts.map((post) => //parcurgere fiecare postare
+            post.post_id === postId ? { ...post, content: editedContent } //toate proprietatile raman la fel, inafara de cea de content
+              : post //restul postarilor raman neschimbate
           )
-        );
+        ); //se actualizeaza starea posts doar pentru postarea editatea
         setEditingPostId(null);
       } else {
         console.error("Failed to update post");
@@ -217,11 +223,12 @@ export default function UserProfile() {
       console.error("Error updating post:", error);
     }
   };
+
   const handleNext = (postId) => {
     setPosts((prevPosts) =>
-      prevPosts.map((post) =>
+      prevPosts.map((post) =>//parcurgerea postarilor
         post.post_id === postId && post.media_urls?.length > 0
-          ? { ...post, currentIndex: (post.currentIndex + 1) % post.media_urls.length }
+          ? { ...post, currentIndex: (post.currentIndex + 1) % post.media_urls.length } //returneaza o copie a postarii, modificand doar current Indexul, daca s-a ajuns la ultimul element va reveni la primul
           : post
       )
     );
@@ -268,10 +275,8 @@ export default function UserProfile() {
           setCategorySearch={setCategorySearch}
           fileError={fileError}
           setFileError={setFileError}
-      />
-      
-      
-      
+        />
+
       )}
       <UserPosts
         posts={posts}

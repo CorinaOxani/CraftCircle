@@ -9,7 +9,7 @@ export default function ReportUserModal({ reportedUserId, onClose }) {
   const [reason, setReason] = useState("");
 
   const handleSendReport = async () => {
-    if (!reason.trim()) {
+    if (!reason.trim()) { //elimina spatiile, \n,\t si verifica daca stringul nu este gol 
       showToast("Please enter a reason.");
       return;
     }
@@ -25,15 +25,15 @@ export default function ReportUserModal({ reportedUserId, onClose }) {
         }),
       });
 
-        if (res.status === 409) {
-          showToast("You’ve already reported this user today.");
-        } else if (res.ok) {
-          showToast("User reported successfully!");
-          onClose();
-        } else {
-          showToast("Failed to report user.");
-        }
-      } catch (err) {
+      if (res.status === 409) {
+        showToast("You’ve already reported this user today.");
+      } else if (res.ok) {
+        showToast("User reported successfully!");
+        onClose();
+      } else {
+        showToast("Failed to report user.");
+      }
+    } catch (err) {
       console.error("Report error:", err);
       showToast("An error occurred.");
     }
@@ -45,7 +45,7 @@ export default function ReportUserModal({ reportedUserId, onClose }) {
         <div className={styles.textareaWrapper}>
           <textarea
             value={reason}
-            onChange={(e) => setReason(e.target.value)}
+            onChange={(e) => setReason(e.target.value)} //ce se tasteaza este salvat in reason
             placeholder="Describe the reason for reporting this user"
           />
         </div>

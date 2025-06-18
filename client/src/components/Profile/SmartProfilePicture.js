@@ -9,25 +9,25 @@ export default function SmartProfilePicture({ user }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
 
-  const handleImageChange = (event) => {
-    if (event.target.files.length > 0) {
+  const handleImageChange = (event) => {//evenimentul generat de alegerea unui fisier
+    if (event.target.files.length > 0) {// daca ave ceva in lista FileList
       const file = event.target.files[0];
-      setSelectedImage(file);
-      setPreviewImage(URL.createObjectURL(file));
+      setSelectedImage(file);// staocam fisierul in state-ul selectedImage
+      setPreviewImage(URL.createObjectURL(file));// se salveaza un link temoporar(pt afisare pe ecran inainte de salvare in BD) in PreviewImage
     }
   };
 
   const handleSaveImage = async () => {
     if (!selectedImage) return;
     const formData = new FormData();
-    formData.append("file", selectedImage);
+    formData.append("file", selectedImage);//adauga imaginea selectata sub cheia file
     formData.append("user_id", user.user_id);
     try {
       const response = await fetch("http://localhost:4000/uploads/upload-profile", {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
+      const data = await response.json(); //convertire din json in obiect javascript
       if (response.ok) {
         window.location.reload();
       }

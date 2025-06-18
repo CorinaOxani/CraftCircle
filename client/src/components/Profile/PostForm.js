@@ -32,34 +32,34 @@ export default function PostForm({
   );
 
   const handleLocalSubmit = (e) => {
-    e.preventDefault();
-  
+    e.preventDefault(); //se opreste trimiterea pt verificari
+
     let hasError = false;
-  
+
     const isCategoryValid =
-      selectedCategory && categorySearch.trim() === selectedCategory.name;
-  
+      selectedCategory && categorySearch.trim() === selectedCategory.name; //dac extista o categorie selectata si numele din input este identic cu acea categorie selectata
+
     if (!isCategoryValid) {
       setCategoryError(true);
       hasError = true;
     } else {
       setCategoryError(false);
     }
-  
+
     if (previewFiles.length === 0) {
       setFileError(true);
       hasError = true;
     } else {
       setFileError(false);
     }
-  
+
     if (hasError) return;
-  
-    handleSubmitPost(e);
+
+    handleSubmitPost();
   };
-  
-  
-  
+
+
+
 
   return (
     <div className={styles.postFormContainer}>
@@ -76,40 +76,40 @@ export default function PostForm({
         placeholder="Search category..."
         className={`${styles.categoryInput} ${categoryError ? styles.errorInput : ''}`}
         value={categorySearch}
-        onChange={(e) => {
+        onChange={(e) => { //la modificare este actualizat catecory search si ascunde eroarea
           setCategorySearch(e.target.value);
           setCategoryError(false);
-        }}        
+        }}
       />
-      {categorySearch && (
-      <div className={styles.categoryGrid}>
-        {filteredCategories.map((cat) => (
-          <div
-            key={cat.category_id}
-            className={styles.categoryBox}
-            onClick={() => {
-              setSelectedCategory(cat);
-              setCategorySearch(cat.name);
-            }}
-          >
-            <span className={styles.categoryName}>{cat.name}</span>
-            <div className={styles.categoryTooltip}>
-              {cat.description}
+      {categorySearch && ( //daca este ceva introdus
+        <div className={styles.categoryGrid}>
+          {filteredCategories.map((cat) => (
+            <div
+              key={cat.category_id} //ajuta la optimizarea re-render-ului
+              className={styles.categoryBox}
+              onClick={() => {
+                setSelectedCategory(cat);
+                setCategorySearch(cat.name); //search-el devine categoria selectata
+              }}
+            >
+              <span className={styles.categoryName}>{cat.name}</span>
+              <div className={styles.categoryTooltip}>
+                {cat.description}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-)}
+          ))}
+        </div>
+      )}
 
 
       <div className={styles.previewContainer}>
-        {previewFiles.map((file, index) => (
+        {previewFiles.map((file, index) => ( //parcurgerea fisierelor din preview
           <div key={index} className={styles.previewItem}>
             <button className={styles.removePreviewButton} onClick={() => handleRemovePreview(index)}>✖</button>
             {file.type === "image" ? (
-              <img src={file.url} alt={`preview-${index}`} className={styles.previewImage} />
+              <img src={file.url} alt={`preview-${index}`} className={styles.previewImage} /> //alt folosit pt cand nu se incarca imaginea
             ) : (
-              <video src={file.url} controls className={styles.previewVideo}></video>
+              <video src={file.url} controls className={styles.previewVideo}></video> //controls e pt butoane stop, play etc
             )}
           </div>
         ))}
@@ -127,7 +127,7 @@ export default function PostForm({
         <input type="file" multiple onChange={handlePostFilesChange} accept="image/*,video/*" hidden />
       </label>
 
-        <button className={styles.postButton} onClick={handleLocalSubmit} disabled={isPosting}>
+      <button className={styles.postButton} onClick={handleLocalSubmit} disabled={isPosting}>
         {isPosting ? <span className={styles.loader}></span> : "Post"}
       </button>
       {isPosting && <p className={styles.uploadingMessage}>Uploading post, please wait...</p>}

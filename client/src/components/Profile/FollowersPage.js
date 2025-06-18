@@ -14,7 +14,6 @@ export default function FollowersPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const isOwner = parseInt(userId) === parseInt(loggedInUserId);
-
   const [user, setUser] = useState(null);
   const [followers, setFollowers] = useState([]);
   const [followingMap, setFollowingMap] = useState({});
@@ -24,17 +23,17 @@ export default function FollowersPage() {
     fetch(`http://localhost:4000/users/${userId}`)
       .then((res) => res.json())
       .then(setUser)
-      .catch(() => navigate("/"));
+      .catch(() => navigate("/login")); //pentru afisare header+stats
 
     fetch(`http://localhost:4000/follows/followers/${userId}`)
       .then((res) => res.json())
       .then(async (data) => {
-        setFollowers(data);
+        setFollowers(data); //lista urmaritorilor
         const map = {};
 
-        await Promise.all(
+        await Promise.all(//asteapta pana se populeaza tot map-ul, se creeaza promisiuni
           data.map(async (follower) => {
-            if (parseInt(follower.user_id) !== parseInt(loggedInUserId)) {
+            if (parseInt(follower.user_id) !== parseInt(loggedInUserId)) { //pentru a se evita cautarea pentru sine insusi
               const res = await fetch(
                 `http://localhost:4000/follows/check?follower_id=${loggedInUserId}&following_id=${follower.user_id}`
               );
@@ -60,13 +59,13 @@ export default function FollowersPage() {
           following_id: targetId,
         }),
       });
-      setIsFollowingChanged((prev) => !prev);
+      setIsFollowingChanged((prev) => !prev); // pentru a declansa un nou useEffect
     } catch (err) {
       console.error("Error toggling follow:", err);
     }
   };
 
-  if (!user) {
+  if (!user) { // pentru a declansa un nou useEffect
     return (
       <div className={styles.shopContainer}>
         {isAdmin ? <AdminNavbar /> : <Navbar />}
@@ -103,7 +102,7 @@ export default function FollowersPage() {
             {isOwner
               ? "You have no followers yet."
               : `${user.first_name} has no followers yet.`}
-        </p>
+          </p>
         ) : (
           followers.map((follower) => (
             <div key={follower.user_id} className={styles.followerItem}>
@@ -127,7 +126,7 @@ export default function FollowersPage() {
                 </span>
               </div>
 
-              {!isAdmin && follower.user_id !== parseInt(loggedInUserId) && (
+              {!isAdmin && follower.user_id !== parseInt(loggedInUserId) && ( //posibilitatea de a da follow daca nu este cartonasul cu utilizatorul deja logat si nu este logat un admin
                 <button
                   className={styles.followButton}
                   onClick={() =>

@@ -13,7 +13,7 @@ export default function ProfileStats({ user, setUser, navigate, isOwner }) {
           `http://localhost:4000/follows/check?follower_id=${loggedInUserId}&following_id=${user.user_id}`
         );
         const data = await res.json();
-        setIsFollowing(Boolean(data.isFollowing)); 
+        setIsFollowing(Boolean(data.isFollowing));
       } catch (err) {
         console.error("Error checking follow status", err);
       }
@@ -42,13 +42,13 @@ export default function ProfileStats({ user, setUser, navigate, isOwner }) {
       if (!res.ok) return;
 
       const newFollowState = !isFollowing;
-      setIsFollowing(newFollowState);
+      setIsFollowing(newFollowState); //actualizeaza noua stare de following
 
       const updatedUserRes = await fetch(
         `http://localhost:4000/users/${user.user_id}`
       );
       const updatedUser = await updatedUserRes.json();
-      setUser(updatedUser);
+      setUser(updatedUser); //pentru a actualiza datele din profil, se va face rerandare pentru toate fisierele ce au ca prop user
 
     } catch (err) {
       console.error("Error toggling follow:", err);
@@ -71,11 +71,11 @@ export default function ProfileStats({ user, setUser, navigate, isOwner }) {
         <strong>{user?.posts_count ?? 0}</strong> Posts
       </button>
       <button onClick={() => navigate(`/profile/${user.user_id}/shop`)}>
-            🛒 Shop
-          </button>
+        🛒 Shop
+      </button>
       {!isOwner && (
         <>
-          {!isAdmin && (  
+          {!isAdmin && (
             <button onClick={handleFollowToggle}>
               {isFollowing ? "Stop Follow" : "Start Follow"}
             </button>

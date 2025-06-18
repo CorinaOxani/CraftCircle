@@ -1,6 +1,6 @@
 import React from "react";
 import { FaPen, FaSave, FaTimes } from "react-icons/fa";
-import { HiOutlineFlag } from "react-icons/hi"; 
+import { HiOutlineFlag } from "react-icons/hi";
 import styles from "../../CSSfyles/UserProfile.module.css";
 import defaultProfile from "../../images/default-profile.png";
 import { useState } from "react";
@@ -21,9 +21,9 @@ export default function ProfilePictureEdit({
 
   return (
     <div className={styles.profileImageContainer}>
-      
+
       <img
-        src={previewImage || (user?.profile_picture?.trim() ? user.profile_picture : defaultProfile)}
+        src={previewImage || (user?.profile_picture?.trim() ? user.profile_picture : defaultProfile)} // daca imaginea de profil este null se va pune poza default
         alt="Profile"
         className={styles.profileImage}
       />
@@ -37,14 +37,14 @@ export default function ProfilePictureEdit({
           <HiOutlineFlag size={20} />
         </div>
       )}
-      
+
       {!isEditingImage && isOwnProfile && (
         <label className={styles.editIcon} onClick={() => setIsEditingImage(true)}>
           <FaPen />
         </label>
       )}
 
-    
+
       {isEditingImage && (
         <div className={styles.editImageContainer}>
           <label htmlFor="fileUpload" className={styles.customFileInput}>
@@ -74,6 +74,6 @@ export default function ProfilePictureEdit({
         />
       )}
     </div>
-    
+
   );
 }
