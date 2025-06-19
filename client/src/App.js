@@ -1,7 +1,7 @@
 import React from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Register from "./components/LoginRegister/Register.js";
 import Login from "./components/LoginRegister/Login.js";
 import AuthRedirect from "./components/AuthRedirect";
@@ -51,7 +51,7 @@ function App() {
             <ToastProvider>
               <ScrollToTop />
               <Routes>
-                <Route path="/" element={<h1>Welcome to the Home Page!</h1>} />
+                <Route path="/" element={<Navigate to="/register" />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/auth-success" element={<AuthRedirect />} />
