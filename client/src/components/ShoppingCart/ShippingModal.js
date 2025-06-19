@@ -5,7 +5,7 @@ import PaymentModal from "./PaymentModal";
 import { useCart } from "../CartContex";
 
 
-const API_KEY = "5b3ce3597851110001cf6248455ceaf86e9044b88c1d98a5601a91f3";
+const API_KEY = process.env.REACT_APP_OPENROUTESERVICE_API_KEY;
 const FREE_SHIPPING_THRESHOLD = 100;
 
 export default function ShippingModal({ onClose, onOrderPlaced }) {

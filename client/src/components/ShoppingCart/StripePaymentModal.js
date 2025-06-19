@@ -4,9 +4,10 @@ import { loadStripe } from "@stripe/stripe-js";
 import CardPaymentForm from "./CardPaymentForm";
 import styles from "../../CSSfyles/CartPage.module.css";
 
-const stripePromise = loadStripe("pk_test_51ROgkQE7a1SAP4bh90Ct3E8BMbosFJFo1yQFgIkUgsuzXd2jsSQj1NpOaoLwzbZJwPkz5eWTzOdNp5ewzh14BWoq00E38cOAyX",
-{locale: "en",
-});
+const stripePromise = loadStripe(
+  process.env.REACT_APP_STRIPE_PUBLIC_KEY,
+  { locale: "en" }
+);
 
 
 export default function StripePaymentModal({ amount, address, onClose, onOrderPlaced }) {
