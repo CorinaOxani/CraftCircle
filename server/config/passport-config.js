@@ -2,13 +2,15 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const pool = require("./database");
+require("dotenv").config();
+
 
 // Configurare Google OAuth
 passport.use(
   new GoogleStrategy(
     {
-      clientID: "731035106499-kokfbqbt7ef03rc34sbv5vahkaoe5cko.apps.googleusercontent.com",
-      clientSecret: "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",
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "http://localhost:4000/auth/google/callback",
       passReqToCallback: true,
     },
@@ -64,10 +66,10 @@ passport.use(
 passport.use(
   new FacebookStrategy(
     {
-      clientID: "587989000683295",
-      clientSecret: "7360a0fdd26518cdfe5e382632e9fdde",
+      clientID: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       callbackURL: "http://localhost:4000/auth/facebook/callback",
-      profileFields: ["id", "emails", "name", "picture.type(large)"], 
+      profileFields: ["id", "emails", "name", "picture.type(large)"],
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
