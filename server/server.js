@@ -77,6 +77,11 @@ app.use("/follows", followRoutes);
 app.use("/messages", messagesRoutes);
 app.use("/likes", likesRouter);
 app.use("/appreciation", appreciationRouter);
+app.use("/orders", orderRoutes);
+app.use("/stripe", stripeRoutes);
+app.use("/discover", discoverPostsRoute);
+app.use("/discover", discoverProductsRoute);
+app.use("/comments", commentsRoutes);
 app.use("/admin", adminRoutes);
 app.use("/admin/statistics", statisticsRoutes);
 app.use("/uploads", express.static("uploads"));
@@ -86,11 +91,6 @@ app.use("/admin/moderateProducts", moderateProductsRoutes);
 app.use("/admin/moderateUsers", moderateUsersRoutes);
 app.use("/moderateOrders", moderateOrdersRoutes);
 app.use("/admin/statistics", adminStatistics);
-app.use("/orders", orderRoutes);
-app.use("/stripe", stripeRoutes);
-app.use("/discover", discoverPostsRoute);
-app.use("/discover", discoverProductsRoute);
-app.use("/comments", commentsRoutes);
 
 app.use("/", userRoutes);
 
