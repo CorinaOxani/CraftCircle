@@ -46,7 +46,6 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-app.use("/uploads", express.static("uploads"));
 
 // Pornirea serverului
 const server = http.createServer(app);
@@ -83,8 +82,7 @@ app.use("/discover", discoverPostsRoute);
 app.use("/discover", discoverProductsRoute);
 app.use("/comments", commentsRoutes);
 app.use("/admin", adminRoutes);
-app.use("/admin/statistics", statisticsRoutes);
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static("uploads")); //// Servește fișierele stocate local în "uploads" (doar dacă nu se folosește exclusiv Cloudinary)
 app.use("/admin/categories", categoryRoutes);
 app.use("/admin/moderatePosts", moderatePostsRoutes);
 app.use("/admin/moderateProducts", moderateProductsRoutes);
