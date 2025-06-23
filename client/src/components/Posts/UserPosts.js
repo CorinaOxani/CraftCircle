@@ -7,24 +7,22 @@ import { useUser } from "../UserContext";
 import CommentsModal from "./CommentsModal";
 
 
-export default function UserPosts({ 
-  posts, 
-  setPosts, 
-  handlePrev, 
-  handleNext, 
-  onDeletePost, 
-  onEditPost, 
-  onSaveEdit, 
-  editingPostId, 
-  editedContent, 
+export default function UserPosts({
+  posts,
+  setPosts,
+  handlePrev,
+  handleNext,
+  onDeletePost,
+  onEditPost,
+  onSaveEdit,
+  editingPostId,
+  editedContent,
   setEditedContent,
   isOwner,
   handleReportPost,
   highlightedPostId,
-}) 
-
-{
-  const { userId, isAdmin} = useUser();
+}) {
+  const { isAdmin } = useUser();
   const [openComments, setOpenComments] = useState(null);
 
 
@@ -39,36 +37,36 @@ export default function UserPosts({
       </div>
     );
   }
-  
+
 
   return (
     <>
       <div className={styles.postsGrid}>
         {posts.map((post) => (
           <div
-          key={post.post_id}
-          id={`post-${post.post_id}`}
-          className={`${styles.post} ${highlightedPostId === post.post_id ? styles.highlightedCard : ""}`}
-          style={{ position: "relative" }}
+            key={post.post_id}
+            id={`post-${post.post_id}`}
+            className={`${styles.post} ${highlightedPostId === post.post_id ? styles.highlightedCard : ""}`}
+            style={{ position: "relative" }}
           >
-                 
+
             <div className={styles.carouselContainer}>
               {!isAdmin && (
-                <PostMenuButton 
-                  postId={post.post_id} 
+                <PostMenuButton
+                  postId={post.post_id}
                   isOwner={isOwner}
-                  onDelete={onDeletePost} 
-                  onEdit={() => onEditPost(post.post_id, post.content)} 
+                  onDelete={onDeletePost}
+                  onEdit={() => onEditPost(post.post_id, post.content)}
                   onReport={handleReportPost}
                 />
               )}
-  
+
               {post.media_urls?.length > 1 && (
                 <button className={styles.arrowLeft} onClick={() => handlePrev(post.post_id)}>
                   <FaChevronLeft />
                 </button>
               )}
-  
+
               {post.media_urls && post.media_urls[post.currentIndex] ? (
                 post.media_urls[post.currentIndex].endsWith(".mp4") ? (
                   <video src={post.media_urls[post.currentIndex]} controls className={styles.postMedia} />
@@ -76,14 +74,14 @@ export default function UserPosts({
                   <img src={post.media_urls[post.currentIndex]} alt="Post media" className={styles.postMedia} />
                 )
               ) : null}
-  
+
               {post.media_urls?.length > 1 && (
                 <button className={styles.arrowRight} onClick={() => handleNext(post.post_id)}>
                   <FaChevronRight />
                 </button>
               )}
             </div>
-  
+
             {editingPostId === post.post_id ? (
               <div>
                 <textarea
@@ -91,8 +89,8 @@ export default function UserPosts({
                   value={editedContent}
                   onChange={(e) => setEditedContent(e.target.value)}
                 />
-                <button 
-                  className={styles.saveButton} 
+                <button
+                  className={styles.saveButton}
                   onClick={() => onSaveEdit(post.post_id)}
                 >
                   Save
@@ -102,14 +100,13 @@ export default function UserPosts({
               <>
                 <p className={styles.postContent}>{post.content}</p>
                 <div className={styles.likeBar}>
-                  <LikeButton 
-                    postId={post.post_id} 
-                    userId={userId} 
+                  <LikeButton
+                    postId={post.post_id}
                     isOwner={isOwner}
                   />
                 </div>
-                <button 
-                  onClick={() => setOpenComments(post.post_id)} 
+                <button
+                  onClick={() => setOpenComments(post.post_id)}
                   className={styles.commentButton}
                 >
                   <FaRegCommentDots className={styles.commentIcon} />
@@ -119,18 +116,18 @@ export default function UserPosts({
             )}
           </div>
         ))}
-  
         {posts.length < 3 &&
+          // creeaza un array cu atatea elemente cate lipsesc pana la val 3
           Array.from({ length: 3 - posts.length }).map((_, index) => (
+            //afiseaza un div gol 
             <div key={`empty-${index}`} className={`${styles.post} ${styles.emptySlot}`} />
           ))}
       </div>
-  
-      {/* Comentarii global, la final */}
+
       {openComments && (
         <CommentsModal postId={openComments} onClose={() => setOpenComments(null)} />
       )}
     </>
   );
-  
+
 }

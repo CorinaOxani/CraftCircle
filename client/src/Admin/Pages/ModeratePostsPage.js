@@ -3,6 +3,7 @@ import AdminNavbar from "../components/AdminNavbar";
 import styles from "../../CSSfyles/ModeratePosts.module.css";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import ImageCarousel from "../components/ImageCarousel";
+import CommentsModal from "../../components/Posts/CommentsModal";
 import { useToast } from "../../utils/ToastContext";
 import { FaHeart } from "react-icons/fa";
 import { FiFlag } from "react-icons/fi";
@@ -20,6 +21,7 @@ export default function ModeratePostsPage() {
   const reporterBoxRef = useRef(null);
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const [activeCommentsPostId, setActiveCommentsPostId] = useState(null);
 
 
 
@@ -190,7 +192,20 @@ export default function ModeratePostsPage() {
 
                 <div className={styles.cardBody}>
                   <ImageCarousel images={post.media_urls} />
+
+                  <div className={styles.cardButtons}>
+                    <button
+                      className={styles.commentButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveCommentsPostId(post.post_id);
+                      }}
+                    >
+                      See Comments
+                    </button>
+                  </div>
                 </div>
+
 
                 <div className={styles.cardFooter}>
                   <button
@@ -231,6 +246,14 @@ export default function ModeratePostsPage() {
           onCancel={() => setPendingDeleteUser(null)}
         />
       )}
+
+      {activeCommentsPostId && (
+        <CommentsModal
+          postId={activeCommentsPostId}
+          onClose={() => setActiveCommentsPostId(null)}
+        />
+      )}
+
     </>
   );
 }

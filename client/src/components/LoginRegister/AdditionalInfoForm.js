@@ -35,7 +35,7 @@ export default function AdditionalInfoForm() {
   
     const fetchCountries = async () => {
       try {
-        const response = await axios.get("https://restcountries.com/v3.1/all");
+        const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,cca2");
         const countryList = response.data.map((country) => ({
           name: country.name.common,
           code: country.cca2,
@@ -46,6 +46,7 @@ export default function AdditionalInfoForm() {
         console.error("Error fetching countries:", error);
       }
     };
+
   
     fetchCountries();
   }, [navigate]);

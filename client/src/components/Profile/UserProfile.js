@@ -37,8 +37,8 @@ export default function UserProfile() {
   const fetchUserPosts = useCallback(() => {
     if (!userId) return;
     fetch(`http://localhost:4000/uploads/user-posts/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
+      .then((res) => res.json()) //asteapta res si il transforma in format json
+      .then((data) => { //primeste rezultatul jason in var data
         if (Array.isArray(data)) {
           setPosts(data.map((post) => ({ ...post, currentIndex: 0 })));
         }

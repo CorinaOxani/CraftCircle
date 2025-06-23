@@ -4,27 +4,27 @@ import styles from "../../CSSfyles/UserProfile.module.css";
 
 export default function PostMenuButton({ postId, onDelete, onEdit , isOwner, onReport}) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef(null);
+  const menuRef = useRef(null); //pt a detecta clickurile inafara meniului
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) { //daca meniul este deschid si click-ul s-a facut inafara lui
         setMenuOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside); // functia handleClickoutside sa fei apelata oricand se face click
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);//pt a elimina ascultatorul de evenimente cand e inchis meniul
     };
   }, []);
 
   function handleDelete() {
-    console.log("PostMenuButton: Sending delete request for ID:", postId);
+    //console.log("PostMenuButton: Sending delete request for ID:", postId);
     onDelete(postId); 
   }
 
   function handleEdit() {
-    console.log("Editing post:", postId);
+    //console.log("Editing post:", postId);
     onEdit(postId); 
   }
   function handleReport() {
@@ -37,7 +37,9 @@ export default function PostMenuButton({ postId, onDelete, onEdit , isOwner, onR
       <div className={styles.menuIcon} onClick={() => setMenuOpen(!menuOpen)}>
         <FaEllipsisV />
       </div>
-      <div ref={menuRef} className={`${styles.postMenu} ${menuOpen ? styles.show : ""}`}>
+      {/* meniul ce se afiseaza cand menuOpen e true */}
+      <div ref={menuRef} /*referinta pt detectarea click urilor, folosit in useEffect*/
+      className={`${styles.postMenu} ${menuOpen ? styles.show : ""}`}/*Clasa show e aplicata doar daca e deschis meniul */>  
         <ul>
           {isOwner ? (
             <>

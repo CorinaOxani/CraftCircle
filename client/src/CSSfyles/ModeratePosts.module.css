@@ -61,15 +61,16 @@ margin: 0.25rem 0;
 }
 
 .cardDescriptionScroll {
-flex-grow: 0;
-max-height: 100px;
-overflow-y: auto;
-overflow-x: hidden; 
-padding: 0.5rem 1rem;
-text-align: center;
-word-wrap: break-word;    
-white-space: normal;      
+  max-height: 2.8 em; /* aproximativ 2 rânduri */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  word-wrap: break-word;
+  white-space: normal;
+  line-height: 1.6em; /* important ca 2 rânduri să încapă în 3.2em */
 }
+
 
 /* scroll custom */
 .cardDescriptionScroll::-webkit-scrollbar {
@@ -388,3 +389,19 @@ background-color: transparent;
   .cardHeaderProducts p {
   margin: 0.25rem 0;
   }
+
+  .commentButton {
+  background-color: #d4947c;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-family: 'Lateef', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.commentButton:hover {
+  background-color: #b97e69;
+}

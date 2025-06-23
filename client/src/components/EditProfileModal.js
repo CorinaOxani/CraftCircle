@@ -16,7 +16,7 @@ export default function EditProfileModal({ onClose, currentCountry, currentCity,
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const res = await axios.get("https://restcountries.com/v3.1/all");
+        const res = await axios.get("https://restcountries.com/v3.1/all?fields=name,cca2");
         const countryList = res.data.map(c => c.name.common);
         setCountries(countryList.sort());
       } catch (err) {

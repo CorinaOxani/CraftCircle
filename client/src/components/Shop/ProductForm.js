@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import styles from "../../CSSfyles/UserProfile.module.css"; 
+import styles from "../../CSSfyles/UserProfile.module.css";
 import productStyles from "../../CSSfyles/ShopPage.module.css";
 
 
-export default function ProductForm({onSubmitProduct, isPosting }) {
+export default function ProductForm({ onSubmitProduct, isPosting }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -17,18 +17,18 @@ export default function ProductForm({onSubmitProduct, isPosting }) {
   const [fileError, setFileError] = useState(false);
   const [priceError, setPriceError] = useState(false);
 
-useEffect(() => {
-  fetch("http://localhost:4000/admin/categories/getCategories")
-    .then((res) => res.json())
-    .then((data) => setCategories(data))
-    .catch((err) => console.error("Failed to fetch categories:", err));
-}, []);
+  useEffect(() => {
+    fetch("http://localhost:4000/admin/categories/getCategories")
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.error("Failed to fetch categories:", err));
+  }, []);
 
-const filteredCategories = categories.filter(cat =>
-  cat.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
-  (cat.description || "").toLowerCase().includes(categorySearch.toLowerCase())
-);
-
+  //pune in array-ul filteredCategories toate catrgoriile care se potrivesc cu ce este introdus in search, fie numele si descrierea categoriilor
+  const filteredCategories = categories.filter(cat =>
+    cat.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
+    (cat.description || "").toLowerCase().includes(categorySearch.toLowerCase())
+  );
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
@@ -37,7 +37,7 @@ const filteredCategories = categories.filter(cat =>
 
     const previews = selected.map(file => ({
       url: URL.createObjectURL(file),
-      type: file.type.startsWith("image") ? "image" : "video",
+      type: "image",
     }));
 
     setPreviewFiles(prev => [...prev, ...previews]);
@@ -47,30 +47,30 @@ const filteredCategories = categories.filter(cat =>
     setFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
     setPreviewFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
-  
+
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-  
+    e.preventDefault(); //se opreste trimiterea pt verificari
+
     let hasError = false;
-  
+
     if (!title.trim()) {
       setTitleError(true);
       hasError = true;
     } else {
       setTitleError(false);
     }
-  
+
     const isCategoryValid =
       selectedCategory && categorySearch.trim() === selectedCategory.name;
-  
+
     if (!isCategoryValid) {
       setCategoryError(true);
       hasError = true;
     } else {
       setCategoryError(false);
     }
-  
+
     if (files.length === 0) {
       setFileError(true);
       hasError = true;
@@ -85,17 +85,16 @@ const filteredCategories = categories.filter(cat =>
       setPriceError(false);
     }
 
-  
     if (hasError) return;
-  
+
     onSubmitProduct({
       title,
       description,
       price,
       files,
-      category_id: selectedCategory?.category_id || null,
+      category_id: selectedCategory.category_id,
     });
-  
+
     // Resetare formular
     setSelectedCategory(null);
     setCategorySearch("");
@@ -105,7 +104,7 @@ const filteredCategories = categories.filter(cat =>
     setFiles([]);
     setPreviewFiles([]);
   };
-  
+
   return (
     <form onSubmit={handleSubmit} className={styles.postFormContainer}>
       <div className={productStyles.formFieldsRow}>
@@ -125,7 +124,7 @@ const filteredCategories = categories.filter(cat =>
           <input
             type="number"
             min="0"
-            step="0.01" 
+            step="0.01"
             placeholder="Price"
             value={price}
             onChange={(e) => {
@@ -144,11 +143,16 @@ const filteredCategories = categories.filter(cat =>
         className={productStyles.formTextarea}
       />
 
-
       <div className={styles.postOptions}>
         <label className={styles.postOption}>
           📷 Add Image
-          <input type="file" accept="image/*" multiple hidden onChange={handleFileChange} />
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={handleFileChange}
+          />
         </label>
       </div>
 
@@ -160,24 +164,20 @@ const filteredCategories = categories.filter(cat =>
 
 
       {previewFiles.length > 0 && (
-      <div className={styles.previewContainer}>
-        {previewFiles.map((file, index) => (
-          <div key={index} className={styles.previewItem}>
-            <button
-              type="button"
-              className={styles.removePreviewButton}
-              onClick={() => handleRemovePreview(index)}
-            >
-              ✖
-            </button>
-            {file.type === "image" ? (
+        <div className={styles.previewContainer}>
+          {previewFiles.map((file, index) => (
+            <div key={index} className={styles.previewItem}>
+              <button
+                type="button"
+                className={styles.removePreviewButton}
+                onClick={() => handleRemovePreview(index)}
+              >
+                ✖
+              </button>
               <img src={file.url} alt="preview" className={styles.previewImage} />
-            ) : (
-              <video src={file.url} controls className={styles.previewVideo} />
-            )}
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
       )}
       <input
         type="text"

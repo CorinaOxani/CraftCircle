@@ -11,39 +11,39 @@ import { useToast } from "../../utils/ToastContext";
 
 
 export default function ProductCard({
-  product,
+  product, //obiectul cu toate datele unui produs
   isOwner,
   isEditing,
   setIsEditing,
   onDeleteProduct,
   onEditProduct,
-  onReportProduct,
-  id,
+  id, // id-ul HTML-ului
 }) {
-  const { isAdmin } = useUser();
+  const { userId, isAdmin } = useUser();
   const media = product.images || [];
   const [title, setTitle] = useState(product.title);
   const [description, setDescription] = useState(product.description);
   const [price, setPrice] = useState(product.price);
-  const [newFiles, setNewFiles] = useState([]);
-  const [imagesToDelete, setImagesToDelete] = useState([]);
-  const [isSaving, setIsSaving] = useState(false);
+  const [newFiles, setNewFiles] = useState([]); //noile imagini adaugate de user-ul logat la editare produs
+  const [imagesToDelete, setImagesToDelete] = useState([]); //imaginile ce sunt sterse de user-ul logat la editare produs
+  const [isSaving, setIsSaving] = useState(false); //pt loader
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stock, setStock] = useState(product.stock || "yes");
   const { fetchCartCount } = useCart();
-  const { fetchFavoritesCount } = useFavorites(); 
+  const { fetchFavoritesCount } = useFavorites();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [reportState, setReportState] = useState({ productId: null, reportedUserId: null });
+  const [reportState, setReportState] = useState({ productId: null, reportedUserId: null }); //detalii despre produsul ce urmeaza sa fie raportat
   const { showToast } = useToast();
+  const fileInputRef = useRef(null); //referinta pt inputul de fisiere
 
-  const fileInputRef = useRef(null);
+  const currentMedia = [...media.filter((img) => !imagesToDelete.includes(img)), ...newFiles.map((f) => URL.createObjectURL(f))]; // lista cu imagini 
+  //lista existenta din care le elimina cele marcate deja cu x (pt stergere), le adauga pe cele noi transformate in url-uri temporrare
 
-  const currentMedia = [...media.filter((img) => !imagesToDelete.includes(img)), ...newFiles.map((f) => URL.createObjectURL(f))];
-
+  //daca e in modul de edit, trebuie un slide in plus pt cel cu +
   const totalSlides = isEditing ? currentMedia.length + 1 : currentMedia.length;
-
+  
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % totalSlides);
+    setCurrentIndex((prev) => (prev + 1) % totalSlides);//actualizez current index
   };
 
   const handlePrev = () => {
@@ -51,14 +51,14 @@ export default function ProductCard({
   };
 
   const handleNewFilesChange = (e) => {
-    setNewFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+    setNewFiles((prev) => [...prev, ...Array.from(e.target.files)]); //adauga noile fisiere selectate
   };
 
   const handleDeleteExistingImage = (imgUrl) => {
-    setImagesToDelete((prev) => [...prev, imgUrl]);
+    setImagesToDelete((prev) => [...prev, imgUrl]); //adauga url ul imaginii care se vrea stearsa in array
   };
 
-  const handleCancel = () => {
+  const handleCancel = () => { // modificarile facute se anuleaza, iese din starea de edit
     setIsEditing(null);
     setTitle(product.title);
     setDescription(product.description);
@@ -70,7 +70,7 @@ export default function ProductCard({
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
+    setIsSaving(true); //pt buton
     const formData = new FormData();
     formData.append("item_id", product.item_id);
     formData.append("title", title);
@@ -87,7 +87,7 @@ export default function ProductCard({
       });
 
       if (res.ok) {
-        window.location.reload();
+        window.location.reload();  //reincarcarea completa a paginii
       } else {
         toast.error("Failed to save changes", {
           className: styles.customToast,
@@ -99,17 +99,16 @@ export default function ProductCard({
     } catch (err) {
       console.error("Save error:", err);
     } finally {
-      setIsSaving(false);
+      setIsSaving(false); 
     }
   };
 
   const handleClickPlus = () => {
-    fileInputRef.current?.click();
+    fileInputRef.current?.click(); //deschide fereastra de file explorer
   };
 
   const handleAddToCart = async (productId) => {
-    const user_id = localStorage.getItem("user_id");
-    if (!user_id) {
+    if (!userId) {
       toast.error("You need to log in to add to cart.", {
         className: styles.customToast,
         bodyClassName: styles.customToastBody,
@@ -123,7 +122,7 @@ export default function ProductCard({
       const res = await fetch("http://localhost:4000/shop/add-to-cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id, product_id: productId, quantity: 1 }),
+        body: JSON.stringify({ user_id: userId, product_id: productId, quantity: 1 }),
       });
 
       const data = await res.json();
@@ -155,8 +154,7 @@ export default function ProductCard({
   };
 
   const handleAddToFavorites = async () => {
-    const user_id = localStorage.getItem("user_id");
-    if (!user_id) {
+    if (!userId) {
       toast.error("You need to log in to add to favorites.", {
         className: styles.customToast,
         bodyClassName: styles.customToastBody,
@@ -165,20 +163,20 @@ export default function ProductCard({
       });
       return;
     }
-  
+
     try {
       const res = await fetch("http://localhost:4000/favorites/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id,
+          user_id: userId,
           item_id: product.item_id,
           seller_id: product.user_id,
         }),
       });
-  
+
       const data = await res.json();
-  
+
       if (res.ok) {
         toast.success("❤️ Added to favorites!", {
           className: styles.customToast,
@@ -207,43 +205,40 @@ export default function ProductCard({
   };
 
   const handleReportProduct = (productId, reportedUserId) => {
-  setReportState({ productId, reportedUserId });
-  setShowConfirmModal(true);
-};
+    setReportState({ productId, reportedUserId });
+    setShowConfirmModal(true);
+  };
 
-const confirmReport = async () => {
-  const user_id = localStorage.getItem("user_id");
-  if (!user_id) {
-    showToast("You need to be logged in to report.");
-    setShowConfirmModal(false);
-    return;
-  }
-
-  try {
-    const res = await fetch(`http://localhost:4000/shop/report-product/${reportState.productId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id, reported_user_id: reportState.reportedUserId }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok && data.message === "Report submitted") {
-      showToast("Product reported successfully.");
-    } else {
-      showToast("ℹYou have already reported this product.");
+  const confirmReport = async () => {
+    if (!userId) {
+      showToast("You need to be logged in to report.");
+      setShowConfirmModal(false);
+      return;
     }
-  } catch (err) {
-    console.error("Error reporting product:", err);
-    showToast("Failed to report the product.");
-  } finally {
-    setShowConfirmModal(false);
-  }
-};
 
+    try {
+      const res = await fetch(`http://localhost:4000/shop/report-product/${reportState.productId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, reported_user_id: reportState.reportedUserId }),
+      });
 
+      const data = await res.json();
 
-  return (
+      if (res.ok && data.message === "Report submitted") {
+        showToast("Product reported successfully.");
+      } else {
+        showToast("You have already reported this product.");
+      }
+    } catch (err) {
+      console.error("Error reporting product:", err);
+      showToast("Failed to report the product.");
+    } finally {
+      setShowConfirmModal(false);
+    }
+  };
+
+  return ( // aici se face id ul pentru scoll
     <div className={styles.productCard} id={id}>
       {!isAdmin && (
         <ProductMenuButton
@@ -263,14 +258,14 @@ const confirmReport = async () => {
           </button>
         )}
 
-        {currentIndex < currentMedia.length ? (
+        {currentIndex < currentMedia.length ? ( //daca e in limitele marginilor se va afisa imaginea din folosind ulr ul
           <div className={styles.previewItem}>
             <img
               src={currentMedia[currentIndex]}
               alt="product"
               className={styles.productMedia}
             />
-            {isEditing && currentIndex < media.length && (
+            {isEditing && currentIndex < media.length && ( //daca suntem in edit mode si indexul este ok, putem sterge imaginea
               <button
                 className={styles.removePreviewButton}
                 onClick={() => handleDeleteExistingImage(currentMedia[currentIndex])}
@@ -280,11 +275,11 @@ const confirmReport = async () => {
             )}
           </div>
         ) : (
-          isEditing && (
-            <div className={styles.plusBox} onClick={handleClickPlus}>
-              <span className={styles.plusSymbol}>+</span>
+          isEditing && ( // daca nu exista imagine la acel index si sunte in editare
+            <div className={styles.plusBox} onClick={handleClickPlus}> 
+              <span className={styles.plusSymbol}>+</span> 
               <input
-                ref={fileInputRef}
+                ref={fileInputRef}// apare plus box ul care permite adaugarea unei imagini noi (sau mai multe)
                 type="file"
                 accept="image/*"
                 multiple
@@ -322,20 +317,19 @@ const confirmReport = async () => {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
             />
-            {isOwner && (
-              <select
-                className={styles.inlineInput}
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-              >
-                <option value="yes">In stock</option>
-                <option value="no">Out of stock</option>
-              </select>
-            )}
+            <select
+              className={styles.inlineInput}
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+            >
+              <option value="yes">In stock</option>
+              <option value="no">Out of stock</option>
+            </select>
+            
             <div style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}>
               <button
                 onClick={handleSave}
-                disabled={isSaving}
+                disabled={isSaving} //dezactivez butonul cand isSaving e true
                 className={styles.saveButton}
               >
                 {isSaving ? "Saving..." : "Save"}
@@ -353,10 +347,10 @@ const confirmReport = async () => {
             <div className={styles.productTitleScroll}>{product.title}</div>
             <p className={styles.productDescription}>{product.description}</p>
 
-            <div className={styles.flexSpacer} /> 
+            <div className={styles.flexSpacer} />
 
             <strong>€{product.price}</strong>
-            {!isAdmin &&isOwner && !isEditing && (
+            {!isAdmin && isOwner && !isEditing && (
               <p className={styles.stockStatus}>
                 {stock === "yes" ? "In stock" : "Out of stock"}
               </p>
