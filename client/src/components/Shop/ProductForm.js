@@ -32,7 +32,14 @@ export default function ProductForm({ onSubmitProduct, isPosting }) {
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
-    if (selected.length > 0) setFileError(false);
+
+    if (selected.length === 0) {
+      setFileError(true);
+      return;
+    }
+
+    setFileError(false); //  elimina eroarea
+
     setFiles(prev => [...prev, ...selected]);
 
     const previews = selected.map(file => ({
@@ -42,6 +49,7 @@ export default function ProductForm({ onSubmitProduct, isPosting }) {
 
     setPreviewFiles(prev => [...prev, ...previews]);
   };
+
 
   const handleRemovePreview = (indexToRemove) => {
     setFiles((prev) => prev.filter((_, index) => index !== indexToRemove));

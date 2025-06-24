@@ -191,12 +191,12 @@ export default function UserProfile() {
       });
 
       const data = await res.json();
-      alert(data.message === "Already reported" //trebuie schimbat cu un toast
+      showToast(data.message === "Already reported" //trebuie schimbat cu un toast
         ? "You've already reported this post."
         : "Thanks! We'll review the post.");
     } catch (err) {
       console.error("Error reporting post:", err);
-      alert("Error reporting post.");
+      showToast("Error reporting post.");
     }
   };
 

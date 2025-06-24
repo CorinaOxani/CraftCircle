@@ -31,62 +31,65 @@ router.get("/products", async (req, res) => {
       }
     }
 
-    // Filtrare sugestii: follow + categorii proprii + istoric (dacă NU e search sau categorie)
-    if (!search && !categoryName) {
-      if (selectedFilter === "followed") {
-        values.push(userId);
-        whereParts.push(`i.user_id IN (
-          SELECT following_id FROM follows WHERE follower_id = $${values.length}
-        )`);
-      } else {
-        const suggestionParts = [];
+    // Aplicăm explicit filtrul "followed" doar dacă este cerut
+    if (selectedFilter === "followed") {
+      values.push(userId);
+      whereParts.push(`i.user_id IN (
+    SELECT following_id FROM follows WHERE follower_id = $${values.length}
+  )`);
+    }
 
-        // 1. Followed users
-        values.push(userId);
-        let logic = `i.user_id IN (
-          SELECT following_id FROM follows WHERE follower_id = $${values.length}
-        )`;
+    // Dacă nu avem căutare și categorie, putem aplica sugestii (follow + categorii proprii + istoric)
+    if (!search && !categoryName && selectedFilter !== "followed") {
+      const suggestionParts = [];
 
-        // 2. Categorii proprii
-        const catRes = await pool.query(`
-          SELECT DISTINCT category_id FROM marketplace_items
-          WHERE user_id = $1 AND category_id IS NOT NULL
-        `, [userId]);
+      // 1. Followed users
+      values.push(userId);
+      let logic = `i.user_id IN (
+    SELECT following_id FROM follows WHERE follower_id = $${values.length}
+  )`;
 
-        const categoryIds = catRes.rows.map(r => r.category_id);
-        if (categoryIds.length > 0) {
-          const placeholders = categoryIds.map((_, i) => `$${values.length + i + 1}`).join(", ");
-          logic += ` OR i.category_id IN (${placeholders})`;
-          values.push(...categoryIds);
-        }
+      // 2. Categorii proprii
+      const catRes = await pool.query(`
+    SELECT DISTINCT category_id FROM marketplace_items
+    WHERE user_id = $1 AND category_id IS NOT NULL
+  `, [userId]);
 
-        suggestionParts.push(`(${logic})`);
+      const categoryIds = catRes.rows.map(r => r.category_id);
+      if (categoryIds.length > 0) {
+        const placeholders = categoryIds.map((_, i) => `$${values.length + i + 1}`).join(", ");
+        logic += ` OR i.category_id IN (${placeholders})`;
+        values.push(...categoryIds);
+      }
 
-        // 3. Istoric căutări
-        const history = await pool.query(`
-          SELECT search_text FROM product_search_history
-          WHERE user_id = $1
-          GROUP BY search_text
-          ORDER BY MAX(searched_at) DESC
-          LIMIT 3
-        `, [userId]);
+      suggestionParts.push(`(${logic})`);
 
-        const keywords = history.rows.map(r => `%${r.search_text.toLowerCase()}%`);
-        if (keywords.length > 0) {
-          const offset = values.length;
-          const keywordConditions = keywords.map((_, i) => `
-            LOWER(i.title) LIKE $${offset + i + 1}
-            OR LOWER(i.description) LIKE $${offset + i + 1}
-          `);
-          values.push(...keywords);
-          suggestionParts.push(`(${keywordConditions.join(" OR ")})`);
-        }
+      // 3. Istoric căutări
+      const history = await pool.query(`
+    SELECT search_text FROM product_search_history
+    WHERE user_id = $1
+    GROUP BY search_text
+    ORDER BY MAX(searched_at) DESC
+    LIMIT 3
+  `, [userId]);
 
-        if (suggestionParts.length > 0) {
-          whereParts.push(`(${suggestionParts.join(" OR ")})`);
-        }
+      const keywords = history.rows.map(r => `%${r.search_text.toLowerCase()}%`);
+      if (keywords.length > 0) {
+        const offset = values.length;
+        const keywordConditions = keywords.map((_, i) => `
+      LOWER(i.title) LIKE $${offset + i + 1}
+      OR LOWER(i.description) LIKE $${offset + i + 1}
+    `);
+        values.push(...keywords);
+        suggestionParts.push(`(${keywordConditions.join(" OR ")})`);
+      }
+
+      if (suggestionParts.length > 0) {
+        whereParts.push(`(${suggestionParts.join(" OR ")})`);
       }
     }
+
+
 
     // Search explicit
     if (search) {
@@ -140,7 +143,7 @@ router.get("/products", async (req, res) => {
       query += ` ORDER BY i.created_at DESC`;
     }
     query += ` LIMIT 50`;
-    
+
 
     const result = await pool.query(query, values);
     const items = result.rows;

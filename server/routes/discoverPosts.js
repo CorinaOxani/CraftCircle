@@ -108,7 +108,7 @@ if (!search && !categoryName) {
     }
 
     // Doar follow (explicit)
-    if (!search && selectedFilter === "followed") {
+    if (selectedFilter === "followed") {
       values.push(userId);
       whereParts.push(`p.user_id IN (
         SELECT following_id FROM follows WHERE follower_id = $${values.length}
