@@ -17,7 +17,7 @@ const UserListModal = ({ onClose, title, endpoint }) => {
                 const response = await fetch(url);
                 const data = await response.json();
                 setUsers(data);
-                setFilteredUsers(data); // Initially, all users are displayed
+                setFilteredUsers(data); 
             } catch (error) {
                 console.error("Error fetching users:", error);
             }

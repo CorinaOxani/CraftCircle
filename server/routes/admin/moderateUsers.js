@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require("../../config/database");
 const transporter = require("../../config/emailTransporter");
 
-// Get all users with report count, sorted by report count desc
+
 router.get("/all", async (req, res) => {
   try {
     const result = await pool.query(
@@ -21,7 +21,7 @@ router.get("/all", async (req, res) => {
   }
 });
 
-// Get all reports for a specific user
+
 router.get("/reports/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
@@ -43,15 +43,14 @@ router.get("/reports/:userId", async (req, res) => {
   }
 });
 
-// Delete a user + notify + increment deleted_users
+
 router.delete("/delete-user/:userId", async (req, res) => {
     const { userId } = req.params;
-  
-    // TODO: setează asta corect în funcție de cum reții ID-ul adminului
+
     const adminId = req.session?.admin_id || 1;
   
     try {
-      // 1. Obține emailul și numele userului înainte de ștergere
+
       const userResult = await pool.query(
         "SELECT email, first_name, last_name FROM accounts WHERE user_id = $1",
         [userId]
@@ -63,12 +62,12 @@ router.delete("/delete-user/:userId", async (req, res) => {
   
       const { email, first_name, last_name } = userResult.rows[0];
   
-      // 2. Șterge userul
+
       await pool.query("DELETE FROM accounts WHERE user_id = $1", [userId]);
   
-      // 3. Trimite email de notificare
+
       const mailOptions = {
-        from: "noreply@craftcircle.com", // sau adresa din config
+        from: "noreply@craftcircle.com", 
         to: email,
         subject: "Your account has been removed",
         html: `
@@ -82,7 +81,6 @@ router.delete("/delete-user/:userId", async (req, res) => {
   
       await transporter.sendMail(mailOptions);
   
-      // 4. Incrementează `deleted_users` pentru admin
       await pool.query(
         `UPDATE admins SET deleted_users = COALESCE(deleted_users, 0) + 1 WHERE admin_id = $1`,
         [adminId]

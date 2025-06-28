@@ -8,8 +8,8 @@ export default function CartSummary({ onOrderPlaced }) {
   const [showModal, setShowModal] = useState(false);
     const { cartItems } = useCart();
 
-  const total = Object.values(cartItems).reduce(
-    (sum, group) =>
+  const total = Object.values(cartItems).reduce( //extrage un array cu toti sellerii
+    (sum, group) =>// sum e pt totalul general, iar group e sellerul
       sum + group.items.reduce((sub, item) => sub + item.price * item.quantity, 0),
     0
   );

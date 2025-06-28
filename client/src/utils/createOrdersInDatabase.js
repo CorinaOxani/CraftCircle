@@ -8,7 +8,7 @@ export default async function createOrdersInDatabase({
   onOrderPlaced,
   navigate,
 }) {
-  console.log("createOrdersInDatabase a fost apelată");
+  //console.log("createOrdersInDatabase a fost apelată");
   const allRequests = [];
 
   for (const sellerId in cartItems) {
@@ -27,7 +27,7 @@ export default async function createOrdersInDatabase({
     const paidAmount = paymentMethod === "card" ? totalPrice : 0;
     const totalDue = totalPrice;
 
-    // Dacă ai nevoie de un singur item_id, poți trimite doar primul
+    // Daca ai nevoie de un singur item_id, poți trimite doar primul
     const itemId = items[0]?.item_id;
 
     allRequests.push(
@@ -37,7 +37,7 @@ export default async function createOrdersInDatabase({
         body: JSON.stringify({
           buyer_id: userId,
           seller_id: sellerId,
-          item_id: itemId, // sau null, dacă ai altă relație în BD
+          item_id: itemId, // sau null, daca ai alta relatie în BD
           status: "pending",
           payment_method: paymentMethod,
           paid_amount: paidAmount,

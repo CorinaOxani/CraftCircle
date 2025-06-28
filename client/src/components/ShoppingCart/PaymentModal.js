@@ -18,7 +18,7 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced }) 
   const navigate = useNavigate();
   const [showStripeModal, setShowStripeModal] = useState(false);
   const { showToast } = useToast();
-  const [address, setAddress] = useState({
+  const [address, setAddress] = useState({ // obiectul cu adresa de livrare
     country: "",
     city: "",
     state: "",
@@ -26,11 +26,11 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced }) 
     street: "",
     details: "",
   });
-
+  // Fetch user info pt a completa campurile address 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/users/${userId}`);
+        const res = await fetch(`http://localhost:4000/users/${userId}`);// API-ul pentru a obtine informatiile despre utilizator
         const data = await res.json();
         setAddress((prev) => ({
           ...prev,
@@ -42,16 +42,16 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced }) 
       }
     };
 
-    fetchUserInfo();
+    fetchUserInfo();//
   }, [userId]);
 
 
-  const handleInputChange = (field, value) => {
-    setAddress((prev) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field, value) => {// Functie pentru a actualiza campurile adresei
+    setAddress((prev) => ({ ...prev, [field]: value }));// actualizeaza campul specificat cu valoarea data
   };
 
-  const validateZipCode = async (countryCode, zipCode) => {
-    const romanianRegex = /^[0-9]{6}$/;
+  const validateZipCode = async (countryCode, zipCode) => {// Functie pentru a valida codul postal in functie de tara
+    const romanianRegex = /^[0-9]{6}$/;// Regex pentru codul postal romanesc (6 cifre)
     const code = countryCode.toLowerCase();
 
     if (code === "romania" || code === "ro") {
@@ -62,57 +62,59 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced }) 
       const res = await fetch(`https://api.zippopotam.us/${code}/${zipCode}`);
       return res.ok;
     } catch (err) {
-      console.error("Zip code validation failed:", err);
+      console.error("Zip code validation failed:", err); // in caz de eroare, returneaza false
+      showToast("Failed to validate ZIP Code. Please try again.");
       return false;
     }
   };
 
-  const calculateTotalAmount = () => {
+  const calculateTotalAmount = () => {// Functie pentru a calcula suma totala a comenzii
     let total = 0;
 
-    for (const sellerId in cartItems) {
+    for (const sellerId in cartItems) {// Itereaza prin fiecare seller din cosul de cumparaturi
       const items = cartItems[sellerId].items;
-      const shippingInfo = shippingCosts.find(
+      const shippingInfo = shippingCosts.find(// cauta informatiile de livrare pentru seller-ul curent
         (sc) => sc.seller === cartItems[sellerId].sellerName
       );
       const shippingCost = parseFloat(shippingInfo?.price || 0);
 
-      const itemTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const itemTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);// Calculeaza totalul pentru fiecare item din seller
+      // aduna pretul item-ului cu costul de livrare
       total += itemTotal + shippingCost;
     }
 
     return total;
   };
 
-  const handleClick = async () => {
+  const handleClick = async () => {// Functie pentru a gestiona click-ul pe butonul de trimitere
     const requiredFields = ["country", "city", "street", "zip_code"];
-    const missing = requiredFields.filter((field) => !address[field].trim());
+    const missing = requiredFields.filter((field) => !address[field].trim());// Verifica daca toate campurile necesare sunt completate
     setMissingFields(missing);
 
     if (missing.length > 0) {
-      const readable = missing.map((f) => f.charAt(0).toUpperCase() + f.slice(1)).join(", ");
-      showToast(`Please fill in: ${readable}`);
+      const readable = missing.map((f) => f.charAt(0).toUpperCase() + f.slice(1)).join(", ");// transforma campurile lipsa in strig cu uppercase, le desparte cu virgula
+      showToast(`Please fill in: ${readable}`);// afiseaza un mesaj de eroare cu ce trebuie completat
       return;
     }
 
     let countryISO = "";
     try {
-      const res = await fetch(`https://restcountries.com/v3.1/name/${address.country}`);
+      const res = await fetch(`https://restcountries.com/v3.1/name/${address.country}`);// API-ul pentru a obtine codul ISO al tarii
       const data = await res.json();
-      countryISO = data?.[0]?.cca2?.toLowerCase();
+      countryISO = data?.[0]?.cca2?.toLowerCase();// obtine codul ISO al tarii in format mic
     } catch (err) {
       console.error("Failed to get ISO country code", err);
     }
 
     if (!countryISO) {
       showToast("Invalid country name.");
-      setMissingFields((prev) => [...new Set([...prev, "country"])]);
+      setMissingFields((prev) => [...new Set([...prev, "country"])]); // adauga "country" la campurile lipsa fara duplicare
       return;
     }
 
     const isZipValid = await validateZipCode(countryISO, address.zip_code);
     if (!isZipValid) {
-      setMissingFields((prev) => [...new Set([...prev, "zip_code"])]);
+      setMissingFields((prev) => [...new Set([...prev, "zip_code"])]); // adauga "zip_code" la campurile lipsa fara duplicare
       showToast("Invalid ZIP Code for selected country.");
       return;
     }
@@ -120,14 +122,13 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced }) 
     setMissingFields([]);
 
     if (paymentMethod === "cash") {
-      handleSubmit();
+      handleSubmit(); // daca metoda de plata e cash, trimite comanda
     } else {
-      setShowStripeModal(true);
+      setShowStripeModal(true); // daca metoda de plata e card, deschide modalul Stripe
     }
   };
-
-
-
+  // Valideaza din nou toate campurile inainte de trimitere, 
+  // ca masura de siguranta suplimentara.
   const handleSubmit = async () => {
     const requiredFields = ["country", "city", "street", "zip_code"];
     const missing = requiredFields.filter((field) => !address[field].trim());
@@ -167,7 +168,8 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced }) 
     setSubmitting(true);
 
     try {
-
+      // Salveaza cosul si costurile de livrare in localStorage pentru persistenta,
+      // utile la reload sau pe pagina de confirmare comanda.
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
       localStorage.setItem("shippingCosts", JSON.stringify(shippingCosts));
 
@@ -198,7 +200,7 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced }) 
     <div
       className={styles.modalOverlay}
       onClick={(e) => {
-        if (e.target.classList.contains(styles.modalOverlay)) onClose();
+        if (e.target.classList.contains(styles.modalOverlay)) onClose(); // inchide modalul daca se da click in afara lui
       }}
     >
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -221,7 +223,7 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced }) 
             type="text"
             placeholder="Country"
             value={address.country}
-            readOnly
+            readOnly//  camp completat automat
             onFocus={() => {
               showToast("To change delivery country, please update your profile.");
             }}
@@ -244,7 +246,7 @@ export default function PaymentModal({ shippingCosts, onClose, onOrderPlaced }) 
             placeholder="State / Province"
             value={address.state}
             onChange={(e) => handleInputChange("state", e.target.value)}
-            className={missingFields.includes("state") ? styles.inputError : ""}
+            className={missingFields.includes("state") ? styles.inputError : ""} // adauga clasa de eroare daca lipseste campul
           />
           <input
             type="text"

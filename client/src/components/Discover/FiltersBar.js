@@ -1,4 +1,3 @@
-// FiltersBar.js
 import React from "react";
 import styles from "../../CSSfyles/DiscoverPage.module.css";
 

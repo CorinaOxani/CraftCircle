@@ -1,12 +1,12 @@
 import React from "react";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js"; // Importa elementele Stripe
+import { loadStripe } from "@stripe/stripe-js";// Importa funcția pentru încărcarea Stripe
 import CardPaymentForm from "./CardPaymentForm";
 import styles from "../../CSSfyles/CartPage.module.css";
 
-const stripePromise = loadStripe(
+const stripePromise = loadStripe(//Incarca obiectul Stripe o singura data
   process.env.REACT_APP_STRIPE_PUBLIC_KEY,
-  { locale: "en" }
+  { locale: "en" }// Seteaza limba pentru Stripe
 );
 
 
@@ -17,7 +17,7 @@ export default function StripePaymentModal({
   return (
     <div className={styles.stripeModalOverlay}>
       <div className={styles.stripeModalContent}>
-        <Elements stripe={stripePromise}>
+        <Elements stripe={stripePromise}>{ /* Incarca Stripe Elements , fara el componenetele Stripe nu vor functiona */}
           <CardPaymentForm
             amount={amount}
             address={address}
@@ -30,7 +30,6 @@ export default function StripePaymentModal({
             navigate={navigate}                 
             onClose={onClose}
           />
-
         </Elements>
       </div>
     </div>

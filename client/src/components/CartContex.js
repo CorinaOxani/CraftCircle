@@ -67,3 +67,15 @@ export function CartProvider({ children }) {
 export function useCart() {
   return useContext(CartContext);
 }
+
+/*{
+  sellerId: {
+    sellerName: "...",
+    items: [
+      { id: x, price: x, quantity: x, seller_city: "...", seller_country: "...", ... },
+      { id: x, price: x, quantity: x, seller_city: "...", seller_country: "...", ... },
+    ]
+  },
+  ...
+}
+ */

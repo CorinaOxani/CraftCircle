@@ -35,20 +35,20 @@ module.exports = (io) => {
     }
 
     try {
-      // 1. Adaugă comentariul
+
       const insert = await pool.query(
         `INSERT INTO comments (post_id, user_id, text) VALUES ($1, $2, $3) RETURNING *`,
         [postId, user_id, text]
       );
 
-      // 2. Află user-ul care deține postarea
+
       const postOwner = await pool.query(
         `SELECT user_id FROM posts WHERE post_id = $1`,
         [postId]
       );
       const postOwnerId = postOwner.rows[0]?.user_id;
 
-      //Trimite notificare doar dacă nu comentează pe propria postare
+      //Trimite notificare doar daca nu comenteaza pe propria postare
       if (postOwnerId && postOwnerId !== user_id) {
         await addAppreciationNotification({
           user_id: postOwnerId,
@@ -59,7 +59,7 @@ module.exports = (io) => {
         });
       }
 
-      // 4. Returnează și nume + poză
+
       const user = await pool.query(
         `SELECT first_name || ' ' || last_name AS username, profile_picture
          FROM accounts

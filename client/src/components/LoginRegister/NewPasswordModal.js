@@ -52,7 +52,7 @@ export default function NewPasswordModal({ email, onSuccess }) {
       <div className={styles.passwordModal}>
         <h2>Set New Password</h2>
 
-        {/* New password */}
+
         <div className={`${styles.inputWrapper} ${isWeak ? styles.invalidInput : ""}`}>
           <input
             type={showNew ? "text" : "password"}
@@ -65,7 +65,7 @@ export default function NewPasswordModal({ email, onSuccess }) {
           </span>
         </div>
 
-        {/* Confirm password */}
+
         <div
           className={`${styles.inputWrapper} ${
             isMismatch ? styles.invalidInput : isMatch ? styles.validInput : ""

@@ -138,16 +138,16 @@ router.post("/report-product/:itemId", async (req, res) => {
   }
 });
 
-//  Ștergere produs + imagini Cloudinary
+//  stergere produs + imagini Cloudinary
 router.delete("/delete-product/:itemId", async (req, res) => {
   const { itemId } = req.params;
 
   try {
-    // Șterge din coș și favorite
+    // sterge din coș și favorite
     await pool.query(`DELETE FROM shopping_cart WHERE item_id = $1`, [itemId]);
     await pool.query(`DELETE FROM favorites WHERE item_id = $1`, [itemId]);
 
-    // Șterge imaginile din Cloudinary
+    // sterge imaginile din Cloudinary
     const imagesRes = await pool.query(
       `SELECT image_url FROM shop_item_images WHERE item_id = $1`,
       [itemId]
@@ -164,11 +164,11 @@ router.delete("/delete-product/:itemId", async (req, res) => {
       }
     }
 
-    // Șterge imaginile din baza de date
+    // sterge imaginile din baza de date
     await pool.query(`DELETE FROM shop_item_images WHERE item_id = $1`, [itemId]);
     await pool.query(`DELETE FROM product_reports WHERE item_id = $1`, [itemId]);
 
-    // Șterge produsul din baza de date
+    // sterge produsul din baza de date
     const result = await pool.query(
       `DELETE FROM marketplace_items WHERE item_id = $1`,
       [itemId]

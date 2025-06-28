@@ -28,7 +28,7 @@ export default function SearchBar({ userId, onSearchResults, clearSearch, existi
       );
       const data = await res.json();
 
-      // Adaugă last_message_preview din conversations dacă există
+      // Adauga last_message_preview din conversations daca exista
       const updatedResults = data.map((user) => {
         const match = existingConversations.find(c => c.user_id === user.user_id);
         return {

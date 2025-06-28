@@ -48,7 +48,7 @@ router.delete("/delete-product/:itemId", async (req, res) => {
 
         await client.query("BEGIN");
 
-        // Get product info
+
         const productInfo = await client.query(`
             SELECT 
                 m.title, 
@@ -92,7 +92,7 @@ router.delete("/delete-product/:itemId", async (req, res) => {
 
         await client.query("COMMIT");
 
-        // Send notification email
+
         try {
             const emailContent = `
                 <p>Hi <strong>${first_name}</strong>,</p>

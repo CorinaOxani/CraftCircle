@@ -64,7 +64,7 @@ app.use((req, res, next) => {
 
 const followRoutes = require("./routes/follow")(io); 
 const commentsRoutes = require("./routes/comments")(io);
-// Rutele aplicației
+// Rutele aplicatiei
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
@@ -82,7 +82,7 @@ app.use("/discover", discoverPostsRoute);
 app.use("/discover", discoverProductsRoute);
 app.use("/comments", commentsRoutes);
 app.use("/admin", adminRoutes);
-app.use("/uploads", express.static("uploads")); //// Servește fișierele stocate local în "uploads" (doar dacă nu se folosește exclusiv Cloudinary)
+app.use("/uploads", express.static("uploads")); //// Serveste fisierele stocate local in "uploads" (doar daca nu se foloseste exclusiv Cloudinary)
 app.use("/admin/categories", categoryRoutes);
 app.use("/admin/moderatePosts", moderatePostsRoutes);
 app.use("/admin/moderateProducts", moderateProductsRoutes);

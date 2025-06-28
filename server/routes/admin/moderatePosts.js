@@ -43,16 +43,16 @@ router.get("/all", async (req, res) => {
   }
 });
 
-// Delete a post and update admin stats
+
 router.delete("/delete-post/:postId", async (req, res) => {
   const { postId } = req.params;
-  const adminId = req.query.admin_id || 1;  // Admin ID, use session or token in production
+  const adminId = req.query.admin_id || 1;  
   const client = await pool.connect();
 
   try {
       await client.query("BEGIN");
 
-      // Get post info
+
       const postInfo = await client.query(`
           SELECT 
               p.content, 
@@ -86,7 +86,6 @@ router.delete("/delete-post/:postId", async (req, res) => {
 
       await client.query("COMMIT");
 
-      // Send notification email
       try {
           await transporter.sendMail({
               from: "oxanicorina0@gmail.com",

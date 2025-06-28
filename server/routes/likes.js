@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require("../config/database");
 const { addAppreciationNotification } = require("./appreciationNotification.js");
 
-// Adaugă like
+// Adauga like
 router.post("/add", async (req, res) => {
   const { user_id, post_id } = req.body;
 

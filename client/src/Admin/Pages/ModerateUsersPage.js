@@ -6,8 +6,6 @@ import { useToast } from "../../utils/ToastContext";
 import { useNavigate } from "react-router-dom";
 import defaultProfile from "../../images/default-profile.png";
 
-
-
 export default function ModerateUsersPage() {
   const [users, setUsers] = useState([]);
   const [reportDetailsOpen, setReportDetailsOpen] = useState(null);

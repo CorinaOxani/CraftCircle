@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// LOGIN
+
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -51,7 +51,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// REGISTER
+
 router.post("/adduser", async (req, res) => {
   try {
     const { first_name, last_name, email, password, birth_date, bio } = req.body;
@@ -91,7 +91,7 @@ router.post("/adduser", async (req, res) => {
   }
 });
 
-// SALVARE DATE PROFIL
+
 router.post("/additional-info", async (req, res) => {
   try {
     const { user_id, birth_date, country, city } = req.body;
@@ -163,7 +163,7 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
-// SCHIMBARE PAROLĂ USER + email notificare
+
 router.post("/change-password", async (req, res) => {
   const { user_id, oldPassword, newPassword } = req.body;
 
@@ -183,7 +183,7 @@ router.post("/change-password", async (req, res) => {
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
     await pool.query("UPDATE accounts SET password = $1 WHERE user_id = $2", [hashedNewPassword, user_id]);
 
-    // Trimitere email
+
     const mailOptions = {
       from: "oxanicorina0@gmail.com",
       to: email,
@@ -246,7 +246,7 @@ router.post("/send-reset-code", async (req, res) => {
       ON CONFLICT (email) DO UPDATE SET code = $2, expires_at = NOW() + INTERVAL '15 minutes'
     `, [email, code]);
 
-    // Trimite emailul
+
     await transporter.sendMail({
       from: "oxanicorina0@gmail.com",
       to: email,

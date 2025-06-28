@@ -37,7 +37,7 @@ export default function ConversationList({
                 alt="Profile"
                 className={styles.convProfilePic}
                 onClick={(e) => {
-                  e.stopPropagation(); // previne declansarea selectării conversației
+                  e.stopPropagation(); // previne declansarea selectarii conversatiei
                   navigate(`/profile/${conv.user_id}`);
                 }}
                 style={{ cursor: "pointer" }}

@@ -14,7 +14,7 @@ router.get("/products", async (req, res) => {
     let values = [];
     let whereParts = [];
 
-    // Istoric căutări
+    // Istoric cautari
     if (search.length >= 3) {
       const last = await pool.query(
         `SELECT search_text FROM product_search_history 
@@ -31,7 +31,7 @@ router.get("/products", async (req, res) => {
       }
     }
 
-    // Aplicăm explicit filtrul "followed" doar dacă este cerut
+    // Aplicam explicit filtrul "followed" doar daca este cerut
     if (selectedFilter === "followed") {
       values.push(userId);
       whereParts.push(`i.user_id IN (
@@ -39,17 +39,17 @@ router.get("/products", async (req, res) => {
   )`);
     }
 
-    // Dacă nu avem căutare și categorie, putem aplica sugestii (follow + categorii proprii + istoric)
+    // Daca nu avem cautare si categorie, putem aplica sugestii (follow + categorii proprii + istoric)
     if (!search && !categoryName && selectedFilter !== "followed") {
       const suggestionParts = [];
 
-      // 1. Followed users
+
       values.push(userId);
       let logic = `i.user_id IN (
     SELECT following_id FROM follows WHERE follower_id = $${values.length}
   )`;
 
-      // 2. Categorii proprii
+
       const catRes = await pool.query(`
     SELECT DISTINCT category_id FROM marketplace_items
     WHERE user_id = $1 AND category_id IS NOT NULL
@@ -64,7 +64,6 @@ router.get("/products", async (req, res) => {
 
       suggestionParts.push(`(${logic})`);
 
-      // 3. Istoric căutări
       const history = await pool.query(`
     SELECT search_text FROM product_search_history
     WHERE user_id = $1
@@ -88,8 +87,6 @@ router.get("/products", async (req, res) => {
         whereParts.push(`(${suggestionParts.join(" OR ")})`);
       }
     }
-
-
 
     // Search explicit
     if (search) {

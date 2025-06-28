@@ -11,7 +11,7 @@ router.get("/posts", async (req, res) => {
   if (!userId) return res.status(400).json({ error: "Missing user_id" });
 
   try {
-    // Salvăm în istoricul de căutare
+    // Salavam în istoricul de cautare
     if (search.length >= 3) {
       const lastSearch = await pool.query(
         `SELECT search_text FROM post_search_history 
@@ -88,7 +88,7 @@ router.get("/posts", async (req, res) => {
       }
     }
 
-    // Căutare globală
+    // Cautare globală
     if (search) {
       values.push(`%${search}%`);
       whereParts.push(`(
@@ -97,7 +97,7 @@ router.get("/posts", async (req, res) => {
       )`);
     }
 
-    // Filtru după categorie
+    // Filtru dupa categorie
     if (categoryName) {
       values.push(`%${categoryName}%`);
       whereParts.push(`EXISTS (
@@ -115,7 +115,7 @@ router.get("/posts", async (req, res) => {
       )`);
     }
 
-    // excludem postările proprii
+    // excludem postarile proprii
     values.push(userId);
     whereParts.push(`p.user_id != $${values.length}`);
 

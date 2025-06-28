@@ -70,13 +70,13 @@
   }
   
   
-  /* Linii verticale între link-uri */
+  /* Linii verticale intre link-uri */
   .separator {
     width: 1px;
     height: 20px;
     background-color: #8a6f48;
   }
-  /* Icon căruț animat */
+
 .cartIcon {
   background: none;
   border: none;

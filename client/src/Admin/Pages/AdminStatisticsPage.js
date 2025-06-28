@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../../CSSfyles/AdminStatistics.module.css";
 import AdminNavbar from "../components/AdminNavbar";
 import StatisticsChart from "../components/StatisticsChart";
-import UserListModal from "../components/UserListModal"; // Nou import
+import UserListModal from "../components/UserListModal"; 
 
 const tabs = ["Users", "Posts", "Products", "Messages", "Orders", "App"];
 

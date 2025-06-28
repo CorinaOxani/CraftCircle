@@ -117,7 +117,7 @@ router.post("/change-password", async (req, res) => {
   const { admin_id, oldPassword, newPassword } = req.body;
 
   try {
-      // Verifică dacă adminul există
+      // Verifica daca adminul exista
       const result = await pool.query("SELECT password_hash, email, first_name FROM admins WHERE admin_id = $1", [admin_id]);
       
       if (result.rows.length === 0) {
@@ -126,16 +126,16 @@ router.post("/change-password", async (req, res) => {
 
       const admin = result.rows[0];
 
-      // Verifică parola veche
+      // Verifica parola veche
       const isPasswordValid = await bcrypt.compare(oldPassword, admin.password_hash);
       if (!isPasswordValid) {
           return res.status(401).json({ error: "Incorrect old password." });
       }
 
-      // Generează hash pentru noua parolă
+      // Genereaza hash pentru noua parola
       const newPasswordHash = await bcrypt.hash(newPassword, 10);
 
-      // Actualizează parola
+      // Actualizeaza parola
       await pool.query("UPDATE admins SET password_hash = $1 WHERE admin_id = $2", [newPasswordHash, admin_id]);
 
       // Trimite email de confirmare

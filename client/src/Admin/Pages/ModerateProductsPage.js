@@ -69,14 +69,13 @@ export default function ModerateProductsPage() {
         console.log("Delete response:", data);
     
         if (res.ok) {
-            // Actualizează lista de produse
+            // Actualizeaza lista de produse
             console.log("Product deleted successfully, refreshing list...");
             const updated = await fetch("http://localhost:4000/admin/moderateProducts/all");
             const newData = await updated.json();
             console.log("Updated products list:", newData);
             setProducts(Array.isArray(newData) ? newData : []);
             
-            // Setează toast o singură dată
             showToast(data.message || "Product deleted successfully.");
         } else {
           console.error("Failed to delete product:", data);
@@ -113,7 +112,6 @@ export default function ModerateProductsPage() {
     <>
       <div className={styles.adminManagePostsContainer}>
         <AdminNavbar />
-        {/* Loader Overlay */}
         {isDeleting && (
           <div className={styles.loaderOverlay}>
             <div className={styles.loader}></div>

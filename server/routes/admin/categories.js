@@ -46,7 +46,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// În routes/admin/categories.js
+// in routes/admin/categories.js
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {

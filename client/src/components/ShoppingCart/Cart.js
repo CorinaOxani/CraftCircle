@@ -22,7 +22,7 @@ useEffect(() => {
       <Navbar />
       <h2 className={styles.title}>Shopping Cart</h2>
   
-      {Object.keys(cartItems).length === 0 ? (
+      {Object.keys(cartItems).length === 0 ? ( //extrage cheile din obiectul dictionar si vede daca e gol
         <p className={styles.emptyCartMessage}>Your cart is empty.</p>       
       ) : (
         <div className={styles.cartContent}>

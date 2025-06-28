@@ -3,7 +3,7 @@ const pool = require("../config/database");
 const router = express.Router();
 const transporter = require("../config/emailTransporter");
 
-// Salvează comanda și trimite email de confirmare
+// Salveaza comanda și trimite email de confirmare
 router.post("/", async (req, res) => {
   const {
     buyer_id,
@@ -52,7 +52,7 @@ router.post("/", async (req, res) => {
       ]
     );
 
-    // După ce comanda a fost adăugată, trimitem email
+    // Dupa ce comanda a fost adaugata, trimitem email
     const userResult = await pool.query(
       "SELECT email, first_name FROM accounts WHERE user_id = $1",
       [buyerId] 

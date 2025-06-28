@@ -1,4 +1,3 @@
-// server/routes/stripe.js
 const express = require("express");
 const Stripe = require("stripe");
 const router = express.Router();
@@ -11,7 +10,7 @@ router.post("/create-payment-intent", async (req, res) => {
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe folosește cenți
+      amount: Math.round(amount * 100), // Stripe foloseste centi
       currency: "eur",
       payment_method_types: ["card"],
     });

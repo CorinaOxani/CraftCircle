@@ -1,4 +1,3 @@
-// filters.js
 export const postFilters = [
     { id: "recent", label: "Most Recent" },
     { id: "liked", label: "Most Liked" },

@@ -37,7 +37,7 @@
     text-align: center;
   }
   
-  /* Text above the buttons */
+
   .socialText {
     font-family: 'Dancing Script', cursive;
     font-size: 25px;
@@ -53,10 +53,10 @@
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 25px;
-    padding: 8px 12px; /* Dimensiuni mai mici */
+    padding: 8px 12px; 
     font-size: 14px;
     cursor: pointer;
-    width: 40px; /* Dimensiunea butoanelor mai mică */
+    width: 40px; 
     height: 40px;
     transition: all 0.3s ease;
   }
@@ -320,7 +320,7 @@
   width: 150px;
 }
 
-/* Ajustări pentru ecrane mici */
+/* Ajustari pentru ecrane mici */
 @media (max-width: 1300px) {
     .formSection {
       margin-top: 230px;
@@ -343,12 +343,12 @@
   margin-left: 5px;
 }
 
-/* Input ascuns pentru fișier */
+/* Input ascuns pentru fisier */
 .hiddenInput {
   display: none;
 }
 
-/* Buton personalizat pentru fișier */
+/* Buton personalizat pentru fisier */
 .fileButton {
   display: inline-block;
   padding: 10px 20px;

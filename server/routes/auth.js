@@ -59,7 +59,7 @@ router.get("/logout", (req, res) => {
       console.error("Error during logout:", err);
       return res.status(500).json({ error: "Logout failed." });
     }
-    // Redirecționează către pagina de login din frontend
+    // Redirectioneaza catre pagina de login din frontend
     res.redirect("http://localhost:3000/login");
   });
 });
