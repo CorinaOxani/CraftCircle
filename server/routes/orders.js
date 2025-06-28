@@ -55,7 +55,7 @@ router.post("/", async (req, res) => {
     // După ce comanda a fost adăugată, trimitem email
     const userResult = await pool.query(
       "SELECT email, first_name FROM accounts WHERE user_id = $1",
-      [buyerId] // <- corectat aici
+      [buyerId] 
     );
 
     if (userResult.rows.length > 0) {

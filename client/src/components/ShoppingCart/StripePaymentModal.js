@@ -10,7 +10,10 @@ const stripePromise = loadStripe(
 );
 
 
-export default function StripePaymentModal({ amount, address, onClose, onOrderPlaced }) {
+export default function StripePaymentModal({
+  amount, address, cartItems, shippingCosts,
+  userId, paymentMethod, fetchCartCount, onOrderPlaced, navigate, onClose
+}) {
   return (
     <div className={styles.stripeModalOverlay}>
       <div className={styles.stripeModalContent}>
@@ -18,9 +21,16 @@ export default function StripePaymentModal({ amount, address, onClose, onOrderPl
           <CardPaymentForm
             amount={amount}
             address={address}
+            cartItems={cartItems}
+            shippingCosts={shippingCosts}
+            userId={userId}                     
+            paymentMethod={paymentMethod}
+            fetchCartCount={fetchCartCount}      
+            onOrderPlaced={onOrderPlaced}
+            navigate={navigate}                 
             onClose={onClose}
-            onOrderPlaced={onOrderPlaced} 
           />
+
         </Elements>
       </div>
     </div>

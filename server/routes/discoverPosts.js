@@ -32,61 +32,61 @@ router.get("/posts", async (req, res) => {
     let whereParts = [];
 
     //  Followed + categorii proprii + istoric (dacă nu e search/categorie)
-if (!search && !categoryName) {
-  if (selectedFilter === "followed") {
-    values.push(userId);
-    whereParts.push(`p.user_id IN (
+    if (!search && !categoryName) {
+      if (selectedFilter === "followed") {
+        values.push(userId);
+        whereParts.push(`p.user_id IN (
       SELECT following_id FROM follows WHERE follower_id = $${values.length}
     )`);
-  } else {
-    const suggestionParts = [];
+      } else {
+        const suggestionParts = [];
 
-    // FOLLOW
-    const followOffset = values.length + 1;
-    let logic = `p.user_id IN (
+        // FOLLOW
+        const followOffset = values.length + 1;
+        let logic = `p.user_id IN (
       SELECT following_id FROM follows WHERE follower_id = $${followOffset}
     )`;
-    values.push(userId);
+        values.push(userId);
 
-    // Categorii proprii
-    const catRes = await pool.query(`
+        // Categorii proprii
+        const catRes = await pool.query(`
       SELECT DISTINCT category_id FROM posts
       WHERE user_id = $1 AND category_id IS NOT NULL
     `, [userId]);
 
-    const categoryIds = catRes.rows.map(r => r.category_id);
-    if (categoryIds.length > 0) {
-      const catPlaceholders = categoryIds.map((_, i) => `$${values.length + i + 1}`).join(", ");
-      logic += ` OR p.category_id IN (${catPlaceholders})`;
-      values.push(...categoryIds);
-    }
+        const categoryIds = catRes.rows.map(r => r.category_id);
+        if (categoryIds.length > 0) {
+          const catPlaceholders = categoryIds.map((_, i) => `$${values.length + i + 1}`).join(", ");
+          logic += ` OR p.category_id IN (${catPlaceholders})`;
+          values.push(...categoryIds);
+        }
 
-    suggestionParts.push(`(${logic})`);
+        suggestionParts.push(`(${logic})`);
 
-    // Istoric de căutare 
-    const history = await pool.query(
-        `SELECT search_text FROM post_search_history 
+        // Istoric de căutare 
+        const history = await pool.query(
+          `SELECT search_text FROM post_search_history 
         WHERE user_id = $1 
         GROUP BY search_text 
         ORDER BY MAX(searched_at) DESC 
         LIMIT 3
         `,
-      [userId]
-    );
+          [userId]
+        );
 
-    const keywords = history.rows.map(r => `%${r.search_text.toLowerCase()}%`);
-    if (keywords.length > 0) {
-      const keywordOffset = values.length;
-      const keywordConditions = keywords.map((_, i) => `
+        const keywords = history.rows.map(r => `%${r.search_text.toLowerCase()}%`);
+        if (keywords.length > 0) {
+          const keywordOffset = values.length;
+          const keywordConditions = keywords.map((_, i) => `
         LOWER(p.content) LIKE $${keywordOffset + i + 1}
         OR LOWER(u.first_name || ' ' || u.last_name) LIKE $${keywordOffset + i + 1}
       `);
-      values.push(...keywords);
-      suggestionParts.push(`(${keywordConditions.join(" OR ")})`);
+          values.push(...keywords);
+          suggestionParts.push(`(${keywordConditions.join(" OR ")})`);
+        }
+        whereParts.push(`(${suggestionParts.join(" OR ")})`);
+      }
     }
-    whereParts.push(`(${suggestionParts.join(" OR ")})`);
-  }
-}
 
     // Căutare globală
     if (search) {

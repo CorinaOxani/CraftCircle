@@ -182,16 +182,15 @@ export default function UserProfile() {
   };
 
   const handleReportPost = async (postId) => {
-    const user_id = localStorage.getItem("user_id"); //trebuie inlcuit cu cel din useState
     try {
       const res = await fetch(`http://localhost:4000/posts/${postId}/report`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id })
+        body: JSON.stringify({ user_id:  loggedInUserId})
       });
 
       const data = await res.json();
-      showToast(data.message === "Already reported" //trebuie schimbat cu un toast
+      showToast(data.message === "Already reported" 
         ? "You've already reported this post."
         : "Thanks! We'll review the post.");
     } catch (err) {
