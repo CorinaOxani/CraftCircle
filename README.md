@@ -158,8 +158,14 @@ Aplicația React va fi disponibilă la:
 ```
 http://localhost:3000
 ```
-
 ---
 
+### Build pentru producție (frontend)
+
+```bash
+cd client
+npm run build
+```
+---
 
 Acest proiect a fost dezvoltat în scop educațional, ca parte a lucrării de licență. Orice utilizare externă sau redistribuire necesită aprobarea autorului.
