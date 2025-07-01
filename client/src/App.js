@@ -34,6 +34,7 @@ import ModerateUsersPage from "./Admin/Pages/ModerateUsersPage.js";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+//scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {

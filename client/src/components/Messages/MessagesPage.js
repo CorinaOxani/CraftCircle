@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../Navbar";
 import styles from "../../CSSfyles/Messages.module.css";
-import { useUser } from "../UserContext";
+import { useUser, useSocket } from "../UserContext";
 import SearchBar from "./SearchBar";
 import ConversationList from "./ConversationList";
 import MessageThread from "./MessageThread";
@@ -10,7 +10,6 @@ import MessageInput from "./MessageInput";
 import useUnreadMessages from "../hooks/useUnreadMessages";
 import ConfirmationModal from "../ConfirmationModal";
 import { useToast } from "../../utils/ToastContext";
-import { io } from "socket.io-client";
 
 
 export default function MessagesPage() {
@@ -24,7 +23,7 @@ export default function MessagesPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState(null);
   const [tempUserId, setTempUserId] = useState(null);
-  const socket = useRef(null);
+  const socket = useSocket();
   const sentMessageIds = useRef(new Set());
   const { user_id: urlUserId } = useParams();
   const navigate = useNavigate();
@@ -33,23 +32,20 @@ export default function MessagesPage() {
 
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !socket) return;
 
-    socket.current = io("http://localhost:4000");
-    socket.current.emit("join", userId);
-
-    socket.current.on("new_message", async ({ conversation_id, message }) => {
-      if (sentMessageIds.current.has(message.message_id)) {
-        sentMessageIds.current.delete(message.message_id);
+    socket.on("new_message", async ({ conversation_id, message }) => {// ascultă evenimentul de mesaj nou
+      if (sentMessageIds.current.has(message.message_id)) {// verifica dacă mesajul a fost deja trimis de utilizator
+        sentMessageIds.current.delete(message.message_id);// sterge ID-ul mesajului din setul de mesaje trimise
         return;
       }
 
-      const isCurrent = activeConversation?.conversation_id === conversation_id;
+      const isCurrent = activeConversation?.conversation_id === conversation_id;// verifica dacă conversatia activa este cea curenta
 
       if (isCurrent) {
         setMessages((prev) => {
           const exists = prev.some((m) => m.message_id === message.message_id);
-          return exists ? prev : [...prev, message];
+          return exists ? prev : [...prev, message];// adauga mesajul doar daca nu exista deja
         });
 
         if (message.receiver_id === userId) {
@@ -66,7 +62,7 @@ export default function MessagesPage() {
         }
       }
 
-      const otherUserId = message.sender_id === userId ? message.receiver_id : message.sender_id;
+      const otherUserId = message.sender_id === userId ? message.receiver_id : message.sender_id;// ID-ul celuilalt utilizator
 
       setConversations((prev) => {
         const exists = prev.some((c) => c.conversation_id === conversation_id);
@@ -94,7 +90,7 @@ export default function MessagesPage() {
           last_message_time: message.created_at,
         };
 
-        return [tempConv, ...prev];
+        return [tempConv, ...prev];// adaugă conversatia temporara
       });
 
       // Fetch real user info separat, după ce am adaugat conversatia temporara
@@ -119,17 +115,17 @@ export default function MessagesPage() {
       }
     });
 
-    socket.current.on("message_seen", ({ message_id }) => {
+    socket.on("message_seen", ({ message_id }) => { // ascultă evenimentul de mesaj citit
       setMessages((prev) =>
-        prev.map((msg) => (msg.message_id === message_id ? { ...msg, is_read: true } : msg))
+        prev.map((msg) => (msg.message_id === message_id ? { ...msg, is_read: true } : msg))// actualizează mesajul ca citit
       );
     });
 
     return () => {
-      socket.current.disconnect();
+      socket.off("new_message");
+      socket.off("message_seen");
     };
   }, [userId, activeConversation?.conversation_id, refreshUnread]);
-
 
   useEffect(() => {
     if (!userId) return;

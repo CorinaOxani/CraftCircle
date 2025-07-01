@@ -98,10 +98,10 @@ export default function CardPaymentForm({
         navigate,
       });
 
-      localStorage.removeItem("cartItems");
-      localStorage.removeItem("shippingCosts");
+      localStorage.removeItem("cartItems");// elimină elementele din coșul de cumpărături
+      localStorage.removeItem("shippingCosts");// elimină costurile de livrare
 
-      window.dispatchEvent(new CustomEvent("cartUpdated"));
+      window.dispatchEvent(new CustomEvent("cartUpdated"));// notifică alte componente despre actualizarea coșului
 
       if (onOrderPlaced) onOrderPlaced();
     }

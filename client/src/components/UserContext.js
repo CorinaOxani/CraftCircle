@@ -20,13 +20,13 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
     if (userId && !isAdmin) {
-      const newSocket = io("http://localhost:4000");
+      const newSocket = io("http://localhost:4000");// Conectare la serverul Socket.IO
 
       newSocket.on("connect", () => {
         /*console.log("Frontend socket connected:", newSocket.id);
         console.log("Emitting JOIN after connect:", userId);*/
         newSocket.emit("join", userId);
-      });
+      }); // Emite eveniment JOIN cu ID-ul utilizatorului
 
       setSocket(newSocket);
 

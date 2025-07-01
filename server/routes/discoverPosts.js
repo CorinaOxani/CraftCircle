@@ -28,42 +28,45 @@ router.get("/posts", async (req, res) => {
       }
     }
 
-    let values = [];
-    let whereParts = [];
+    let values = []; // paramatri
+    let whereParts = []; // WHERE
 
     //  Followed + categorii proprii + istoric (dacă nu e search/categorie)
     if (!search && !categoryName) {
-      if (selectedFilter === "followed") {
+      if (selectedFilter === "followed") { //// Aplicam explicit filtrul "followed" doar daca este cerut
         values.push(userId);
+        //caut in coloana user_id din posts
         whereParts.push(`p.user_id IN (
       SELECT following_id FROM follows WHERE follower_id = $${values.length}
     )`);
       } else {
-        const suggestionParts = [];
+        const suggestionParts = []; //lista de sugestii
 
-        // FOLLOW
+        // Sugestia 1: urmariti
         const followOffset = values.length + 1;
         let logic = `p.user_id IN (
       SELECT following_id FROM follows WHERE follower_id = $${followOffset}
     )`;
         values.push(userId);
 
-        // Categorii proprii
+        // Sugestia 2: categorii proprii
+        // Cautam categoriile proprii ale utilizatorului
         const catRes = await pool.query(`
       SELECT DISTINCT category_id FROM posts
       WHERE user_id = $1 AND category_id IS NOT NULL
     `, [userId]);
 
-        const categoryIds = catRes.rows.map(r => r.category_id);
+        const categoryIds = catRes.rows.map(r => r.category_id); //extrace id urile categoriilor si le punem in array
         if (categoryIds.length > 0) {
-          const catPlaceholders = categoryIds.map((_, i) => `$${values.length + i + 1}`).join(", ");
-          logic += ` OR p.category_id IN (${catPlaceholders})`;
+          const catPlaceholders = categoryIds.map((_, i) => `$${values.length + i + 1}`).join(", ");//creaza un string cu $1, $2, $3...
+          logic += ` OR p.category_id IN (${catPlaceholders})`; // adauga conditia pentru categoriile proprii
           values.push(...categoryIds);
         }
 
-        suggestionParts.push(`(${logic})`);
+        suggestionParts.push(`(${logic})`); // adauga conditia pentru urmariti si categoriile proprii
 
-        // Istoric de căutare 
+        // Sugestia 3: istoric cautari
+        // Cautam ultimele 3 cautari ale utilizatorului
         const history = await pool.query(
           `SELECT search_text FROM post_search_history 
         WHERE user_id = $1 
@@ -76,19 +79,21 @@ router.get("/posts", async (req, res) => {
 
         const keywords = history.rows.map(r => `%${r.search_text.toLowerCase()}%`);
         if (keywords.length > 0) {
-          const keywordOffset = values.length;
+          const keywordOffset = values.length;// offset pentru a nu suprascrie valorile anterioare
+           // creeaza conditii pentru fiecare cuvant cheie. daca apare in titlu sau descriere, se adauga in sugestii
           const keywordConditions = keywords.map((_, i) => `
         LOWER(p.content) LIKE $${keywordOffset + i + 1}
         OR LOWER(u.first_name || ' ' || u.last_name) LIKE $${keywordOffset + i + 1}
       `);
           values.push(...keywords);
-          suggestionParts.push(`(${keywordConditions.join(" OR ")})`);
+          suggestionParts.push(`(${keywordConditions.join(" OR ")})`);// adauga toate conditiile de cautare in sugestii cu OR
         }
-        whereParts.push(`(${suggestionParts.join(" OR ")})`);
+        whereParts.push(`(${suggestionParts.join(" OR ")})`); // adauga toate sugestiile in WHERE cu OR
       }
     }
 
-    // Cautare globală
+    // Cautare postari
+    // Cautam in continutul postarii sau numele utilizatorului
     if (search) {
       values.push(`%${search}%`);
       whereParts.push(`(
@@ -151,8 +156,8 @@ router.get("/posts", async (req, res) => {
 
     query += " LIMIT 50";
 
-    const postsResult = await pool.query(query, values);
-    const posts = postsResult.rows;
+    const postsResult = await pool.query(query, values);// executa interogarea
+    const posts = postsResult.rows;// extrage postarile
 
     // Media
     const enrichedPosts = await Promise.all(
@@ -161,11 +166,11 @@ router.get("/posts", async (req, res) => {
           `SELECT file_url, file_type FROM post_media 
            WHERE post_id = $1 ORDER BY media_id ASC`,
           [post.post_id]
-        );
+        );//adauga imaginile pt fiecare item
         return {
           ...post,
           media_urls: media.rows.map(m => ({
-            url: m.file_url,
+            url: m.file_url,// creeaza obiectul cu url si tipul fisierului
             type: m.file_type,
           })),
         };
@@ -179,8 +184,6 @@ router.get("/posts", async (req, res) => {
   }
 });
 
-
-// Categorii
 router.get("/categories", async (req, res) => {
   try {
     const result = await pool.query(
